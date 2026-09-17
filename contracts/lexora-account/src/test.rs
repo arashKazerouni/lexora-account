@@ -2,16 +2,22 @@
 
 extern crate std;
 
-use ed25519_dalek::{Keypair, Signer};
-use rand::thread_rng;
-use soroban_sdk::{testutils::{Address as _, BytesN as _}, Address, BytesN, Env, IntoVal, String};
+use crate::{
+    registry_key, token_status, AssetId, Error, LexoraAccount, LexoraAccountArgs,
+};
+use ed25519_dalek::{Signer, SigningKey};
+use rand::rngs::OsRng;
+use soroban_sdk::{
+    testutils::{Address as _, BytesN as _},
+    Address, BytesN, Env, IntoVal, String,
+};
 
-fn generate_keypair() -> Keypair {
-    Keypair::generate(&mut thread_rng())
+fn generate_keypair() -> SigningKey {
+    SigningKey::generate(&mut OsRng)
 }
 
-fn public_key(env: &Env, signer: &Keypair) -> BytesN<32> {
-    signer.public.to_bytes().into_val(env)
+fn public_key(env: &Env, signer: &SigningKey) -> BytesN<32> {
+    signer.verifying_key().to_bytes().into_val(env)
 }
 
 fn asset(env: &Env, code: &str, issuer: &Address) -> AssetId {
@@ -26,13 +32,18 @@ fn valid_signature_is_accepted() {
     let env = Env::default();
     let signer = generate_keypair();
     let signer_public_key = public_key(&env, &signer);
+
     let contract_id = env.register(
         LexoraAccount,
         LexoraAccountArgs::__constructor(&signer_public_key),
     );
 
     let payload = BytesN::<32>::random(&env);
-    let signature: BytesN<64> = signer.sign(payload.to_array().as_slice()).to_bytes().into_val(&env);
+
+    let signature: BytesN<64> = signer
+        .sign(payload.to_array().as_slice())
+        .to_bytes()
+        .into_val(&env);
 
     env.try_invoke_contract_check_auth::<Error>(
         &contract_id,
@@ -49,13 +60,18 @@ fn invalid_signature_is_rejected() {
     let signer = generate_keypair();
     let attacker = generate_keypair();
     let signer_public_key = public_key(&env, &signer);
+
     let contract_id = env.register(
         LexoraAccount,
         LexoraAccountArgs::__constructor(&signer_public_key),
     );
 
     let payload = BytesN::<32>::random(&env);
-    let signature: BytesN<64> = attacker.sign(payload.to_array().as_slice()).to_bytes().into_val(&env);
+
+    let signature: BytesN<64> = attacker
+        .sign(payload.to_array().as_slice())
+        .to_bytes()
+        .into_val(&env);
 
     assert!(env
         .try_invoke_contract_check_auth::<Error>(
@@ -72,6 +88,7 @@ fn same_code_with_different_issuers_are_distinct_registry_keys() {
     let env = Env::default();
     let signer = generate_keypair();
     let signer_public_key = public_key(&env, &signer);
+
     let contract_id = env.register(
         LexoraAccount,
         LexoraAccountArgs::__constructor(&signer_public_key),
@@ -79,6 +96,7 @@ fn same_code_with_different_issuers_are_distinct_registry_keys() {
 
     let issuer_a = Address::generate(&env);
     let issuer_b = Address::generate(&env);
+
     let asset_a = asset(&env, "XEVA", &issuer_a);
     let asset_b = asset(&env, "XEVA", &issuer_b);
 
@@ -93,6 +111,7 @@ fn unregistered_asset_is_denied() {
     let env = Env::default();
     let signer = generate_keypair();
     let signer_public_key = public_key(&env, &signer);
+
     let contract_id = env.register(
         LexoraAccount,
         LexoraAccountArgs::__constructor(&signer_public_key),
@@ -101,7 +120,7 @@ fn unregistered_asset_is_denied() {
     let unknown_asset = asset(&env, "UNKNOWN", &Address::generate(&env));
 
     assert_eq!(
-        env.as_contract(&contract_id, || token_status(unknown_asset)),
+        env.as_contract(&contract_id, || token_status(env.clone(), unknown_asset)),
         None,
     );
 }
