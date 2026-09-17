@@ -83,3 +83,46 @@ fn registry_administration_requires_authorization() {
     let contract_id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&signer_public_key)); let asset = asset(&env, "XEVA", &Address::generate(&env)); let client = LexoraAccountClient::new(&env, &contract_id);
     env.mock_auths(&[]); assert!(client.try_register_token(&asset).is_err()); assert!(client.try_disable_token(&asset).is_err());
 }
+
+#[test]
+fn unknown_asset_is_denied() {
+    let (env, client, _) = setup();
+
+    let asset = AssetId {
+        code: String::from_str(&env, "UNKNOWN"),
+        issuer: Address::generate(&env),
+    };
+
+    assert!(!client.is_token_allowed(&asset));
+}
+
+#[test]
+fn active_asset_is_allowed() {
+    let (env, client, _) = setup();
+
+    let asset = AssetId {
+        code: String::from_str(&env, "XEVA"),
+        issuer: Address::generate(&env),
+    };
+
+    env.mock_all_auths();
+    client.register_token(&asset);
+
+    assert!(client.is_token_allowed(&asset));
+}
+
+#[test]
+fn disabled_asset_is_denied() {
+    let (env, client, _) = setup();
+
+    let asset = AssetId {
+        code: String::from_str(&env, "XEVA"),
+        issuer: Address::generate(&env),
+    };
+
+    env.mock_all_auths();
+    client.register_token(&asset);
+    client.disable_token(&asset);
+
+    assert!(!client.is_token_allowed(&asset));
+}
