@@ -9,7 +9,7 @@ use crate::{
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
 use soroban_sdk::{
-    testutils::{Address as _, BytesN as _, MockAuth, MockAuthInvoke},
+    testutils::{Address as _, BytesN as _},
     Address, BytesN, Env, IntoVal, String,
 };
 
@@ -86,24 +86,24 @@ fn registry_administration_requires_authorization() {
 
 #[test]
 fn unknown_asset_is_denied() {
-    let (env, client, _) = setup();
-
-    let asset = AssetId {
-        code: String::from_str(&env, "UNKNOWN"),
-        issuer: Address::generate(&env),
-    };
+    let env = Env::default();
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+    let contract_id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&signer_public_key));
+    let client = LexoraAccountClient::new(&env, &contract_id);
+    let asset = asset(&env, "UNKNOWN", &Address::generate(&env));
 
     assert!(!client.is_token_allowed(&asset));
 }
 
 #[test]
 fn active_asset_is_allowed() {
-    let (env, client, _) = setup();
-
-    let asset = AssetId {
-        code: String::from_str(&env, "XEVA"),
-        issuer: Address::generate(&env),
-    };
+    let env = Env::default();
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+    let contract_id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&signer_public_key));
+    let client = LexoraAccountClient::new(&env, &contract_id);
+    let asset = asset(&env, "XEVA", &Address::generate(&env));
 
     env.mock_all_auths();
     client.register_token(&asset);
@@ -113,12 +113,12 @@ fn active_asset_is_allowed() {
 
 #[test]
 fn disabled_asset_is_denied() {
-    let (env, client, _) = setup();
-
-    let asset = AssetId {
-        code: String::from_str(&env, "XEVA"),
-        issuer: Address::generate(&env),
-    };
+    let env = Env::default();
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+    let contract_id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&signer_public_key));
+    let client = LexoraAccountClient::new(&env, &contract_id);
+    let asset = asset(&env, "XEVA", &Address::generate(&env));
 
     env.mock_all_auths();
     client.register_token(&asset);
