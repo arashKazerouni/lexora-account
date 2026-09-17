@@ -126,3 +126,34 @@ fn disabled_asset_is_denied() {
 
     assert!(!client.is_token_allowed(&asset));
 }
+#[test]
+fn xeva_asset_registration_works_through_generic_registry() {
+    let env = Env::default();
+
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&signer_public_key),
+    );
+
+    let client = LexoraAccountClient::new(&env, &contract_id);
+
+    let xeva = asset(
+        &env,
+        "XEVA",
+        &Address::generate(&env),
+    );
+
+    env.mock_all_auths();
+
+    client.register_token(&xeva);
+
+    assert_eq!(
+        client.token_status(&xeva),
+        Some(TokenStatus::Active)
+    );
+
+    assert!(client.is_token_allowed(&xeva));
+}
