@@ -6,6 +6,7 @@
   },
   "auth": [
     [],
+    [],
     []
   ],
   "ledger": {
@@ -38,7 +39,7 @@
                         "string": "OWNER"
                       },
                       "val": {
-                        "bytes": "3f1b301250c5491affc2a4a131c63e2217281f129207b2ae0afce19624db52c3"
+                        "bytes": "edc8b3802e2d42922ab8e19237c7125db98f070aca0a56494e5bc78592969cbe"
                       }
                     }
                   ]
