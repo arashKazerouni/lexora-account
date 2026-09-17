@@ -50,6 +50,10 @@ fn token_status(env: Env, asset: AssetId) -> Option<TokenStatus> {
         .map(|record: TokenRecord| record.status)
 }
 
+fn require_owner_auth(env: &Env) {
+    env.current_contract_address().require_auth();
+}
+
 #[contractimpl]
 impl LexoraAccount {
     pub fn __constructor(env: Env, public_key: BytesN<32>) {
@@ -58,6 +62,29 @@ impl LexoraAccount {
 
     pub fn owner(env: Env) -> BytesN<32> {
         env.storage().instance().get(&OWNER).unwrap()
+    }
+
+    pub fn register_token(env: Env, asset: AssetId) {
+        require_owner_auth(&env);
+
+        let record = TokenRecord {
+            status: TokenStatus::Active,
+            registered_at: env.ledger().timestamp(),
+        };
+
+        env.storage()
+            .persistent()
+            .set(&registry_key(&asset), &record);
+    }
+
+    pub fn disable_token(env: Env, asset: AssetId) {
+        require_owner_auth(&env);
+
+        let key = registry_key(&asset);
+        let mut record: TokenRecord = env.storage().persistent().get(&key).unwrap();
+        record.status = TokenStatus::Disabled;
+
+        env.storage().persistent().set(&key, &record);
     }
 
     pub fn token_status(env: Env, asset: AssetId) -> Option<TokenStatus> {
