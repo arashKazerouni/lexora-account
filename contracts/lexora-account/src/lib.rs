@@ -2,15 +2,53 @@
 
 use soroban_sdk::{
     auth::{Context, CustomAccountInterface},
-    contract, contractimpl,
+    contract, contractimpl, contracttype,
     crypto::Hash,
-    BytesN, Env, Vec,
+    Address, BytesN, Env, String, Vec,
 };
 
 #[contract]
 pub struct LexoraAccount;
 
 const OWNER: &str = "OWNER";
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AssetId {
+    pub code: String,
+    pub issuer: Address,
+}
+
+#[contracttype]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TokenStatus {
+    Active,
+    Disabled,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TokenRecord {
+    pub status: TokenStatus,
+    pub registered_at: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum RegistryKey {
+    Token(AssetId),
+}
+
+fn registry_key(asset: &AssetId) -> RegistryKey {
+    RegistryKey::Token(asset.clone())
+}
+
+fn token_status(env: Env, asset: AssetId) -> Option<TokenStatus> {
+    env.storage()
+        .persistent()
+        .get(&registry_key(&asset))
+        .map(|record: TokenRecord| record.status)
+}
 
 #[contractimpl]
 impl LexoraAccount {
@@ -20,6 +58,10 @@ impl LexoraAccount {
 
     pub fn owner(env: Env) -> BytesN<32> {
         env.storage().instance().get(&OWNER).unwrap()
+    }
+
+    pub fn token_status(env: Env, asset: AssetId) -> Option<TokenStatus> {
+        token_status(env, asset)
     }
 }
 
