@@ -4,7 +4,7 @@ extern crate std;
 
 use ed25519_dalek::{Keypair, Signer};
 use rand::thread_rng;
-use soroban_sdk::{testutils::BytesN as _, Address, BytesN, Env, IntoVal, String};
+use soroban_sdk::{testutils::{Address as _, BytesN as _}, Address, BytesN, Env, IntoVal, String};
 
 fn generate_keypair() -> Keypair {
     Keypair::generate(&mut thread_rng())
