@@ -12,6 +12,9 @@ use soroban_sdk::{
     Address, BytesN, Env, IntoVal, String,
 };
 
+use soroban_sdk::testutils::MockAuth;
+use soroban_sdk::testutils::MockAuthInvoke;
+
 fn generate_keypair() -> SigningKey {
     SigningKey::generate(&mut OsRng)
 }
@@ -126,8 +129,45 @@ fn unregistered_asset_is_denied() {
 }
 
 #[test]
+<<<<<<< HEAD
 fn authorized_owner_can_register_token() {
     let env = Env::default();
+=======
+fn attacker_signature_cannot_authorize_owner_action() {
+    let env = Env::default();
+
+    let owner = generate_keypair();
+    let attacker = generate_keypair();
+
+    let owner_public_key = public_key(&env, &owner);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&owner_public_key),
+    );
+
+    let payload = BytesN::<32>::random(&env);
+
+    let attacker_signature: BytesN<64> = attacker
+        .sign(payload.to_array().as_slice())
+        .to_bytes()
+        .into_val(&env);
+
+    let result = env.try_invoke_contract_check_auth::<Error>(
+        &contract_id,
+        &payload,
+        attacker_signature.into_val(&env),
+        &soroban_sdk::vec![&env],
+    );
+
+    assert!(result.is_err());
+}
+
+#[test]
+fn registration_requires_lexora_authorization() {
+    let env = Env::default();
+
+>>>>>>> f24c64d (test update)
     let signer = generate_keypair();
     let signer_public_key = public_key(&env, &signer);
 
@@ -136,6 +176,7 @@ fn authorized_owner_can_register_token() {
         LexoraAccountArgs::__constructor(&signer_public_key),
     );
 
+<<<<<<< HEAD
     let asset = asset(&env, "XEVA", &Address::generate(&env));
     env.mock_all_auths();
 
@@ -183,3 +224,109 @@ fn registry_administration_requires_authorization() {
     assert!(client.try_register_token(&asset).is_err());
     assert!(client.try_disable_token(&asset).is_err());
 }
+=======
+    let asset = asset(
+        &env,
+        "XEVA",
+        &Address::generate(&env),
+    );
+
+    let client = LexoraAccountClient::new(&env, &contract_id);
+
+    env.mock_auths(&[]);
+
+    assert!(client.try_register_token(&asset).is_err());
+}
+#[test]
+fn authorized_registration_succeeds() {
+    let env = Env::default();
+
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&signer_public_key),
+    );
+
+    let asset = asset(
+        &env,
+        "XEVA",
+        &Address::generate(&env),
+    );
+
+    let client = LexoraAccountClient::new(&env, &contract_id);
+
+    env.mock_auths(&[
+        MockAuth {
+            address: &contract_id,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "register_token",
+                args: (&asset,).into_val(&env),
+                sub_invokes: &[],
+            },
+        },
+    ]);
+
+    client.register_token(&asset);
+
+    assert_eq!(
+        client.token_status(&asset),
+        Some(TokenStatus::Active)
+    );
+}
+#[test]
+fn authorized_disabling_succeeds() {
+    let env = Env::default();
+
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&signer_public_key),
+    );
+
+    let asset = asset(
+        &env,
+        "XEVA",
+        &Address::generate(&env),
+    );
+
+    let client = LexoraAccountClient::new(&env, &contract_id);
+
+    env.mock_auths(&[
+        MockAuth {
+            address: &contract_id,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "register_token",
+                args: (&asset,).into_val(&env),
+                sub_invokes: &[],
+            },
+        },
+    ]);
+
+    client.register_token(&asset);
+
+    env.mock_auths(&[
+        MockAuth {
+            address: &contract_id,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "disable_token",
+                args: (&asset,).into_val(&env),
+                sub_invokes: &[],
+            },
+        },
+    ]);
+
+    client.disable_token(&asset);
+
+    assert_eq!(
+        client.token_status(&asset),
+        Some(TokenStatus::Disabled)
+    );
+}
+>>>>>>> f24c64d (test update)
