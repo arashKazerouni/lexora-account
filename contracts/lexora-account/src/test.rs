@@ -124,3 +124,40 @@ fn unregistered_asset_is_denied() {
         None,
     );
 }
+
+#[test]
+fn authorized_owner_can_register_token() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&signer_public_key),
+    );
+
+    let asset = asset(&env, "XEVA", &Address::generate(&env));
+    env.mock_all_auths();
+
+    let client = LexoraAccountClient::new(&env, &contract_id);
+    client.register_token(&asset);
+
+    assert_eq!(client.token_status(&asset), Some(crate::TokenStatus::Active));
+}
+
+#[test]
+fn registry_administration_requires_authorization() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let signer_public_key = public_key(&env, &signer);
+
+    let contract_id = env.register(
+        LexoraAccount,
+        LexoraAccountArgs::__constructor(&signer_public_key),
+    );
+
+    let asset = asset(&env, "XEVA", &Address::generate(&env));
+    let client = LexoraAccountClient::new(&env, &contract_id);
+
+    assert!(client.try_register_token(&asset).is_err());
+}
