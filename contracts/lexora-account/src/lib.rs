@@ -90,6 +90,10 @@ impl LexoraAccount {
     pub fn token_status(env: Env, asset: AssetId) -> Option<TokenStatus> {
         token_status(env, asset)
     }
+
+    pub fn is_token_allowed(env: Env, asset: AssetId) -> bool {
+        matches!(token_status(env, asset), Some(TokenStatus::Active))
+    }
 }
 
 #[contractimpl]
