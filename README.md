@@ -1,24 +1,20 @@
-# Soroban Project
+# LEXORA Account
 
-## Project Structure
+LEXORA is a Soroban custom contract account designed to become the authorization layer for the LEXORA token-security ecosystem.
 
-This repository uses the recommended structure for a Soroban project:
+## Current milestone
 
-```text
-.
-├── contracts
-│   └── hello_world
-│       ├── src
-│       │   ├── lib.rs
-│       │   └── test.rs
-│       └── Cargo.toml
-├── Cargo.toml
-├── AGENTS.md
-└── README.md
+- Single Ed25519 owner key
+- Soroban `CustomAccountInterface`
+- Signature verification inside `__check_auth`
+- Host-side tests for valid and invalid signatures
+- Ready for the next milestone: policy-aware authorization and XEVA integration
+
+## Development
+
+```sh
+cargo test
+stellar contract build
 ```
 
-- New Soroban contracts can be put in `contracts`, each in their own directory. There is already a `hello_world` contract in there to get you started.
-- If you initialized this project with any other example contracts via `--with-example`, those contracts will be in the `contracts` directory as well.
-- Contracts should have their own `Cargo.toml` files that rely on the top-level `Cargo.toml` workspace for their dependencies.
-- Frontend libraries can be added to the top-level directory as well. If you initialized this project with a frontend template via `--frontend-template` you will have those files already included.
-# lexora-account
+Do not deploy this contract to Mainnet yet. The authentication layer must be tested and security-reviewed before holding or controlling real assets.
