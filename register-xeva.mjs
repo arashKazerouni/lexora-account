@@ -4,10 +4,8 @@ import {
   Operation,
   TransactionBuilder,
   authorizeEntry,
-  nativeToScVal,
   Address,
   xdr,
-  hash,
   BASE_FEE,
 } from "@stellar/stellar-sdk";
 
@@ -16,9 +14,11 @@ import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 
-const LEXORA = "CD3ZU34KEWO57CMO7YVZCE7W3RJMXJ3T6CKPHYWKI7IVCDXSHBGTM6TT";
+const LEXORA =
+  "CD3ZU34KEWO57CMO7YVZCE7W3RJMXJ3T6CKPHYWKI7IVCDXSHBGTM6TT";
 
-const XEVA_ISSUER = "GCADAZ22Y6EUC575N4SRMGYVXTODH5MOHM3EVHQNC7AZ6PTZNJI7SXRP";
+const XEVA_ISSUER =
+  "GCADAZ22Y6EUC575N4SRMGYVXTODH5MOHM3EVHQNC7AZ6PTZNJI7SXRP";
 
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
 const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
@@ -44,6 +44,7 @@ async function main() {
   console.log("LEXORA:", LEXORA);
 
   const account = await server.getAccount(deployer.publicKey());
+
   const tx = new TransactionBuilder(account, {
     networkPassphrase: NETWORK,
     fee: BASE_FEE,
@@ -68,32 +69,35 @@ async function main() {
 
   console.log("Simulation OK");
 
-  const latestLedger = simulation.latestLedger;
-  const validUntil = latestLedger + 100;
+  const validUntil = simulation.latestLedger + 100;
 
-  console.log("Latest ledger:", latestLedger);
+  console.log("Latest ledger:", simulation.latestLedger);
   console.log("Auth entries:", simulation.result.auth.length);
 
   /*
-   * LEXORA is a custom account.
+   * LEXORA is a custom Soroban account.
    *
-   * Its Signature type is BytesN<64>, so we must return
-   * the raw Ed25519 signature as an SCVal bytes value.
+   * Its Signature type is BytesN<64>, so the authorization
+   * signature must be written as raw bytes rather than the
+   * SDK's normal Ed25519 signature map.
+   *
+   * authorizeEntry builds the correct Protocol 28 authorization
+   * payload and accepts a custom signatureScVal for this case.
    */
   simulation.result.auth = await Promise.all(
-    simulation.result.auth.map(async (entry) => {
-      const validUntil = simulation.latestLedger + 100;
-
-      simulation.result.auth = await Promise.all(
-        simulation.result.auth.map((entry) =>
-          authorizeEntry(entry, owner, validUntil, NETWORK),
-        ),
-      );
-
-      console.log("Authorization entry signed.");
-    }),
+    simulation.result.auth.map((entry) =>
+      authorizeEntry(
+        entry,
+        async (_preimage, signingHash) => ({
+          signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)),
+        }),
+        validUntil,
+        NETWORK,
+      ),
+    ),
   );
 
+  console.log("Authorization entry signed.");
   console.log("Assembling transaction...");
 
   const prepared = assembleTransaction(tx, simulation);
