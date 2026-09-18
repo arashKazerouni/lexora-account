@@ -38,7 +38,7 @@ const ledgerKey = xdr.LedgerKey.contractData(
 );
 
 const server = new Server(RPC_URL);
-const result = await server.getLedgerEntries([ledgerKey]);
+const result = await server.getLedgerEntries(ledgerKey);
 
 console.log("\nMainnet ledger result:");
 console.dir(result, { depth: null });
