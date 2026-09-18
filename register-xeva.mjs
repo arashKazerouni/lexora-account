@@ -109,6 +109,12 @@ async function main() {
 
   console.log("Final status:", result.status);
   console.log("Transaction:", response.hash);
+
+  if (result.status === "FAILED") {
+    const tx = await server.getTransaction(response.hash);
+    console.dir(tx, { depth: 8 });
+    throw new Error("Soroban transaction failed; see decoded transaction result above.");
+  }
 }
 
 main().catch((err) => {
