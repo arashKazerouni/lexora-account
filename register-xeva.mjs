@@ -4,6 +4,8 @@ import {
   Operation,
   TransactionBuilder,
   authorizeEntry,
+  inspectAuthEntry,
+  checkAuthEntryReadiness,
   Address,
   xdr,
   BASE_FEE,
@@ -80,19 +82,63 @@ async function main() {
   console.log("Auth entries:", simulation.result.auth.length);
 
   simulation.result.auth = await Promise.all(
-    simulation.result.auth.map((entry) =>
-      authorizeEntry(
+    simulation.result.auth.map(async (entry) => {
+      const before = inspectAuthEntry(entry);
+      console.log("Auth entry:", {
+        credentialType: before.credentialType,
+        address: before.address,
+        nonce: before.nonce?.toString(),
+        expiration: before.signatureExpirationLedger,
+        signers: before.signers.map((signer) => ({
+          address: signer.address,
+          signed: signer.signed,
+        })),
+      });
+
+      if (before.address !== LEXORA) {
+        throw new Error(
+          `Unexpected authorization address: ${before.address}; expected ${LEXORA}`,
+        );
+      }
+
+      return authorizeEntry(
         entry,
-        async (_preimage, signingHash) => ({
-          signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)),
-        }),
+        async (_preimage, signingHash) => {
+          const signature = owner.sign(signingHash);
+
+          if (!owner.verify(signingHash, signature)) {
+            throw new Error("Local Ed25519 signature verification failed");
+          }
+
+          console.log(
+            "Signing hash:",
+            Buffer.from(signingHash).toString("hex"),
+          );
+          console.log("Signature verified locally.");
+
+          return {
+            signatureScVal: xdr.ScVal.scvBytes(signature),
+            address: LEXORA,
+          };
+        },
         validUntil,
         NETWORK,
-      ),
-    ),
+      );
+    }),
   );
 
   console.log("Authorization entry signed.");
+
+  for (const entry of simulation.result.auth) {
+    const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
+    console.log("Auth readiness:", readiness);
+    if (!readiness.ready) {
+      throw new Error(
+        `Authorization entry is not ready: ${JSON.stringify(readiness)}`,
+      );
+    }
+  }
+
   console.log("Assembling transaction...");
 
   const prepared = assembleTransaction(tx, simulation).build();
