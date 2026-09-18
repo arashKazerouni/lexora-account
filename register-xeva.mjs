@@ -74,16 +74,6 @@ async function main() {
   console.log("Latest ledger:", simulation.latestLedger);
   console.log("Auth entries:", simulation.result.auth.length);
 
-  /*
-   * LEXORA is a custom Soroban account.
-   *
-   * Its Signature type is BytesN<64>, so the authorization
-   * signature must be written as raw bytes rather than the
-   * SDK's normal Ed25519 signature map.
-   *
-   * authorizeEntry builds the correct Protocol 28 authorization
-   * payload and accepts a custom signatureScVal for this case.
-   */
   simulation.result.auth = await Promise.all(
     simulation.result.auth.map((entry) =>
       authorizeEntry(
@@ -100,7 +90,7 @@ async function main() {
   console.log("Authorization entry signed.");
   console.log("Assembling transaction...");
 
-  const prepared = assembleTransaction(tx, simulation);
+  const prepared = assembleTransaction(tx, simulation).build();
 
   prepared.sign(deployer);
 
