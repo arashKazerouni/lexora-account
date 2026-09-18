@@ -25,6 +25,11 @@ const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
 
 const server = new Server(RPC_URL);
 
+// Start with a fee ceiling high enough for Soroban resource fees.
+// assembleTransaction() will replace the fee with the simulation-derived
+// Soroban resource fee plus the required inclusion fee.
+const SOROBAN_FEE_LIMIT = "10000000"; // 1 XLM in stroops
+
 function assetIdScVal() {
   return xdr.ScVal.scvMap([
     new xdr.ScMapEntry({
@@ -47,7 +52,7 @@ async function main() {
 
   const tx = new TransactionBuilder(account, {
     networkPassphrase: NETWORK,
-    fee: BASE_FEE,
+    fee: SOROBAN_FEE_LIMIT,
   })
     .addOperation(
       Operation.invokeContractFunction({
