@@ -1,0 +1,3243 @@
+{
+  status: 'SUCCESS',
+  txHash: '1bfc7c6339b652b3e6d7d9223874a14befccc9b5c4f1b9dd28c35f1434ebca50',
+  latestLedger: 64489512,
+  latestLedgerCloseTime: '1789733338',
+  oldestLedger: 64368553,
+  oldestLedgerCloseTime: '1789076243',
+  ledger: 64489445,
+  createdAt: '1789733003',
+  applicationOrder: 204,
+  feeBump: false,
+  envelopeXdr: TransactionEnvelopeTx {
+    type: 'envelopeTypeTx',
+    v1: TransactionV1Envelope {
+      tx: Transaction {
+        sourceAccount: MuxedAccountEd25519 {
+          type: 'keyTypeEd25519',
+          ed25519: Uint256Bytes {
+            value: Uint8Array(32) [
+               82,  69, 191, 227, 174,  11,   5, 227,
+              255, 203,  55, 201,  13, 144, 113, 199,
+               16, 183, 228, 250, 249, 203,  28,  96,
+               99, 222, 197, 138,  74,  55, 159, 178
+            ]
+          }
+        },
+        fee: 10820481,
+        seqNum: 276101951148523598n,
+        cond: PreconditionsTime {
+          type: 'precondTime',
+          timeBounds: TimeBounds { minTime: 0n, maxTime: 1789733296n }
+        },
+        memo: MemoNone { type: 'memoNone' },
+        operations: [
+          Operation {
+            sourceAccount: null,
+            body: OperationBodyInvokeHostFunction {
+              type: 'invokeHostFunction',
+              invokeHostFunctionOp: InvokeHostFunctionOp {
+                hostFunction: HostFunctionInvokeContract {
+                  type: 'hostFunctionTypeInvokeContract',
+                  invokeContract: InvokeContractArgs {
+                    contractAddress: ScAddressContract {
+                      type: 'scAddressTypeContract',
+                      contractId: ContractId {
+                        value: Uint8Array(32) [
+                          247, 154, 111, 138,  37, 157, 223,
+                          137, 142, 254,  43, 145,  19, 246,
+                          220,  82, 203, 167, 115, 240, 148,
+                          243, 226, 202,  71, 209,  81,  14,
+                          242,  56,  77,  54
+                        ]
+                      }
+                    },
+                    functionName: XdrString {
+                      bytes: Uint8Array(14) [
+                        114, 101, 103, 105,
+                        115, 116, 101, 114,
+                         95, 116, 111, 107,
+                        101, 110
+                      ]
+                    },
+                    args: [
+                      ScValMap {
+                        type: 'scvMap',
+                        map: [
+                          ScMapEntry {
+                            key: ScValSymbol {
+                              type: 'scvSymbol',
+                              sym: XdrString {
+                                bytes: Uint8Array(4) [ 99, 111, 100, 101 ]
+                              }
+                            },
+                            val: ScValString {
+                              type: 'scvString',
+                              str: XdrString {
+                                bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                              }
+                            }
+                          },
+                          ScMapEntry {
+                            key: ScValSymbol {
+                              type: 'scvSymbol',
+                              sym: XdrString {
+                                bytes: Uint8Array(6) [
+                                  105,
+                                  115,
+                                  115,
+                                  117,
+                                  101,
+                                  114
+                                ]
+                              }
+                            },
+                            val: ScValAddress {
+                              type: 'scvAddress',
+                              address: ScAddressAccount {
+                                type: 'scAddressTypeAccount',
+                                accountId: PublicKeyEd25519 {
+                                  type: 'publicKeyTypeEd25519',
+                                  ed25519: Uint256Bytes {
+                                    value: Uint8Array(32) [
+                                      128,  48, 103, 90, 199, 137,  65, 119,
+                                      253, 111,  37, 22,  27,  21, 188, 220,
+                                       51, 245, 142, 59,  54,  74, 158,  13,
+                                       23, 193, 159, 62, 121, 106,  81, 249
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                auth: [
+                  SorobanAuthorizationEntry {
+                    credentials: SorobanCredentialsAddressV2 {
+                      type: 'sorobanCredentialsAddressV2',
+                      addressV2: SorobanAddressCredentials {
+                        address: ScAddressContract {
+                          type: 'scAddressTypeContract',
+                          contractId: ContractId {
+                            value: Uint8Array(32) [
+                              247, 154, 111, 138,  37, 157, 223,
+                              137, 142, 254,  43, 145,  19, 246,
+                              220,  82, 203, 167, 115, 240, 148,
+                              243, 226, 202,  71, 209,  81,  14,
+                              242,  56,  77,  54
+                            ]
+                          }
+                        },
+                        nonce: 6828470732239780932n,
+                        signatureExpirationLedger: 64489543,
+                        signature: ScValBytes {
+                          type: 'scvBytes',
+                          bytes: ScBytes {
+                            value: Uint8Array(64) [
+                               45, 177, 100, 253,  38,  87, 120,  53, 229, 110,
+                                2, 142,   9,  50,  37,   0,  67, 232,   5,  94,
+                               85, 244, 193, 185,  14,  14, 244, 148, 113, 237,
+                               10,  22, 138,  27, 189,  55,  40, 250,   1,  90,
+                              212,  19,  73,   9, 212, 238,  30, 200,  68, 189,
+                                0, 180,  84,  79,  20,  46, 186,  24, 252, 120,
+                              226, 130,  82,   6
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    rootInvocation: SorobanAuthorizedInvocation {
+                      function: SorobanAuthorizedFunctionContractFn {
+                        type: 'sorobanAuthorizedFunctionTypeContractFn',
+                        contractFn: InvokeContractArgs {
+                          contractAddress: ScAddressContract {
+                            type: 'scAddressTypeContract',
+                            contractId: ContractId {
+                              value: Uint8Array(32) [
+                                247, 154, 111, 138,  37, 157, 223,
+                                137, 142, 254,  43, 145,  19, 246,
+                                220,  82, 203, 167, 115, 240, 148,
+                                243, 226, 202,  71, 209,  81,  14,
+                                242,  56,  77,  54
+                              ]
+                            }
+                          },
+                          functionName: XdrString {
+                            bytes: Uint8Array(14) [
+                              114, 101, 103, 105,
+                              115, 116, 101, 114,
+                               95, 116, 111, 107,
+                              101, 110
+                            ]
+                          },
+                          args: [
+                            ScValMap {
+                              type: 'scvMap',
+                              map: [
+                                ScMapEntry {
+                                  key: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(4) [
+                                        99,
+                                        111,
+                                        100,
+                                        101
+                                      ]
+                                    }
+                                  },
+                                  val: ScValString {
+                                    type: 'scvString',
+                                    str: XdrString {
+                                      bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                                    }
+                                  }
+                                },
+                                ScMapEntry {
+                                  key: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(6) [
+                                        105,
+                                        115,
+                                        115,
+                                        117,
+                                        101,
+                                        114
+                                      ]
+                                    }
+                                  },
+                                  val: ScValAddress {
+                                    type: 'scvAddress',
+                                    address: ScAddressAccount {
+                                      type: 'scAddressTypeAccount',
+                                      accountId: PublicKeyEd25519 {
+                                        type: 'publicKeyTypeEd25519',
+                                        ed25519: Uint256Bytes {
+                                          value: Uint8Array(32) [
+                                            128,  48, 103,  90, 199, 137, 65,
+                                            119, 253, 111,  37,  22,  27, 21,
+                                            188, 220,  51, 245, 142,  59, 54,
+                                             74, 158,  13,  23, 193, 159, 62,
+                                            121, 106,  81, 249
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      subInvocations: []
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        ext: TransactionExtSorobanData {
+          type: 'sorobanData',
+          sorobanData: SorobanTransactionData {
+            ext: SorobanTransactionDataExtV0 { type: 'v0' },
+            resources: SorobanResources {
+              footprint: LedgerFootprint {
+                readOnly: [
+                  LedgerKeyContractDataArm {
+                    type: 'contractData',
+                    contractData: LedgerKeyContractData {
+                      contract: ScAddressContract {
+                        type: 'scAddressTypeContract',
+                        contractId: ContractId {
+                          value: Uint8Array(32) [
+                            247, 154, 111, 138,  37, 157, 223,
+                            137, 142, 254,  43, 145,  19, 246,
+                            220,  82, 203, 167, 115, 240, 148,
+                            243, 226, 202,  71, 209,  81,  14,
+                            242,  56,  77,  54
+                          ]
+                        }
+                      },
+                      key: ScValLedgerKeyContractInstance {
+                        type: 'scvLedgerKeyContractInstance'
+                      },
+                      durability: ContractDataDurability {
+                        name: 'persistent',
+                        value: 1
+                      }
+                    }
+                  },
+                  LedgerKeyContractCodeArm {
+                    type: 'contractCode',
+                    contractCode: LedgerKeyContractCode {
+                      hash: Hash {
+                        value: Uint8Array(32) [
+                           20, 164,  12,  87, 141, 176,  84,  75,
+                           24,  58, 240, 246, 153, 148, 130, 111,
+                           97, 167, 197, 100, 115, 126,  11,  53,
+                          178, 224, 191, 204, 109, 157, 222,  40
+                        ]
+                      }
+                    }
+                  }
+                ],
+                readWrite: [
+                  LedgerKeyContractDataArm {
+                    type: 'contractData',
+                    contractData: LedgerKeyContractData {
+                      contract: ScAddressContract {
+                        type: 'scAddressTypeContract',
+                        contractId: ContractId {
+                          value: Uint8Array(32) [
+                            247, 154, 111, 138,  37, 157, 223,
+                            137, 142, 254,  43, 145,  19, 246,
+                            220,  82, 203, 167, 115, 240, 148,
+                            243, 226, 202,  71, 209,  81,  14,
+                            242,  56,  77,  54
+                          ]
+                        }
+                      },
+                      key: ScValVec {
+                        type: 'scvVec',
+                        vec: [
+                          ScValSymbol {
+                            type: 'scvSymbol',
+                            sym: XdrString {
+                              bytes: Uint8Array(5) [ 84, 111, 107, 101, 110 ]
+                            }
+                          },
+                          ScValMap {
+                            type: 'scvMap',
+                            map: [
+                              ScMapEntry {
+                                key: ScValSymbol {
+                                  type: 'scvSymbol',
+                                  sym: XdrString {
+                                    bytes: Uint8Array(4) [ 99, 111, 100, 101 ]
+                                  }
+                                },
+                                val: ScValString {
+                                  type: 'scvString',
+                                  str: XdrString {
+                                    bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                                  }
+                                }
+                              },
+                              ScMapEntry {
+                                key: ScValSymbol {
+                                  type: 'scvSymbol',
+                                  sym: XdrString {
+                                    bytes: Uint8Array(6) [
+                                      105,
+                                      115,
+                                      115,
+                                      117,
+                                      101,
+                                      114
+                                    ]
+                                  }
+                                },
+                                val: ScValAddress {
+                                  type: 'scvAddress',
+                                  address: ScAddressAccount {
+                                    type: 'scAddressTypeAccount',
+                                    accountId: PublicKeyEd25519 {
+                                      type: 'publicKeyTypeEd25519',
+                                      ed25519: Uint256Bytes {
+                                        value: Uint8Array(32) [
+                                          128,  48, 103, 90, 199, 137,  65, 119,
+                                          253, 111,  37, 22,  27,  21, 188, 220,
+                                           51, 245, 142, 59,  54,  74, 158,  13,
+                                           23, 193, 159, 62, 121, 106,  81, 249
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      durability: ContractDataDurability {
+                        name: 'persistent',
+                        value: 1
+                      }
+                    }
+                  },
+                  LedgerKeyContractDataArm {
+                    type: 'contractData',
+                    contractData: LedgerKeyContractData {
+                      contract: ScAddressContract {
+                        type: 'scAddressTypeContract',
+                        contractId: ContractId {
+                          value: Uint8Array(32) [
+                            247, 154, 111, 138,  37, 157, 223,
+                            137, 142, 254,  43, 145,  19, 246,
+                            220,  82, 203, 167, 115, 240, 148,
+                            243, 226, 202,  71, 209,  81,  14,
+                            242,  56,  77,  54
+                          ]
+                        }
+                      },
+                      key: ScValLedgerKeyNonce {
+                        type: 'scvLedgerKeyNonce',
+                        nonceKey: ScNonceKey { nonce: 6828470732239780932n }
+                      },
+                      durability: ContractDataDurability {
+                        name: 'temporary',
+                        value: 0
+                      }
+                    }
+                  }
+                ]
+              },
+              instructions: 1557016,
+              diskReadBytes: 0,
+              writeBytes: 344
+            },
+            resourceFee: 820481n
+          }
+        }
+      },
+      signatures: [
+        DecoratedSignature {
+          hint: SignatureHint { value: Uint8Array(4) [ 74, 55, 159, 178 ] },
+          signature: Signature {
+            value: Uint8Array(64) [
+              138, 224, 244,  51,  32,  66, 196,  60, 200, 217,  74,
+              128,  53,  82,  69, 114, 195,  21, 215,  87, 200,   9,
+              208, 192, 182, 168, 244,  37, 246, 243, 168,  76, 232,
+               48, 199,  34, 216,  53,  58,  17,  21,  24,  51,  35,
+               12, 211, 190,  21, 144,  66, 248,  45, 121,  43, 148,
+               19,  92, 226,  53, 247, 252, 201, 137,  14
+            ]
+          }
+        }
+      ]
+    }
+  },
+  resultXdr: TransactionResult {
+    feeCharged: 593332n,
+    result: TransactionResultResultTxSuccess {
+      type: 'txSuccess',
+      results: [
+        OperationResultOpInner {
+          type: 'opInner',
+          tr: OperationResultTrInvokeHostFunction {
+            type: 'invokeHostFunction',
+            invokeHostFunctionResult: InvokeHostFunctionResultSuccess {
+              type: 'invokeHostFunctionSuccess',
+              success: Hash {
+                value: Uint8Array(32) [
+                  203, 188,  72, 117,  13, 235, 184,
+                   83,  80, 147, 179, 222, 175, 136,
+                  172, 127,  76, 255, 135,  66,  85,
+                  118, 165, 141, 226, 186, 199,  84,
+                  172, 219,  70,  22
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    ext: TransactionResultExtV0 { type: 'v0' }
+  },
+  resultMetaXdr: TransactionMetaV4Arm {
+    type: 'v4',
+    v4: TransactionMetaV4 {
+      ext: ExtensionPointV0 { type: 'v0' },
+      txChangesBefore: [
+        LedgerEntryChangeState {
+          type: 'ledgerEntryState',
+          state: LedgerEntry {
+            lastModifiedLedgerSeq: 64489445,
+            data: LedgerEntryDataAccount {
+              type: 'account',
+              account: AccountEntry {
+                accountId: PublicKeyEd25519 {
+                  type: 'publicKeyTypeEd25519',
+                  ed25519: Uint256Bytes {
+                    value: Uint8Array(32) [
+                       82,  69, 191, 227, 174,  11,   5, 227,
+                      255, 203,  55, 201,  13, 144, 113, 199,
+                       16, 183, 228, 250, 249, 203,  28,  96,
+                       99, 222, 197, 138,  74,  55, 159, 178
+                    ]
+                  }
+                },
+                balance: 197736142n,
+                seqNum: 276101951148523597n,
+                numSubEntries: 11,
+                inflationDest: null,
+                flags: 0,
+                homeDomain: XdrString { bytes: Uint8Array(0) [] },
+                thresholds: Thresholds { value: Uint8Array(4) [ 1, 0, 0, 0 ] },
+                signers: [],
+                ext: AccountEntryExtV1 {
+                  type: 'v1',
+                  v1: AccountEntryExtensionV1 {
+                    liabilities: Liabilities {
+                      buying: 100000010000000n,
+                      selling: 0n
+                    },
+                    ext: AccountEntryExtensionV1ExtV2 {
+                      type: 'v2',
+                      v2: AccountEntryExtensionV2 {
+                        numSponsored: 0,
+                        numSponsoring: 0,
+                        signerSponsoringIDs: [],
+                        ext: AccountEntryExtensionV2ExtV3 {
+                          type: 'v3',
+                          v3: AccountEntryExtensionV3 {
+                            ext: ExtensionPointV0 { type: 'v0' },
+                            seqLedger: 64489310,
+                            seqTime: 1789732328n
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            ext: LedgerEntryExtV0 { type: 'v0' }
+          }
+        },
+        LedgerEntryChangeUpdated {
+          type: 'ledgerEntryUpdated',
+          updated: LedgerEntry {
+            lastModifiedLedgerSeq: 64489445,
+            data: LedgerEntryDataAccount {
+              type: 'account',
+              account: AccountEntry {
+                accountId: PublicKeyEd25519 {
+                  type: 'publicKeyTypeEd25519',
+                  ed25519: Uint256Bytes {
+                    value: Uint8Array(32) [
+                       82,  69, 191, 227, 174,  11,   5, 227,
+                      255, 203,  55, 201,  13, 144, 113, 199,
+                       16, 183, 228, 250, 249, 203,  28,  96,
+                       99, 222, 197, 138,  74,  55, 159, 178
+                    ]
+                  }
+                },
+                balance: 197736142n,
+                seqNum: 276101951148523598n,
+                numSubEntries: 11,
+                inflationDest: null,
+                flags: 0,
+                homeDomain: XdrString { bytes: Uint8Array(0) [] },
+                thresholds: Thresholds { value: Uint8Array(4) [ 1, 0, 0, 0 ] },
+                signers: [],
+                ext: AccountEntryExtV1 {
+                  type: 'v1',
+                  v1: AccountEntryExtensionV1 {
+                    liabilities: Liabilities {
+                      buying: 100000010000000n,
+                      selling: 0n
+                    },
+                    ext: AccountEntryExtensionV1ExtV2 {
+                      type: 'v2',
+                      v2: AccountEntryExtensionV2 {
+                        numSponsored: 0,
+                        numSponsoring: 0,
+                        signerSponsoringIDs: [],
+                        ext: AccountEntryExtensionV2ExtV3 {
+                          type: 'v3',
+                          v3: AccountEntryExtensionV3 {
+                            ext: ExtensionPointV0 { type: 'v0' },
+                            seqLedger: 64489445,
+                            seqTime: 1789733003n
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            ext: LedgerEntryExtV0 { type: 'v0' }
+          }
+        }
+      ],
+      operations: [
+        OperationMetaV2 {
+          ext: ExtensionPointV0 { type: 'v0' },
+          changes: [
+            LedgerEntryChangeCreated {
+              type: 'ledgerEntryCreated',
+              created: LedgerEntry {
+                lastModifiedLedgerSeq: 64489445,
+                data: LedgerEntryDataContractData {
+                  type: 'contractData',
+                  contractData: ContractDataEntry {
+                    ext: ExtensionPointV0 { type: 'v0' },
+                    contract: ScAddressContract {
+                      type: 'scAddressTypeContract',
+                      contractId: ContractId {
+                        value: Uint8Array(32) [
+                          247, 154, 111, 138,  37, 157, 223,
+                          137, 142, 254,  43, 145,  19, 246,
+                          220,  82, 203, 167, 115, 240, 148,
+                          243, 226, 202,  71, 209,  81,  14,
+                          242,  56,  77,  54
+                        ]
+                      }
+                    },
+                    key: ScValLedgerKeyNonce {
+                      type: 'scvLedgerKeyNonce',
+                      nonceKey: ScNonceKey { nonce: 6828470732239780932n }
+                    },
+                    durability: ContractDataDurability {
+                      name: 'temporary',
+                      value: 0
+                    },
+                    val: ScValVoid { type: 'scvVoid' }
+                  }
+                },
+                ext: LedgerEntryExtV0 { type: 'v0' }
+              }
+            },
+            LedgerEntryChangeCreated {
+              type: 'ledgerEntryCreated',
+              created: LedgerEntry {
+                lastModifiedLedgerSeq: 64489445,
+                data: LedgerEntryDataTtl {
+                  type: 'ttl',
+                  ttl: TtlEntry {
+                    keyHash: Hash {
+                      value: Uint8Array(32) [
+                        142,   9, 180,  87, 118, 182,  35,  83,
+                        133, 106,   1,  30, 236, 145, 182, 231,
+                         58,  80,  89,  35, 167,  81, 153,  33,
+                        150, 154,  26, 159, 237, 170, 207, 147
+                      ]
+                    },
+                    liveUntilLedgerSeq: 64506724
+                  }
+                },
+                ext: LedgerEntryExtV0 { type: 'v0' }
+              }
+            },
+            LedgerEntryChangeCreated {
+              type: 'ledgerEntryCreated',
+              created: LedgerEntry {
+                lastModifiedLedgerSeq: 64489445,
+                data: LedgerEntryDataTtl {
+                  type: 'ttl',
+                  ttl: TtlEntry {
+                    keyHash: Hash {
+                      value: Uint8Array(32) [
+                        104, 117, 141, 160,  46, 177, 219, 210,
+                         84, 143,  68,  69, 119, 193, 102,  59,
+                        184,  16,   5,  58,  83,  80, 176, 155,
+                        170,  76,   8, 108,   5, 186, 115, 113
+                      ]
+                    },
+                    liveUntilLedgerSeq: 66563044
+                  }
+                },
+                ext: LedgerEntryExtV0 { type: 'v0' }
+              }
+            },
+            LedgerEntryChangeCreated {
+              type: 'ledgerEntryCreated',
+              created: LedgerEntry {
+                lastModifiedLedgerSeq: 64489445,
+                data: LedgerEntryDataContractData {
+                  type: 'contractData',
+                  contractData: ContractDataEntry {
+                    ext: ExtensionPointV0 { type: 'v0' },
+                    contract: ScAddressContract {
+                      type: 'scAddressTypeContract',
+                      contractId: ContractId {
+                        value: Uint8Array(32) [
+                          247, 154, 111, 138,  37, 157, 223,
+                          137, 142, 254,  43, 145,  19, 246,
+                          220,  82, 203, 167, 115, 240, 148,
+                          243, 226, 202,  71, 209,  81,  14,
+                          242,  56,  77,  54
+                        ]
+                      }
+                    },
+                    key: ScValVec {
+                      type: 'scvVec',
+                      vec: [
+                        ScValSymbol {
+                          type: 'scvSymbol',
+                          sym: XdrString {
+                            bytes: Uint8Array(5) [ 84, 111, 107, 101, 110 ]
+                          }
+                        },
+                        ScValMap {
+                          type: 'scvMap',
+                          map: [
+                            ScMapEntry {
+                              key: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(4) [ 99, 111, 100, 101 ]
+                                }
+                              },
+                              val: ScValString {
+                                type: 'scvString',
+                                str: XdrString {
+                                  bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                                }
+                              }
+                            },
+                            ScMapEntry {
+                              key: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(6) [
+                                    105,
+                                    115,
+                                    115,
+                                    117,
+                                    101,
+                                    114
+                                  ]
+                                }
+                              },
+                              val: ScValAddress {
+                                type: 'scvAddress',
+                                address: ScAddressAccount {
+                                  type: 'scAddressTypeAccount',
+                                  accountId: PublicKeyEd25519 {
+                                    type: 'publicKeyTypeEd25519',
+                                    ed25519: Uint256Bytes {
+                                      value: Uint8Array(32) [
+                                        128,  48, 103, 90, 199, 137,  65, 119,
+                                        253, 111,  37, 22,  27,  21, 188, 220,
+                                         51, 245, 142, 59,  54,  74, 158,  13,
+                                         23, 193, 159, 62, 121, 106,  81, 249
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    durability: ContractDataDurability {
+                      name: 'persistent',
+                      value: 1
+                    },
+                    val: ScValMap {
+                      type: 'scvMap',
+                      map: [
+                        ScMapEntry {
+                          key: ScValSymbol {
+                            type: 'scvSymbol',
+                            sym: XdrString {
+                              bytes: Uint8Array(13) [
+                                114, 101, 103, 105,
+                                115, 116, 101, 114,
+                                101, 100,  95,  97,
+                                116
+                              ]
+                            }
+                          },
+                          val: ScValU64 { type: 'scvU64', u64: 1789733003n }
+                        },
+                        ScMapEntry {
+                          key: ScValSymbol {
+                            type: 'scvSymbol',
+                            sym: XdrString {
+                              bytes: Uint8Array(6) [
+                                115,
+                                116,
+                                97,
+                                116,
+                                117,
+                                115
+                              ]
+                            }
+                          },
+                          val: ScValVec {
+                            type: 'scvVec',
+                            vec: [
+                              ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(6) [
+                                    65,
+                                    99,
+                                    116,
+                                    105,
+                                    118,
+                                    101
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                ext: LedgerEntryExtV0 { type: 'v0' }
+              }
+            }
+          ],
+          events: []
+        }
+      ],
+      txChangesAfter: [],
+      sorobanMeta: SorobanTransactionMetaV2 {
+        ext: SorobanTransactionMetaExtV1Arm {
+          type: 'v1',
+          v1: SorobanTransactionMetaExtV1 {
+            ext: ExtensionPointV0 { type: 'v0' },
+            totalNonRefundableResourceFeeCharged: 11760n,
+            totalRefundableResourceFeeCharged: 581472n,
+            rentFeeCharged: 581452n
+          }
+        },
+        returnValue: ScValVoid { type: 'scvVoid' }
+      },
+      events: [
+        TransactionEvent {
+          stage: TransactionEventStage {
+            name: 'transactionEventStageBeforeAllTxs',
+            value: 0
+          },
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: ContractId {
+              value: Uint8Array(32) [
+                 37, 180, 252, 216,  89, 174, 194, 250,
+                 99,  72,  67, 140,  72, 155,  60,  60,
+                 16, 201, 139, 109,  33, 190,  79, 211,
+                203,  48, 203, 104, 149,  62, 249, 119
+              ]
+            },
+            type: ContractEventType { name: 'contract', value: 1 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(3) [ 102, 101, 101 ]
+                    }
+                  },
+                  ScValAddress {
+                    type: 'scvAddress',
+                    address: ScAddressAccount {
+                      type: 'scAddressTypeAccount',
+                      accountId: PublicKeyEd25519 {
+                        type: 'publicKeyTypeEd25519',
+                        ed25519: Uint256Bytes {
+                          value: Uint8Array(32) [
+                             82,  69, 191, 227, 174,  11,   5, 227,
+                            255, 203,  55, 201,  13, 144, 113, 199,
+                             16, 183, 228, 250, 249, 203,  28,  96,
+                             99, 222, 197, 138,  74,  55, 159, 178
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ],
+                data: ScValI128 {
+                  type: 'scvI128',
+                  i128: Int128Parts { hi: 0n, lo: 820581n }
+                }
+              }
+            }
+          }
+        },
+        TransactionEvent {
+          stage: TransactionEventStage {
+            name: 'transactionEventStageAfterAllTxs',
+            value: 2
+          },
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: ContractId {
+              value: Uint8Array(32) [
+                 37, 180, 252, 216,  89, 174, 194, 250,
+                 99,  72,  67, 140,  72, 155,  60,  60,
+                 16, 201, 139, 109,  33, 190,  79, 211,
+                203,  48, 203, 104, 149,  62, 249, 119
+              ]
+            },
+            type: ContractEventType { name: 'contract', value: 1 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(3) [ 102, 101, 101 ]
+                    }
+                  },
+                  ScValAddress {
+                    type: 'scvAddress',
+                    address: ScAddressAccount {
+                      type: 'scAddressTypeAccount',
+                      accountId: PublicKeyEd25519 {
+                        type: 'publicKeyTypeEd25519',
+                        ed25519: Uint256Bytes {
+                          value: Uint8Array(32) [
+                             82,  69, 191, 227, 174,  11,   5, 227,
+                            255, 203,  55, 201,  13, 144, 113, 199,
+                             16, 183, 228, 250, 249, 203,  28,  96,
+                             99, 222, 197, 138,  74,  55, 159, 178
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ],
+                data: ScValI128 {
+                  type: 'scvI128',
+                  i128: Int128Parts { hi: -1n, lo: 18446744073709324367n }
+                }
+              }
+            }
+          }
+        }
+      ],
+      diagnosticEvents: [
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(7) [
+                        102, 110,  95, 99,
+                         97, 108, 108
+                      ]
+                    }
+                  },
+                  ScValBytes {
+                    type: 'scvBytes',
+                    bytes: ScBytes {
+                      value: Uint8Array(32) [
+                        247, 154, 111, 138,  37, 157, 223,
+                        137, 142, 254,  43, 145,  19, 246,
+                        220,  82, 203, 167, 115, 240, 148,
+                        243, 226, 202,  71, 209,  81,  14,
+                        242,  56,  77,  54
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(14) [
+                        114, 101, 103, 105,
+                        115, 116, 101, 114,
+                         95, 116, 111, 107,
+                        101, 110
+                      ]
+                    }
+                  }
+                ],
+                data: ScValMap {
+                  type: 'scvMap',
+                  map: [
+                    ScMapEntry {
+                      key: ScValSymbol {
+                        type: 'scvSymbol',
+                        sym: XdrString {
+                          bytes: Uint8Array(4) [ 99, 111, 100, 101 ]
+                        }
+                      },
+                      val: ScValString {
+                        type: 'scvString',
+                        str: XdrString {
+                          bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                        }
+                      }
+                    },
+                    ScMapEntry {
+                      key: ScValSymbol {
+                        type: 'scvSymbol',
+                        sym: XdrString {
+                          bytes: Uint8Array(6) [
+                            105,
+                            115,
+                            115,
+                            117,
+                            101,
+                            114
+                          ]
+                        }
+                      },
+                      val: ScValAddress {
+                        type: 'scvAddress',
+                        address: ScAddressAccount {
+                          type: 'scAddressTypeAccount',
+                          accountId: PublicKeyEd25519 {
+                            type: 'publicKeyTypeEd25519',
+                            ed25519: Uint256Bytes {
+                              value: Uint8Array(32) [
+                                128,  48, 103, 90, 199, 137,  65, 119,
+                                253, 111,  37, 22,  27,  21, 188, 220,
+                                 51, 245, 142, 59,  54,  74, 158,  13,
+                                 23, 193, 159, 62, 121, 106,  81, 249
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: ContractId {
+              value: Uint8Array(32) [
+                247, 154, 111, 138,  37, 157, 223,
+                137, 142, 254,  43, 145,  19, 246,
+                220,  82, 203, 167, 115, 240, 148,
+                243, 226, 202,  71, 209,  81,  14,
+                242,  56,  77,  54
+              ]
+            },
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(7) [
+                        102, 110,  95, 99,
+                         97, 108, 108
+                      ]
+                    }
+                  },
+                  ScValBytes {
+                    type: 'scvBytes',
+                    bytes: ScBytes {
+                      value: Uint8Array(32) [
+                        247, 154, 111, 138,  37, 157, 223,
+                        137, 142, 254,  43, 145,  19, 246,
+                        220,  82, 203, 167, 115, 240, 148,
+                        243, 226, 202,  71, 209,  81,  14,
+                        242,  56,  77,  54
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         95,  95, 99, 104, 101,
+                         99, 107, 95,  97, 117,
+                        116, 104
+                      ]
+                    }
+                  }
+                ],
+                data: ScValVec {
+                  type: 'scvVec',
+                  vec: [
+                    ScValBytes {
+                      type: 'scvBytes',
+                      bytes: ScBytes {
+                        value: Uint8Array(32) [
+                          130,  52, 159, 150, 146,  49,  92, 236,
+                            1, 109, 230, 102, 178,  87, 200, 159,
+                          117,  30,  67, 151, 104,   2,  66, 227,
+                           20, 250,  78, 122,  90, 194,  36,   9
+                        ]
+                      }
+                    },
+                    ScValBytes {
+                      type: 'scvBytes',
+                      bytes: ScBytes {
+                        value: Uint8Array(64) [
+                           45, 177, 100, 253,  38,  87, 120,  53, 229, 110,   2,
+                          142,   9,  50,  37,   0,  67, 232,   5,  94,  85, 244,
+                          193, 185,  14,  14, 244, 148, 113, 237,  10,  22, 138,
+                           27, 189,  55,  40, 250,   1,  90, 212,  19,  73,   9,
+                          212, 238,  30, 200,  68, 189,   0, 180,  84,  79,  20,
+                           46, 186,  24, 252, 120, 226, 130,  82,   6
+                        ]
+                      }
+                    },
+                    ScValVec {
+                      type: 'scvVec',
+                      vec: [
+                        ScValVec {
+                          type: 'scvVec',
+                          vec: [
+                            ScValSymbol {
+                              type: 'scvSymbol',
+                              sym: XdrString {
+                                bytes: Uint8Array(8) [
+                                   67, 111, 110, 116,
+                                  114,  97,  99, 116
+                                ]
+                              }
+                            },
+                            ScValMap {
+                              type: 'scvMap',
+                              map: [
+                                ScMapEntry {
+                                  key: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(4) [
+                                        97,
+                                        114,
+                                        103,
+                                        115
+                                      ]
+                                    }
+                                  },
+                                  val: ScValVec {
+                                    type: 'scvVec',
+                                    vec: [
+                                      ScValMap {
+                                        type: 'scvMap',
+                                        map: [
+                                          ScMapEntry {
+                                            key: ScValSymbol {
+                                              type: 'scvSymbol',
+                                              sym: XdrString {
+                                                bytes: Uint8Array(4) [
+                                                  99,
+                                                  111,
+                                                  100,
+                                                  101
+                                                ]
+                                              }
+                                            },
+                                            val: ScValString {
+                                              type: 'scvString',
+                                              str: XdrString {
+                                                bytes: Uint8Array(4) [
+                                                  88,
+                                                  69,
+                                                  86,
+                                                  65
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          ScMapEntry {
+                                            key: ScValSymbol {
+                                              type: 'scvSymbol',
+                                              sym: XdrString {
+                                                bytes: Uint8Array(6) [
+                                                  105,
+                                                  115,
+                                                  115,
+                                                  117,
+                                                  101,
+                                                  114
+                                                ]
+                                              }
+                                            },
+                                            val: ScValAddress {
+                                              type: 'scvAddress',
+                                              address: ScAddressAccount {
+                                                type: 'scAddressTypeAccount',
+                                                accountId: PublicKeyEd25519 {
+                                                  type: 'publicKeyTypeEd25519',
+                                                  ed25519: Uint256Bytes {
+                                                    value: Uint8Array(32) [
+                                                      128,  48, 103,  90, 199,
+                                                      137,  65, 119, 253, 111,
+                                                       37,  22,  27,  21, 188,
+                                                      220,  51, 245, 142,  59,
+                                                       54,  74, 158,  13,  23,
+                                                      193, 159,  62, 121, 106,
+                                                       81, 249
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                ScMapEntry {
+                                  key: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(8) [
+                                         99, 111, 110, 116,
+                                        114,  97,  99, 116
+                                      ]
+                                    }
+                                  },
+                                  val: ScValAddress {
+                                    type: 'scvAddress',
+                                    address: ScAddressContract {
+                                      type: 'scAddressTypeContract',
+                                      contractId: ContractId {
+                                        value: Uint8Array(32) [
+                                          247, 154, 111, 138,  37, 157, 223,
+                                          137, 142, 254,  43, 145,  19, 246,
+                                          220,  82, 203, 167, 115, 240, 148,
+                                          243, 226, 202,  71, 209,  81,  14,
+                                          242,  56,  77,  54
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                ScMapEntry {
+                                  key: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(7) [
+                                        102, 110,  95,
+                                        110,  97, 109,
+                                        101
+                                      ]
+                                    }
+                                  },
+                                  val: ScValSymbol {
+                                    type: 'scvSymbol',
+                                    sym: XdrString {
+                                      bytes: Uint8Array(14) [
+                                        114, 101, 103, 105,
+                                        115, 116, 101, 114,
+                                         95, 116, 111, 107,
+                                        101, 110
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: ContractId {
+              value: Uint8Array(32) [
+                247, 154, 111, 138,  37, 157, 223,
+                137, 142, 254,  43, 145,  19, 246,
+                220,  82, 203, 167, 115, 240, 148,
+                243, 226, 202,  71, 209,  81,  14,
+                242,  56,  77,  54
+              ]
+            },
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(9) [
+                        102, 110,  95, 114,
+                        101, 116, 117, 114,
+                        110
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         95,  95, 99, 104, 101,
+                         99, 107, 95,  97, 117,
+                        116, 104
+                      ]
+                    }
+                  }
+                ],
+                data: ScValVoid { type: 'scvVoid' }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: ContractId {
+              value: Uint8Array(32) [
+                247, 154, 111, 138,  37, 157, 223,
+                137, 142, 254,  43, 145,  19, 246,
+                220,  82, 203, 167, 115, 240, 148,
+                243, 226, 202,  71, 209,  81,  14,
+                242,  56,  77,  54
+              ]
+            },
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(9) [
+                        102, 110,  95, 114,
+                        101, 116, 117, 114,
+                        110
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(14) [
+                        114, 101, 103, 105,
+                        115, 116, 101, 114,
+                         95, 116, 111, 107,
+                        101, 110
+                      ]
+                    }
+                  }
+                ],
+                data: ScValVoid { type: 'scvVoid' }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(10) [
+                        114, 101,  97, 100,
+                         95, 101, 110, 116,
+                        114, 121
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 4n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(11) [
+                        119, 114, 105, 116,
+                        101,  95, 101, 110,
+                        116, 114, 121
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 2n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(16) [
+                        108, 101, 100, 103, 101,
+                        114,  95, 114, 101,  97,
+                        100,  95,  98, 121, 116,
+                        101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(17) [
+                        108, 101, 100, 103, 101,
+                        114,  95, 119, 114, 105,
+                        116, 101,  95,  98, 121,
+                        116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 344n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(13) [
+                        114, 101,  97, 100, 95,
+                        107, 101, 121,  95, 98,
+                        121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(14) [
+                        119, 114, 105, 116, 101,
+                         95, 107, 101, 121,  95,
+                         98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(14) [
+                        114, 101,  97, 100, 95,
+                        100,  97, 116,  97, 95,
+                         98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(15) [
+                        119, 114, 105, 116, 101,
+                         95, 100,  97, 116,  97,
+                         95,  98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 344n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(14) [
+                        114, 101,  97, 100, 95,
+                         99, 111, 100, 101, 95,
+                         98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(15) [
+                        119, 114, 105, 116, 101,
+                         95,  99, 111, 100, 101,
+                         95,  98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(10) [
+                        101, 109, 105, 116,
+                         95, 101, 118, 101,
+                        110, 116
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(15) [
+                        101, 109, 105, 116,  95,
+                        101, 118, 101, 110, 116,
+                         95,  98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 4n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(8) [
+                         99, 112, 117,  95,
+                        105, 110, 115, 110
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 1325659n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(8) [
+                        109, 101, 109,  95,
+                         98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 2436162n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(17) [
+                        105, 110, 118, 111, 107,
+                        101,  95, 116, 105, 109,
+                        101,  95, 110, 115, 101,
+                         99, 115
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 192721n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(15) [
+                        109, 97, 120,  95, 114,
+                        119, 95, 107, 101, 121,
+                         95, 98, 121, 116, 101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 168n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(16) [
+                        109, 97, 120,  95, 114,
+                        119, 95, 100,  97, 116,
+                         97, 95,  98, 121, 116,
+                        101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 272n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(16) [
+                        109, 97, 120,  95, 114,
+                        119, 95,  99, 111, 100,
+                        101, 95,  98, 121, 116,
+                        101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        },
+        DiagnosticEvent {
+          inSuccessfulContractCall: true,
+          event: ContractEvent {
+            ext: ExtensionPointV0 { type: 'v0' },
+            contractId: null,
+            type: ContractEventType { name: 'diagnostic', value: 2 },
+            body: ContractEventBodyV0 {
+              type: 'v0',
+              v0: ContractEventV0 {
+                topics: [
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(12) [
+                         99, 111, 114, 101,
+                         95, 109, 101, 116,
+                        114, 105,  99, 115
+                      ]
+                    }
+                  },
+                  ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(19) [
+                        109,  97, 120,  95, 101, 109,
+                        105, 116,  95, 101, 118, 101,
+                        110, 116,  95,  98, 121, 116,
+                        101
+                      ]
+                    }
+                  }
+                ],
+                data: ScValU64 { type: 'scvU64', u64: 0n }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  events: {
+    contractEventsXdr: [ [] ],
+    transactionEventsXdr: [
+      TransactionEvent {
+        stage: TransactionEventStage {
+          name: 'transactionEventStageBeforeAllTxs',
+          value: 0
+        },
+        event: ContractEvent {
+          ext: ExtensionPointV0 { type: 'v0' },
+          contractId: ContractId {
+            value: Uint8Array(32) [
+               37, 180, 252, 216,  89, 174, 194, 250,
+               99,  72,  67, 140,  72, 155,  60,  60,
+               16, 201, 139, 109,  33, 190,  79, 211,
+              203,  48, 203, 104, 149,  62, 249, 119
+            ]
+          },
+          type: ContractEventType { name: 'contract', value: 1 },
+          body: ContractEventBodyV0 {
+            type: 'v0',
+            v0: ContractEventV0 {
+              topics: [
+                ScValSymbol {
+                  type: 'scvSymbol',
+                  sym: XdrString { bytes: Uint8Array(3) [ 102, 101, 101 ] }
+                },
+                ScValAddress {
+                  type: 'scvAddress',
+                  address: ScAddressAccount {
+                    type: 'scAddressTypeAccount',
+                    accountId: PublicKeyEd25519 {
+                      type: 'publicKeyTypeEd25519',
+                      ed25519: Uint256Bytes {
+                        value: Uint8Array(32) [
+                           82,  69, 191, 227, 174,  11,   5, 227,
+                          255, 203,  55, 201,  13, 144, 113, 199,
+                           16, 183, 228, 250, 249, 203,  28,  96,
+                           99, 222, 197, 138,  74,  55, 159, 178
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              data: ScValI128 {
+                type: 'scvI128',
+                i128: Int128Parts { hi: 0n, lo: 820581n }
+              }
+            }
+          }
+        }
+      },
+      TransactionEvent {
+        stage: TransactionEventStage {
+          name: 'transactionEventStageAfterAllTxs',
+          value: 2
+        },
+        event: ContractEvent {
+          ext: ExtensionPointV0 { type: 'v0' },
+          contractId: ContractId {
+            value: Uint8Array(32) [
+               37, 180, 252, 216,  89, 174, 194, 250,
+               99,  72,  67, 140,  72, 155,  60,  60,
+               16, 201, 139, 109,  33, 190,  79, 211,
+              203,  48, 203, 104, 149,  62, 249, 119
+            ]
+          },
+          type: ContractEventType { name: 'contract', value: 1 },
+          body: ContractEventBodyV0 {
+            type: 'v0',
+            v0: ContractEventV0 {
+              topics: [
+                ScValSymbol {
+                  type: 'scvSymbol',
+                  sym: XdrString { bytes: Uint8Array(3) [ 102, 101, 101 ] }
+                },
+                ScValAddress {
+                  type: 'scvAddress',
+                  address: ScAddressAccount {
+                    type: 'scAddressTypeAccount',
+                    accountId: PublicKeyEd25519 {
+                      type: 'publicKeyTypeEd25519',
+                      ed25519: Uint256Bytes {
+                        value: Uint8Array(32) [
+                           82,  69, 191, 227, 174,  11,   5, 227,
+                          255, 203,  55, 201,  13, 144, 113, 199,
+                           16, 183, 228, 250, 249, 203,  28,  96,
+                           99, 222, 197, 138,  74,  55, 159, 178
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              data: ScValI128 {
+                type: 'scvI128',
+                i128: Int128Parts { hi: -1n, lo: 18446744073709324367n }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  returnValue: ScValVoid { type: 'scvVoid' },
+  diagnosticEventsXdr: [
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(7) [
+                    102, 110,  95, 99,
+                     97, 108, 108
+                  ]
+                }
+              },
+              ScValBytes {
+                type: 'scvBytes',
+                bytes: ScBytes {
+                  value: Uint8Array(32) [
+                    247, 154, 111, 138,  37, 157, 223,
+                    137, 142, 254,  43, 145,  19, 246,
+                    220,  82, 203, 167, 115, 240, 148,
+                    243, 226, 202,  71, 209,  81,  14,
+                    242,  56,  77,  54
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(14) [
+                    114, 101, 103, 105,
+                    115, 116, 101, 114,
+                     95, 116, 111, 107,
+                    101, 110
+                  ]
+                }
+              }
+            ],
+            data: ScValMap {
+              type: 'scvMap',
+              map: [
+                ScMapEntry {
+                  key: ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(4) [ 99, 111, 100, 101 ]
+                    }
+                  },
+                  val: ScValString {
+                    type: 'scvString',
+                    str: XdrString {
+                      bytes: Uint8Array(4) [ 88, 69, 86, 65 ]
+                    }
+                  }
+                },
+                ScMapEntry {
+                  key: ScValSymbol {
+                    type: 'scvSymbol',
+                    sym: XdrString {
+                      bytes: Uint8Array(6) [ 105, 115, 115, 117, 101, 114 ]
+                    }
+                  },
+                  val: ScValAddress {
+                    type: 'scvAddress',
+                    address: ScAddressAccount {
+                      type: 'scAddressTypeAccount',
+                      accountId: PublicKeyEd25519 {
+                        type: 'publicKeyTypeEd25519',
+                        ed25519: Uint256Bytes {
+                          value: Uint8Array(32) [
+                            128,  48, 103, 90, 199, 137,  65, 119,
+                            253, 111,  37, 22,  27,  21, 188, 220,
+                             51, 245, 142, 59,  54,  74, 158,  13,
+                             23, 193, 159, 62, 121, 106,  81, 249
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: ContractId {
+          value: Uint8Array(32) [
+            247, 154, 111, 138,  37, 157, 223,
+            137, 142, 254,  43, 145,  19, 246,
+            220,  82, 203, 167, 115, 240, 148,
+            243, 226, 202,  71, 209,  81,  14,
+            242,  56,  77,  54
+          ]
+        },
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(7) [
+                    102, 110,  95, 99,
+                     97, 108, 108
+                  ]
+                }
+              },
+              ScValBytes {
+                type: 'scvBytes',
+                bytes: ScBytes {
+                  value: Uint8Array(32) [
+                    247, 154, 111, 138,  37, 157, 223,
+                    137, 142, 254,  43, 145,  19, 246,
+                    220,  82, 203, 167, 115, 240, 148,
+                    243, 226, 202,  71, 209,  81,  14,
+                    242,  56,  77,  54
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     95,  95, 99, 104, 101,
+                     99, 107, 95,  97, 117,
+                    116, 104
+                  ]
+                }
+              }
+            ],
+            data: ScValVec {
+              type: 'scvVec',
+              vec: [
+                ScValBytes {
+                  type: 'scvBytes',
+                  bytes: ScBytes {
+                    value: Uint8Array(32) [
+                      130,  52, 159, 150, 146,  49,  92, 236,
+                        1, 109, 230, 102, 178,  87, 200, 159,
+                      117,  30,  67, 151, 104,   2,  66, 227,
+                       20, 250,  78, 122,  90, 194,  36,   9
+                    ]
+                  }
+                },
+                ScValBytes {
+                  type: 'scvBytes',
+                  bytes: ScBytes {
+                    value: Uint8Array(64) [
+                       45, 177, 100, 253,  38,  87, 120, 53, 229, 110,   2, 142,
+                        9,  50,  37,   0,  67, 232,   5, 94,  85, 244, 193, 185,
+                       14,  14, 244, 148, 113, 237,  10, 22, 138,  27, 189,  55,
+                       40, 250,   1,  90, 212,  19,  73,  9, 212, 238,  30, 200,
+                       68, 189,   0, 180,  84,  79,  20, 46, 186,  24, 252, 120,
+                      226, 130,  82,   6
+                    ]
+                  }
+                },
+                ScValVec {
+                  type: 'scvVec',
+                  vec: [
+                    ScValVec {
+                      type: 'scvVec',
+                      vec: [
+                        ScValSymbol {
+                          type: 'scvSymbol',
+                          sym: XdrString {
+                            bytes: Uint8Array(8) [
+                               67, 111, 110, 116,
+                              114,  97,  99, 116
+                            ]
+                          }
+                        },
+                        ScValMap {
+                          type: 'scvMap',
+                          map: [
+                            ScMapEntry {
+                              key: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(4) [ 97, 114, 103, 115 ]
+                                }
+                              },
+                              val: ScValVec {
+                                type: 'scvVec',
+                                vec: [
+                                  ScValMap {
+                                    type: 'scvMap',
+                                    map: [
+                                      ScMapEntry {
+                                        key: ScValSymbol {
+                                          type: 'scvSymbol',
+                                          sym: XdrString {
+                                            bytes: Uint8Array(4) [
+                                              99,
+                                              111,
+                                              100,
+                                              101
+                                            ]
+                                          }
+                                        },
+                                        val: ScValString {
+                                          type: 'scvString',
+                                          str: XdrString {
+                                            bytes: Uint8Array(4) [
+                                              88,
+                                              69,
+                                              86,
+                                              65
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      ScMapEntry {
+                                        key: ScValSymbol {
+                                          type: 'scvSymbol',
+                                          sym: XdrString {
+                                            bytes: Uint8Array(6) [
+                                              105,
+                                              115,
+                                              115,
+                                              117,
+                                              101,
+                                              114
+                                            ]
+                                          }
+                                        },
+                                        val: ScValAddress {
+                                          type: 'scvAddress',
+                                          address: ScAddressAccount {
+                                            type: 'scAddressTypeAccount',
+                                            accountId: PublicKeyEd25519 {
+                                              type: 'publicKeyTypeEd25519',
+                                              ed25519: Uint256Bytes {
+                                                value: Uint8Array(32) [
+                                                  128,  48, 103,  90, 199, 137,
+                                                   65, 119, 253, 111,  37,  22,
+                                                   27,  21, 188, 220,  51, 245,
+                                                  142,  59,  54,  74, 158,  13,
+                                                   23, 193, 159,  62, 121, 106,
+                                                   81, 249
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            },
+                            ScMapEntry {
+                              key: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(8) [
+                                     99, 111, 110, 116,
+                                    114,  97,  99, 116
+                                  ]
+                                }
+                              },
+                              val: ScValAddress {
+                                type: 'scvAddress',
+                                address: ScAddressContract {
+                                  type: 'scAddressTypeContract',
+                                  contractId: ContractId {
+                                    value: Uint8Array(32) [
+                                      247, 154, 111, 138,  37, 157, 223,
+                                      137, 142, 254,  43, 145,  19, 246,
+                                      220,  82, 203, 167, 115, 240, 148,
+                                      243, 226, 202,  71, 209,  81,  14,
+                                      242,  56,  77,  54
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            ScMapEntry {
+                              key: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(7) [
+                                    102, 110,  95,
+                                    110,  97, 109,
+                                    101
+                                  ]
+                                }
+                              },
+                              val: ScValSymbol {
+                                type: 'scvSymbol',
+                                sym: XdrString {
+                                  bytes: Uint8Array(14) [
+                                    114, 101, 103, 105,
+                                    115, 116, 101, 114,
+                                     95, 116, 111, 107,
+                                    101, 110
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: ContractId {
+          value: Uint8Array(32) [
+            247, 154, 111, 138,  37, 157, 223,
+            137, 142, 254,  43, 145,  19, 246,
+            220,  82, 203, 167, 115, 240, 148,
+            243, 226, 202,  71, 209,  81,  14,
+            242,  56,  77,  54
+          ]
+        },
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(9) [
+                    102, 110,  95, 114,
+                    101, 116, 117, 114,
+                    110
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     95,  95, 99, 104, 101,
+                     99, 107, 95,  97, 117,
+                    116, 104
+                  ]
+                }
+              }
+            ],
+            data: ScValVoid { type: 'scvVoid' }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: ContractId {
+          value: Uint8Array(32) [
+            247, 154, 111, 138,  37, 157, 223,
+            137, 142, 254,  43, 145,  19, 246,
+            220,  82, 203, 167, 115, 240, 148,
+            243, 226, 202,  71, 209,  81,  14,
+            242,  56,  77,  54
+          ]
+        },
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(9) [
+                    102, 110,  95, 114,
+                    101, 116, 117, 114,
+                    110
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(14) [
+                    114, 101, 103, 105,
+                    115, 116, 101, 114,
+                     95, 116, 111, 107,
+                    101, 110
+                  ]
+                }
+              }
+            ],
+            data: ScValVoid { type: 'scvVoid' }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(10) [
+                    114, 101,  97, 100,
+                     95, 101, 110, 116,
+                    114, 121
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 4n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(11) [
+                    119, 114, 105, 116,
+                    101,  95, 101, 110,
+                    116, 114, 121
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 2n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(16) [
+                    108, 101, 100, 103, 101,
+                    114,  95, 114, 101,  97,
+                    100,  95,  98, 121, 116,
+                    101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(17) [
+                    108, 101, 100, 103, 101,
+                    114,  95, 119, 114, 105,
+                    116, 101,  95,  98, 121,
+                    116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 344n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(13) [
+                    114, 101,  97, 100, 95,
+                    107, 101, 121,  95, 98,
+                    121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(14) [
+                    119, 114, 105, 116, 101,
+                     95, 107, 101, 121,  95,
+                     98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(14) [
+                    114, 101,  97, 100, 95,
+                    100,  97, 116,  97, 95,
+                     98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(15) [
+                    119, 114, 105, 116, 101,
+                     95, 100,  97, 116,  97,
+                     95,  98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 344n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(14) [
+                    114, 101,  97, 100, 95,
+                     99, 111, 100, 101, 95,
+                     98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(15) [
+                    119, 114, 105, 116, 101,
+                     95,  99, 111, 100, 101,
+                     95,  98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(10) [
+                    101, 109, 105, 116,
+                     95, 101, 118, 101,
+                    110, 116
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(15) [
+                    101, 109, 105, 116,  95,
+                    101, 118, 101, 110, 116,
+                     95,  98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 4n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(8) [
+                     99, 112, 117,  95,
+                    105, 110, 115, 110
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 1325659n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(8) [
+                    109, 101, 109,  95,
+                     98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 2436162n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(17) [
+                    105, 110, 118, 111, 107,
+                    101,  95, 116, 105, 109,
+                    101,  95, 110, 115, 101,
+                     99, 115
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 192721n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(15) [
+                    109, 97, 120,  95, 114,
+                    119, 95, 107, 101, 121,
+                     95, 98, 121, 116, 101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 168n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(16) [
+                    109, 97, 120,  95, 114,
+                    119, 95, 100,  97, 116,
+                     97, 95,  98, 121, 116,
+                    101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 272n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(16) [
+                    109, 97, 120,  95, 114,
+                    119, 95,  99, 111, 100,
+                    101, 95,  98, 121, 116,
+                    101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    },
+    DiagnosticEvent {
+      inSuccessfulContractCall: true,
+      event: ContractEvent {
+        ext: ExtensionPointV0 { type: 'v0' },
+        contractId: null,
+        type: ContractEventType { name: 'diagnostic', value: 2 },
+        body: ContractEventBodyV0 {
+          type: 'v0',
+          v0: ContractEventV0 {
+            topics: [
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(12) [
+                     99, 111, 114, 101,
+                     95, 109, 101, 116,
+                    114, 105,  99, 115
+                  ]
+                }
+              },
+              ScValSymbol {
+                type: 'scvSymbol',
+                sym: XdrString {
+                  bytes: Uint8Array(19) [
+                    109,  97, 120,  95, 101, 109,
+                    105, 116,  95, 101, 118, 101,
+                    110, 116,  95,  98, 121, 116,
+                    101
+                  ]
+                }
+              }
+            ],
+            data: ScValU64 { type: 'scvU64', u64: 0n }
+          }
+        }
+      }
+    }
+  ]
+}

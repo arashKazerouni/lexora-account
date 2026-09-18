@@ -16,11 +16,9 @@ import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 
-const LEXORA =
-  "CD3ZU34KEWO57CMO7YVZCE7W3RJMXJ3T6CKPHYWKI7IVCDXSHBGTM6TT";
+const LEXORA = "CD3ZU34KEWO57CMO7YVZCE7W3RJMXJ3T6CKPHYWKI7IVCDXSHBGTM6TT";
 
-const XEVA_ISSUER =
-  "GCADAZ22Y6EUC575N4SRMGYVXTODH5MOHM3EVHQNC7AZ6PTZNJI7SXRP";
+const XEVA_ISSUER = "GCADAZ22Y6EUC575N4SRMGYVXTODH5MOHM3EVHQNC7AZ6PTZNJI7SXRP";
 
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
 const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
@@ -68,7 +66,9 @@ async function main() {
 
   console.log("Simulating...");
 
-  const simulation = await server.simulateTransaction(tx);
+  const simulation = await server.simulateTransaction(tx, {
+    cpuInstructions: 1_000_000,
+  });
 
   if (simulation.error) {
     throw new Error(simulation.error);
@@ -164,7 +164,9 @@ async function main() {
   if (result.status === "FAILED") {
     const tx = await server.getTransaction(response.hash);
     console.dir(tx, { depth: 8 });
-    throw new Error("Soroban transaction failed; see decoded transaction result above.");
+    throw new Error(
+      "Soroban transaction failed; see decoded transaction result above.",
+    );
   }
 }
 
