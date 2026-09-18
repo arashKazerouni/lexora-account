@@ -33,7 +33,7 @@ const ledgerKey = xdr.LedgerKey.contractData(
   new xdr.LedgerKeyContractData({
     contract: Address.fromString(CONTRACT).toScAddress(),
     key,
-    durability: xdr.ContractDataDurability.persistent(),
+    durability: xdr.ContractDataDurability.persistent,
   }),
 );
 
