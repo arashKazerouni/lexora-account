@@ -1,0 +1,27 @@
+{
+  "name": "lexora-account",
+  "version": "1.0.0",
+  "description": "LEXORA is a Soroban custom contract account designed to become the authorization layer for the LEXORA token-security ecosystem.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arashKazerouni/lexora-account.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/arashKazerouni/lexora-account/issues"
+  },
+  "homepage": "https://github.com/arashKazerouni/lexora-account#readme",
+  "dependencies": {
+    "@stellar/stellar-sdk": "^17.1.0"
+  }
+}
