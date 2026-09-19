@@ -24,6 +24,9 @@ const LEXORA =
 const SAC =
   "CC7L34EWYCTDCA3L7CRRULWX577UJWET32KNJFD2WTEQ4KD7IAUKHIS6";
 
+const EXPECTED_OWNER =
+  "GCGJIJ4YYQR7ROEVXW4QNPN3E2C7AJMTQA7KVA2BMX7JGWFJAYTSFDFU";
+
 const recipient = process.env.XRP262_MINT_RECIPIENT;
 const amountText = process.env.XRP262_MINT_AMOUNT;
 const confirm = process.env.CONFIRM_XRP262_MAINNET_MINT;
@@ -89,8 +92,18 @@ async function main() {
   console.log("SAC:", SAC);
   console.log("Recipient:", recipient);
   console.log("Amount:", amount.toString(), "base units");
-  console.log("Amount:", Number(amount) / 10_000_000, "XRP262");
   console.log("");
+
+  const ownerBytes = await simulate(LEXORA, "owner");
+  const onChainOwner = StrKey.encodeEd25519PublicKey(Buffer.from(ownerBytes));
+  if (onChainOwner !== EXPECTED_OWNER) {
+    throw new Error(`LEXORA owner mismatch: ${onChainOwner}`);
+  }
+  if (owner.publicKey() !== EXPECTED_OWNER) {
+    throw new Error(
+      `Wrong LEXORA_OWNER_SECRET: ${owner.publicKey()}`,
+    );
+  }
 
   const policyBefore = await simulate(LEXORA, "xrp262_policy");
   const sacBefore = await simulate(LEXORA, "xrp262_sac");
@@ -115,6 +128,16 @@ async function main() {
   }
   if (amount > maxSupply) throw new Error("Mint exceeds max supply.");
 
+  const canMint = await simulate(LEXORA, "can_mint_xrp262", [
+    nativeToScVal(amount.toString(), { type: "i128" }),
+  ]);
+  if (canMint !== true) {
+    throw new Error("Lexora can_mint_xrp262() rejected this amount.");
+  }
+
+  console.log("Preconditions: PASS");
+  console.log("Simulating mint...");
+
   const account = await server.getAccount(deployer.publicKey());
   const tx = new TransactionBuilder(account, {
     networkPassphrase: NETWORK,
@@ -133,7 +156,6 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  console.log("Simulating mint...");
   const simulation = await server.simulateTransaction(tx, {
     cpuInstructions: 2_000_000,
   });
@@ -223,10 +245,18 @@ async function main() {
 
   const policyAfter = await simulate(LEXORA, "xrp262_policy");
   const mintedAfter = BigInt(policyAfter.minted);
+  const recipientBalance = await simulate(SAC, "balance", [
+    Address.fromString(recipient).toScVal(),
+  ]);
 
   if (mintedAfter !== mintedBefore + amount) {
     throw new Error(
       `Post-mint accounting mismatch: expected ${mintedBefore + amount}, got ${mintedAfter}`,
+    );
+  }
+  if (BigInt(recipientBalance) < amount) {
+    throw new Error(
+      `Recipient balance mismatch: expected at least ${amount}, got ${recipientBalance}`,
     );
   }
 
@@ -237,6 +267,7 @@ async function main() {
   console.log("Minted before:", mintedBefore.toString());
   console.log("Minted after:", mintedAfter.toString());
   console.log("Recipient:", recipient);
+  console.log("Recipient balance:", recipientBalance.toString());
   console.log("Amount:", amount.toString(), "base units");
 }
 
