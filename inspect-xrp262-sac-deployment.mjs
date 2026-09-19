@@ -59,19 +59,28 @@ if (ops.length !== 1) {
   throw new Error(`Expected exactly 1 operation, found ${ops.length}`);
 }
 
-// Reparse the final prepared transaction XDR so the inspection is performed
-// against exactly what would be signed/submitted.
 const reparsed = StellarSdk.TransactionBuilder.fromXDR(
   prepared.toXDR(),
   NETWORK
 );
 const parsedOp = reparsed.operations[0];
 
-console.log("\nDecoded operation XDR:");
-console.dir(parsedOp, { depth: 8 });
+const isExpectedOperation =
+  parsedOp.type === "invokeHostFunction" &&
+  parsedOp.func?.type === "hostFunctionTypeCreateContract" &&
+  parsedOp.func?.createContractArgs?.contractIdPreimage?.type ===
+    "contractIdPreimageFromAsset" &&
+  parsedOp.func?.createContractArgs?.executable?.type ===
+    "contractExecutableStellarAsset";
 
-console.log("\nOperation XDR (base64):");
-console.log(parsedOp.toXDR("base64"));
+if (!isExpectedOperation) {
+  throw new Error(
+    "Prepared transaction operation does not match the expected native SAC deployment."
+  );
+}
+
+console.log("\nDecoded operation:");
+console.dir(parsedOp, { depth: 8 });
 
 console.log("\nPrepared transaction XDR (base64):");
 console.log(prepared.toXDR());
@@ -79,8 +88,10 @@ console.log(prepared.toXDR());
 console.log("\nSAFETY RESULT:");
 console.log("1. Deterministic SAC address: PASS");
 console.log("2. Exactly one operation:      PASS");
-console.log("3. Transaction prepared:       PASS");
-console.log("4. Transaction submitted:      NO");
+console.log("3. Asset-based contract ID:    PASS");
+console.log("4. Stellar Asset executable:   PASS");
+console.log("5. Transaction prepared:       PASS");
+console.log("6. Transaction submitted:      NO");
 
 console.log(
   "\nIMPORTANT: This script only prepares and inspects the transaction. " +
