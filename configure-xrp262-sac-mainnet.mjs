@@ -18,12 +18,12 @@ const LEXORA = "CCV2AE6KK5IA3EW3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA";
 const XRP262_SAC = "CC7L34EWYCTDCA3L7CRRULWX577UJWET32KNJFD2WTEQ4KD7IAUKHIS6";
 const EXPECTED_ASSET_CODE = "XRP262";
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
-const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
+const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);\nif (!LEXORA) throw new Error("Missing LEXORA_MAINNET_CONTRACT.");
 const server = new Server(RPC_URL);
 const SOROBAN_FEE_LIMIT = "10000000";
 
 async function main() {
-  console.log("Network: MAINNET");
+  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  console.log("Network: MAINNET");
   console.log("Deployer:", deployer.publicKey());
   console.log("Owner:", owner.publicKey());
   console.log("LEXORA:", LEXORA);
