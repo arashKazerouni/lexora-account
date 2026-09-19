@@ -62,6 +62,14 @@ async function main() {
       address: info.address, credentialType: info.credentialType,
       signers: info.signers.map((s) => ({ address: s.address, signed: s.signed })),
     });
+
+    // SAC set_admin() is authorized by the current admin, which is the
+    // transaction source account here. For sourceAccount credentials,
+    // the SDK correctly reports address=null because the source account
+    // signature is carried by the transaction itself. Do not attempt to
+    // authorize this entry as a contract/custom credential.
+    if (info.credentialType === "sourceAccount") return entry;
+
     if (info.address !== ISSUER) throw new Error(`Unexpected auth address: ${info.address}`);
     return authorizeEntry(entry, async (_preimage, signingHash) => ({
       signatureScVal: xdr.ScVal.scvBytes(issuer.sign(signingHash)), address: ISSUER,
