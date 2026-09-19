@@ -32,7 +32,7 @@ The mint path requires LEXORA authorization, checks the policy ceiling before th
 
 The burn path requires LEXORA authorization, checks accounting limits, invokes the SAC burn against the LEXORA contract address, and updates accounting only after the SAC call succeeds.
 
-The configured SAC is sanity-checked by its symbol value (XRP262) during configuration. This is a configuration guard, not a cryptographic proof of asset provenance; on-chain SAC verification remains part of deployment/testing.
+The configured SAC is sanity-checked against an explicitly supplied expected asset code during configuration. LEXORA compares the SAC symbol to that expected code before storing the address. This is a configuration guard, not a cryptographic proof of asset provenance; the owner-controlled configuration and on-chain SAC verification remain part of deployment/testing.
 
 ## Strategy permissions
 Each strategy has an active/inactive state, maximum XRP262 allocation, and spending limit. Strategies are registered and disabled by LEXORA administrative authority. Strategy execution against the SAC is still deliberately deferred until the direct mint/burn path is tested on testnet.
