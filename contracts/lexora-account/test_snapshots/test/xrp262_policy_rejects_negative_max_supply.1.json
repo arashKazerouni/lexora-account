@@ -1,10 +1,11 @@
 {
   "generators": {
-    "address": 2,
+    "address": 1,
     "nonce": 0,
     "mux_id": 0
   },
   "auth": [
+    [],
     [],
     []
   ],
@@ -38,7 +39,7 @@
                         "string": "OWNER"
                       },
                       "val": {
-                        "bytes": "d5e2f8640716850b209414b18f549e2e8d9dd7802c62a4df5e031699ee8623e7"
+                        "bytes": "d644204e16eb042ff1f57c3d328748b082129d59ab585e6563ea0470868bd42b"
                       }
                     }
                   ]

@@ -13,27 +13,36 @@
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "register_token",
+              "function_name": "authorize_strategy",
               "args": [
                 {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "code"
-                      },
-                      "val": {
-                        "string": "XEVA"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "issuer"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    }
-                  ]
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "i128": "500"
+                },
+                {
+                  "i128": "100"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "disable_strategy",
+              "args": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 }
               ]
             }
@@ -64,27 +73,10 @@
               "key": {
                 "vec": [
                   {
-                    "symbol": "Token"
+                    "symbol": "Strategy"
                   },
                   {
-                    "map": [
-                      {
-                        "key": {
-                          "symbol": "code"
-                        },
-                        "val": {
-                          "string": "XEVA"
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "issuer"
-                        },
-                        "val": {
-                          "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                        }
-                      }
-                    ]
+                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                   }
                 ]
               },
@@ -93,22 +85,26 @@
                 "map": [
                   {
                     "key": {
-                      "symbol": "registered_at"
+                      "symbol": "active"
                     },
                     "val": {
-                      "u64": "0"
+                      "bool": false
                     }
                   },
                   {
                     "key": {
-                      "symbol": "status"
+                      "symbol": "max_allocation"
                     },
                     "val": {
-                      "vec": [
-                        {
-                          "symbol": "Active"
-                        }
-                      ]
+                      "i128": "500"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "spending_limit"
+                    },
+                    "val": {
+                      "i128": "100"
                     }
                   }
                 ]
@@ -139,7 +135,7 @@
                         "string": "OWNER"
                       },
                       "val": {
-                        "bytes": "23a0c55b6510942b3c205078df6cc5fb9fd4bb0600e825f2fa93d6d7aff75595"
+                        "bytes": "816516bfcf898a5d4a1f9bab90c3252cefe142d49400e9f9bd7ebf24fee6710b"
                       }
                     }
                   ]
@@ -161,6 +157,26 @@
               "key": {
                 "ledger_key_nonce": {
                   "nonce": "801925984706572462"
+                }
+              },
+              "durability": "temporary",
+              "val": "void"
+            }
+          },
+          "ext": "v0"
+        },
+        "live_until": 6311999
+      },
+      {
+        "entry": {
+          "last_modified_ledger_seq": 0,
+          "data": {
+            "contract_data": {
+              "ext": "v0",
+              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "key": {
+                "ledger_key_nonce": {
+                  "nonce": "5541220902715666415"
                 }
               },
               "durability": "temporary",

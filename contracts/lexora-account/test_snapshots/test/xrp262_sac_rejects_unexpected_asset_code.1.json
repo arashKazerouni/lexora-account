@@ -6,6 +6,8 @@
   },
   "auth": [
     [],
+    [],
+    [],
     []
   ],
   "ledger": {
@@ -38,10 +40,33 @@
                         "string": "OWNER"
                       },
                       "val": {
-                        "bytes": "d5e2f8640716850b209414b18f549e2e8d9dd7802c62a4df5e031699ee8623e7"
+                        "bytes": "938f8ffe6ddd3a99c0a1a0e388cf13b8dd458b241ece877828cd91272477adbc"
                       }
                     }
                   ]
+                }
+              }
+            }
+          },
+          "ext": "v0"
+        },
+        "live_until": 4095
+      },
+      {
+        "entry": {
+          "last_modified_ledger_seq": 0,
+          "data": {
+            "contract_data": {
+              "ext": "v0",
+              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+              "key": "ledger_key_contract_instance",
+              "durability": "persistent",
+              "val": {
+                "contract_instance": {
+                  "executable": {
+                    "wasm": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "storage": null
                 }
               }
             }
