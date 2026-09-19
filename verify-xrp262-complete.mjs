@@ -61,5 +61,13 @@ console.log("Unauthorized balance:", assetRecord.balances?.unauthorized ?? "unkn
 console.log("Liquidity-pool amount:", assetRecord.liquidity_pools_amount ?? "unknown");
 console.log("Contract amount:", assetRecord.contracts_amount ?? "unknown");
 console.log("Claimable amount:", assetRecord.claimable_balances_amount ?? "unknown");
-console.log("Offer amount:", assetRecord.offers_amount ?? "unknown");
+const offersUrl = `${HORIZON_URL}/offers?selling=${encodeURIComponent(`${ASSET_CODE}:${ISSUER}`)}&limit=200`;
+const offersResponse = await fetch(offersUrl);
+if (!offersResponse.ok) throw new Error(`Horizon offers request failed: ${offersResponse.status} ${offersResponse.statusText}`);
+const offersPage = await offersResponse.json();
+const offers = offersPage._embedded?.records ?? [];
+const offerAmount = offers.reduce((sum, offer) => sum + Number(offer.amount ?? 0), 0);
+
+console.log("Open selling offers:", offers.length);
+console.log("Offer amount:", offerAmount.toFixed(7));
 console.log("\nRESULT: XRP262 SAC + live asset supply/distribution state queried from mainnet.");
