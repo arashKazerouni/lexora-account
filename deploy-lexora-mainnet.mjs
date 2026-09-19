@@ -75,7 +75,10 @@ if (uploadResult.status !== "SUCCESS") {
   throw new Error("WASM upload failed.");
 }
 
-const uploadedHash = uploadResult.returnValue.bytes();
+const uploadedHash =
+  typeof uploadResult.returnValue?.bytes === "function"
+    ? uploadResult.returnValue.bytes()
+    : StellarSdk.scValToNative(uploadResult.returnValue);
 if (uploadedHash.toString("hex") !== wasmHash.toString("hex")) {
   throw new Error("Uploaded WASM hash does not match the local WASM hash.");
 }
@@ -115,10 +118,15 @@ if (deployResult.status !== "SUCCESS") {
   throw new Error("LEXORA deployment failed.");
 }
 
+const deployedAddress =
+  typeof deployResult.returnValue?.address === "function"
+    ? deployResult.returnValue.address()
+    : StellarSdk.Address.fromString(
+        StellarSdk.scValToNative(deployResult.returnValue)
+      ).toScAddress();
+
 const contractAddress = StellarSdk.StrKey.encodeContract(
-  StellarSdk.Address.fromScAddress(
-    deployResult.returnValue.address()
-  ).toBuffer()
+  StellarSdk.Address.fromScAddress(deployedAddress).toBuffer()
 );
 
 console.log("");
