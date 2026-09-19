@@ -352,7 +352,9 @@ fn xrp262_sac_can_be_configured_once() {
     client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
 
     assert_eq!(client.xrp262_sac(), Some(sac.clone()));
-    assert!(client\n        .try_configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262T"))\n        .is_err());
+    assert!(client
+        .try_configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262T"))
+        .is_err());
 }
 
 #[test]
