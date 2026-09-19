@@ -17,7 +17,7 @@ const LEXORA = "CCV2AE6KK5IA3EW3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA";
 const MAX_SUPPLY = 900_000_000_000;
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
 const EXPECTED_DEPLOYER = "GBJELP7DVYFQLY77ZM34SDMQOHDRBN7E7L44WHDAMPPMLCSKG6P3ESRT";
-const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
+const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);\nif (!LEXORA) throw new Error("Missing LEXORA_MAINNET_CONTRACT.");\nif (!owner) throw new Error("Missing LEXORA_OWNER_SECRET.");
 const EXPECTED_OWNER = "GCGJIJ4YYQR7ROEVXW4QNPN3E2C7AJMTQA7KVA2BMX7JGWFJAYTSFDFU";
 const server = new Server(RPC_URL);
 const SOROBAN_FEE_LIMIT = "10000000";
@@ -25,7 +25,7 @@ const SOROBAN_FEE_LIMIT = "10000000";
 async function main() {
   if (deployer.publicKey() !== EXPECTED_DEPLOYER) throw new Error(`Wrong deployer: ${deployer.publicKey()}`);
   if (owner.publicKey() !== EXPECTED_OWNER) throw new Error(`Wrong owner: ${owner.publicKey()}`);
-  console.log("Network: MAINNET");
+  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  console.log("Network: MAINNET");
   console.log("Deployer:", deployer.publicKey());
   console.log("Owner:", owner.publicKey());
   console.log("LEXORA:", LEXORA);
