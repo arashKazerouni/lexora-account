@@ -24,16 +24,9 @@ const source = keypair.publicKey();
 
 const asset = new StellarSdk.Asset(ASSET_CODE, ISSUER);
 
-// A SAC contract ID is SHA-256(XDR(ContractIdPreimage.fromAsset(...))).
-// The previous implementation incorrectly tried to encode the preimage
-// itself as a 32-byte contract ID.
-const preimage =
-  StellarSdk.xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-    asset.toXDRObject()
-  );
-
-const contractIdBytes = StellarSdk.hash(preimage.toXDR());
-const derived = StellarSdk.StrKey.encodeContract(contractIdBytes);
+// SAC contract IDs are network-aware. The SDK's contractId() helper builds
+// HashIDPreimage(ENVELOPE_TYPE_CONTRACT_ID, networkID, ContractIDPreimage).
+const derived = asset.contractId(NETWORK);
 
 // Build the native SAC deployment operation.
 // IMPORTANT: this script intentionally DOES NOT submit the transaction.
