@@ -40,20 +40,82 @@ const transaction = new StellarSdk.TransactionBuilder(account, {
   .setTimeout(300)
   .build();
 
-const prepared = await server.prepareTransaction(transaction);
-
-console.log("XRP262 SAC deployment transaction verification");
-console.log("------------------------------------------------");
+console.log("XRP262 SAC deployment fee investigation");
+console.log("---------------------------------------");
 console.log("Asset:              ", `${ASSET_CODE}-${ISSUER}`);
 console.log("Expected SAC:       ", EXPECTED_SAC);
 console.log("Derived SAC:        ", derived);
 console.log("Source:             ", source);
-console.log("Network:            ", NETWORK);
-console.log("Operations:         ", prepared.operations.length);
-console.log("Fee (stroops):      ", prepared.fee);
-console.log("Fee (XLM):          ", Number(prepared.fee) / 10_000_000);
-console.log("Sequence:            ", prepared.sequence);
-console.log("Timeout ledger/time: ", prepared.timeBounds ?? "(none)");
+console.log("RPC:                ", RPC_URL);
+console.log("Operations:         ", transaction.operations.length);
+console.log("Initial fee:        ", transaction.fee, "stroops");
+console.log(
+  "Initial fee (XLM):  ",
+  Number(transaction.fee) / 10_000_000
+);
+
+console.log("\nSimulating unprepared transaction...");
+const simulation = await server.simulateTransaction(transaction);
+
+console.log("Simulation latest ledger:", simulation.latestLedger);
+
+if (simulation.error) {
+  console.error("Simulation error:", simulation.error);
+  throw new Error("Soroban simulation failed; transaction was not prepared or submitted.");
+}
+
+console.log(
+  "Minimum resource fee:    ",
+  simulation.minResourceFee ?? "(not returned)"
+);
+if (simulation.minResourceFee !== undefined) {
+  console.log(
+    "Resource fee (XLM):      ",
+    Number(simulation.minResourceFee) / 10_000_000
+  );
+  console.log(
+    "Expected total fee:      ",
+    Number(simulation.minResourceFee) + Number(StellarSdk.BASE_FEE),
+    "stroops"
+  );
+  console.log(
+    "Expected total fee (XLM):",
+    (Number(simulation.minResourceFee) + Number(StellarSdk.BASE_FEE)) /
+      10_000_000
+  );
+}
+
+if (simulation.cost) {
+  console.log("\nSimulation resource usage:");
+  console.log("CPU instructions:        ", simulation.cost.cpuInsns ?? "(n/a)");
+  console.log("Memory bytes:            ", simulation.cost.memBytes ?? "(n/a)");
+}
+
+console.log("\nPreparing transaction...");
+const prepared = await server.prepareTransaction(transaction);
+
+console.log("Prepared fee:             ", prepared.fee, "stroops");
+console.log(
+  "Prepared fee (XLM):       ",
+  Number(prepared.fee) / 10_000_000
+);
+
+if (simulation.minResourceFee !== undefined) {
+  const expectedPreparedFee =
+    Number(simulation.minResourceFee) + Number(StellarSdk.BASE_FEE);
+  console.log(
+    "Prepared fee vs simulation:",
+    Number(prepared.fee) === expectedPreparedFee ? "MATCH" : "DIFF"
+  );
+  console.log(
+    "Inclusion fee component:  ",
+    Number(prepared.fee) - Number(simulation.minResourceFee),
+    "stroops"
+  );
+}
+
+console.log("Sequence:                 ", prepared.sequence);
+console.log("Timeout ledger/time:      ", prepared.timeBounds ?? "(none)");
 
 const ops = prepared.operations;
 if (ops.length !== 1) {
@@ -102,10 +164,11 @@ console.log("1. Deterministic SAC address: PASS");
 console.log("2. Exactly one operation:      PASS");
 console.log("3. Asset-based contract ID:    PASS");
 console.log("4. Stellar Asset executable:   PASS");
-console.log("5. Transaction prepared:       PASS");
-console.log("6. Transaction submitted:      NO");
+console.log("5. Simulation completed:       PASS");
+console.log("6. Transaction prepared:       PASS");
+console.log("7. Transaction submitted:      NO");
 
 console.log(
-  "\nIMPORTANT: This script only prepares and inspects the transaction. " +
+  "\nIMPORTANT: This script only simulates, prepares, and inspects the transaction. " +
     "It does not sign or submit it."
 );
