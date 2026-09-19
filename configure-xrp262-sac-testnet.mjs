@@ -17,6 +17,7 @@ const RPC_URL = "https://soroban-testnet.stellar.org";
 const NETWORK = Networks.TESTNET;
 
 const LEXORA =
+  process.env.LEXORA_TESTNET ||
   "CBXESEYLHVKMOEI5OGPIRY6VQVZ7NYKTKMFBQ2IBAFIBYV3LNKKXNEWY";
 
 const XRP262_SAC =
