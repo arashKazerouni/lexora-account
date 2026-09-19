@@ -8,6 +8,8 @@ import {
   inspectAuthEntry,
   checkAuthEntryReadiness,
   xdr,
+  nativeToScVal,
+  scValToNative,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 
@@ -25,9 +27,6 @@ if (!process.env.LEXORA_DEPLOYER_SECRET) {
 }
 if (!process.env.LEXORA_OWNER_SECRET) {
   throw new Error("Missing LEXORA_OWNER_SECRET.");
-}
-if (!LEXORA) {
-  throw new Error("Missing LEXORA_MAINNET_CONTRACT.");
 }
 
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
@@ -60,8 +59,9 @@ async function main() {
   const ownerValue = ownerSimulation.result?.retval;
   if (!ownerValue) throw new Error("LEXORA owner() returned no value.");
 
-  const decodedOwner = Buffer.from(ownerValue.bytes()).toString("hex");
-  const expectedOwner = owner.rawPublicKey().toString("hex");
+  const decodedOwner = scValToNative(ownerValue);
+  const expectedOwner = owner.publicKey();
+
   if (decodedOwner !== expectedOwner) {
     throw new Error(
       `LEXORA owner mismatch: on-chain=${decodedOwner}, expected=${expectedOwner}`
@@ -86,9 +86,7 @@ async function main() {
         function: "configure_xrp262_sac",
         args: [
           Address.fromString(XRP262_SAC).toScVal(),
-          require("@stellar/stellar-sdk").nativeToScVal(EXPECTED_ASSET_CODE, {
-            type: "string",
-          }),
+          nativeToScVal(EXPECTED_ASSET_CODE, { type: "string" }),
         ],
       })
     )
