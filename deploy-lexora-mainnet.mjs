@@ -103,11 +103,16 @@ async function waitForTransaction(hash, label) {
 
 const uploadResult = await waitForTransaction(uploadResponse.hash, "WASM upload");
 
-const uploadedHash =
+const uploadedHash = Buffer.from(
   typeof uploadResult.returnValue?.bytes === "function"
     ? uploadResult.returnValue.bytes()
-    : StellarSdk.scValToNative(uploadResult.returnValue);
+    : StellarSdk.scValToNative(uploadResult.returnValue)
+);
+
 if (uploadedHash.toString("hex") !== wasmHash.toString("hex")) {
+  console.error("Local WASM hash:    ", wasmHash.toString("hex"));
+  console.error("Uploaded returnVal: ", uploadedHash.toString("hex"));
+  console.dir(uploadResult.returnValue, { depth: 10 });
   throw new Error("Uploaded WASM hash does not match the local WASM hash.");
 }
 
