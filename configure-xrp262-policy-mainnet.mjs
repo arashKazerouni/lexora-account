@@ -25,7 +25,30 @@ const SOROBAN_FEE_LIMIT = "10000000";
 async function main() {
   if (deployer.publicKey() !== EXPECTED_DEPLOYER) throw new Error(`Wrong deployer: ${deployer.publicKey()}`);
   if (owner.publicKey() !== EXPECTED_OWNER) throw new Error(`Wrong owner: ${owner.publicKey()}`);
-  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  console.log("Network: MAINNET");
+  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  const ownerReadTx = new TransactionBuilder(
+    await server.getAccount(deployer.publicKey()),
+    { networkPassphrase: NETWORK, fee: BASE_FEE }
+  )
+    .addOperation(Operation.invokeContractFunction({
+      contract: LEXORA,
+      function: "owner",
+      args: [],
+    }))
+    .setTimeout(300)
+    .build();
+
+  const ownerSimulation = await server.simulateTransaction(ownerReadTx);
+  if (ownerSimulation.error) throw new Error(`LEXORA owner() simulation failed: ${ownerSimulation.error}`);
+  const onChainOwner = Buffer.from(nativeToScVal(owner.publicKey(), { type: "address" }).address().contractId?.() ?? []);
+  const ownerValue = ownerSimulation.result?.retval;
+  if (!ownerValue) throw new Error("LEXORA owner() returned no value.");
+  const decodedOwner = Buffer.from(ownerValue.bytes()).toString("hex");
+  const expectedOwner = owner.rawPublicKey().toString("hex");
+  if (decodedOwner !== expectedOwner) {
+    throw new Error(`LEXORA owner mismatch: on-chain=${decodedOwner}, expected=${expectedOwner}`);
+  }
+  console.log("LEXORA owner verification: PASS");
+  console.log("Network: MAINNET");
   console.log("Deployer:", deployer.publicKey());
   console.log("Owner:", owner.publicKey());
   console.log("LEXORA:", LEXORA);
