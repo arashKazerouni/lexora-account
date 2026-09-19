@@ -50,7 +50,8 @@ console.log("Derived SAC:        ", derived);
 console.log("Source:             ", source);
 console.log("Network:            ", NETWORK);
 console.log("Operations:         ", prepared.operations.length);
-console.log("Fee:                ", prepared.fee);
+console.log("Fee (stroops):      ", prepared.fee);
+console.log("Fee (XLM):          ", Number(prepared.fee) / 10_000_000);
 console.log("Sequence:            ", prepared.sequence);
 console.log("Timeout ledger/time: ", prepared.timeBounds ?? "(none)");
 
@@ -65,12 +66,17 @@ const reparsed = StellarSdk.TransactionBuilder.fromXDR(
 );
 const parsedOp = reparsed.operations[0];
 
+console.log("\nDecoded operation:");
+console.dir(parsedOp, { depth: 8 });
+
+const createContract = parsedOp.func?.createContract;
+
 const isExpectedOperation =
   parsedOp.type === "invokeHostFunction" &&
   parsedOp.func?.type === "hostFunctionTypeCreateContract" &&
-  parsedOp.func?.createContractArgs?.contractIdPreimage?.type ===
+  createContract?.contractIdPreimage?.type ===
     "contractIdPreimageFromAsset" &&
-  parsedOp.func?.createContractArgs?.executable?.type ===
+  createContract?.executable?.type ===
     "contractExecutableStellarAsset";
 
 if (!isExpectedOperation) {
@@ -79,8 +85,14 @@ if (!isExpectedOperation) {
   );
 }
 
-console.log("\nDecoded operation:");
-console.dir(parsedOp, { depth: 8 });
+console.log("\nDecoded operation checks:");
+console.log("1. Host function:             PASS");
+console.log("2. Asset-based contract ID:   PASS");
+console.log("3. Stellar Asset executable:  PASS");
+console.log(
+  "4. Operation source:          ",
+  parsedOp.source === source ? "PASS" : "CHECK"
+);
 
 console.log("\nPrepared transaction XDR (base64):");
 console.log(prepared.toXDR());
