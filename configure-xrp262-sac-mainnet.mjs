@@ -10,6 +10,7 @@ import {
   xdr,
   nativeToScVal,
   scValToNative,
+  StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 
@@ -59,12 +60,13 @@ async function main() {
   const ownerValue = ownerSimulation.result?.retval;
   if (!ownerValue) throw new Error("LEXORA owner() returned no value.");
 
-  const decodedOwner = scValToNative(ownerValue);
+  const ownerBytes = Buffer.from(scValToNative(ownerValue));
+  const onChainOwner = StrKey.encodeEd25519PublicKey(ownerBytes);
   const expectedOwner = owner.publicKey();
 
-  if (decodedOwner !== expectedOwner) {
+  if (onChainOwner !== expectedOwner) {
     throw new Error(
-      `LEXORA owner mismatch: on-chain=${decodedOwner}, expected=${expectedOwner}`
+      `LEXORA owner mismatch: on-chain=${onChainOwner}, expected=${expectedOwner}`
     );
   }
 
