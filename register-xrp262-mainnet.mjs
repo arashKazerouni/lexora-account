@@ -40,10 +40,7 @@ async function main() {
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
-    contract: LEXORA, function: "register_token", args: [nativeToScVal({
-      code: "XRP262",
-      issuer: Address.fromString(XRP262_ISSUER),
-    }, { type: "AssetId" })],
+    contract: LEXORA, function: "register_token", args: [assetId()],
   })).setTimeout(300).build();
 
   console.log("XRP262 MAINNET REGISTRY");
