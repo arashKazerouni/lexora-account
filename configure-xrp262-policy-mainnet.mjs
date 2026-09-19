@@ -1,99 +1,70 @@
 import {
-  Keypair,
-  Networks,
-  Operation,
-  TransactionBuilder,
-  authorizeEntry,
-  inspectAuthEntry,
-  checkAuthEntryReadiness,
-  nativeToScVal,
-  xdr,
+  Keypair, Networks, Operation, TransactionBuilder, authorizeEntry,
+  inspectAuthEntry, checkAuthEntryReadiness, nativeToScVal, xdr, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
-const LEXORA = "CCV2AE6KK5IA3EW3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA";
-const MAX_SUPPLY = 900_000_000_000;
+const LEXORA = process.env.LEXORA_MAINNET_CONTRACT ||
+  "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
+const MAX_SUPPLY = 900_000_000_000n * 10_000_000n;
+
+if (!process.env.LEXORA_DEPLOYER_SECRET || !process.env.LEXORA_OWNER_SECRET)
+  throw new Error("Missing LEXORA_DEPLOYER_SECRET or LEXORA_OWNER_SECRET.");
+
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
-const EXPECTED_DEPLOYER = "GBJELP7DVYFQLY77ZM34SDMQOHDRBN7E7L44WHDAMPPMLCSKG6P3ESRT";
-const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);\nif (!LEXORA) throw new Error("Missing LEXORA_MAINNET_CONTRACT.");\nif (!owner) throw new Error("Missing LEXORA_OWNER_SECRET.");
-const EXPECTED_OWNER = "GCGJIJ4YYQR7ROEVXW4QNPN3E2C7AJMTQA7KVA2BMX7JGWFJAYTSFDFU";
+const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
 const server = new Server(RPC_URL);
-const SOROBAN_FEE_LIMIT = "10000000";
 
 async function main() {
-  if (deployer.publicKey() !== EXPECTED_DEPLOYER) throw new Error(`Wrong deployer: ${deployer.publicKey()}`);
-  if (owner.publicKey() !== EXPECTED_OWNER) throw new Error(`Wrong owner: ${owner.publicKey()}`);
-  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  const ownerReadTx = new TransactionBuilder(
-    await server.getAccount(deployer.publicKey()),
-    { networkPassphrase: NETWORK, fee: SOROBAN_FEE_LIMIT }
-  )
-    .addOperation(Operation.invokeContractFunction({
-      contract: LEXORA,
-      function: "owner",
-      args: [],
-    }))
-    .setTimeout(300)
-    .build();
+  const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
+    networkPassphrase: NETWORK, fee: "10000000",
+  }).addOperation(Operation.invokeContractFunction({
+    contract: LEXORA, function: "owner", args: [],
+  })).setTimeout(300).build();
 
-  const ownerSimulation = await server.simulateTransaction(ownerReadTx);
-  if (ownerSimulation.error) throw new Error(`LEXORA owner() simulation failed: ${ownerSimulation.error}`);
-  const onChainOwner = Buffer.from(nativeToScVal(owner.publicKey(), { type: "address" }).address().contractId?.() ?? []);
-  const ownerValue = ownerSimulation.result?.retval;
-  if (!ownerValue) throw new Error("LEXORA owner() returned no value.");
-  const decodedOwner = Buffer.from(ownerValue.bytes()).toString("hex");
-  const expectedOwner = owner.rawPublicKey().toString("hex");
-  if (decodedOwner !== expectedOwner) {
-    throw new Error(`LEXORA owner mismatch: on-chain=${decodedOwner}, expected=${expectedOwner}`);
-  }
-  console.log("LEXORA owner verification: PASS");
-  console.log("Network: MAINNET");
-  console.log("Deployer:", deployer.publicKey());
-  console.log("Owner:", owner.publicKey());
+  const read = await server.simulateTransaction(readTx);
+  if (read.error) throw new Error(`owner() simulation failed: ${read.error}`);
+  const value = read.result?.retval;
+  if (!value) throw new Error("owner() returned no value.");
+  const onChainOwner = StrKey.encodeEd25519PublicKey(Buffer.from(scValToNative(value)));
+  if (onChainOwner !== owner.publicKey())
+    throw new Error(`LEXORA owner mismatch: on-chain=${onChainOwner}, expected=${owner.publicKey()}`);
+
+  const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
+    networkPassphrase: NETWORK, fee: "10000000",
+  }).addOperation(Operation.invokeContractFunction({
+    contract: LEXORA,
+    function: "configure_xrp262_policy",
+    args: [nativeToScVal(MAX_SUPPLY.toString(), { type: "i128" })],
+  })).setTimeout(300).build();
+
+  console.log("XRP262 MAINNET POLICY CONFIGURATION");
   console.log("LEXORA:", LEXORA);
-  console.log("Max supply:", MAX_SUPPLY);
-
-  const account = await server.getAccount(deployer.publicKey());
-  const tx = new TransactionBuilder(account, {
-    networkPassphrase: NETWORK,
-    fee: SOROBAN_FEE_LIMIT,
-  })
-    .addOperation(Operation.invokeContractFunction({
-      contract: LEXORA,
-      function: "configure_xrp262_policy",
-      args: [nativeToScVal(BigInt(MAX_SUPPLY), { type: "i128" })],
-    }))
-    .setTimeout(300)
-    .build();
-
+  console.log("Total supply:", "900,000,000,000 XRP262");
+  console.log("Decimals:", "7");
+  console.log("Max supply base units:", MAX_SUPPLY.toString());
+  console.log("Owner verification: PASS");
   console.log("Simulating...");
+
   const simulation = await server.simulateTransaction(tx, { cpuInstructions: 1_000_000 });
   if (simulation.error) throw new Error(simulation.error);
   if (!simulation.result?.auth) throw new Error("Simulation returned no authorization entries.");
 
   const validUntil = simulation.latestLedger + 60;
   simulation.result.auth = await Promise.all(simulation.result.auth.map(async (entry) => {
-    const before = inspectAuthEntry(entry);
-    console.log("Auth entry:", {
-      credentialType: before.credentialType,
-      address: before.address,
-      nonce: before.nonce?.toString(),
-      expiration: before.signatureExpirationLedger,
-      signers: before.signers.map((signer) => ({ address: signer.address, signed: signer.signed })),
-    });
-    if (before.address !== LEXORA) throw new Error(`Unexpected authorization address: ${before.address}; expected ${LEXORA}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => {
-      const signature = owner.sign(signingHash);
-      if (!owner.verify(signingHash, signature)) throw new Error("Local Ed25519 signature verification failed");
-      return { signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA };
-    }, validUntil, NETWORK);
+    const info = inspectAuthEntry(entry);
+    if (info.address !== LEXORA) throw new Error(`Unexpected authorization address: ${info.address}`);
+    return authorizeEntry(entry, async (_preimage, signingHash) => ({
+      signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)),
+      address: LEXORA,
+    }), validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
     const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
-    console.log("Auth readiness:", readiness);
-    if (!readiness.ready) throw new Error(`Authorization entry is not ready: ${JSON.stringify(readiness)}`);
+    if (!readiness.ready) throw new Error(`Authorization not ready: ${JSON.stringify(readiness)}`);
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
@@ -107,9 +78,9 @@ async function main() {
   const result = await server.pollTransaction(response.hash);
   console.log("Final status:", result.status);
   if (result.status === "FAILED") {
-    const failedTx = await server.getTransaction(response.hash);
-    console.dir(failedTx, { depth: 8 });
-    throw new Error("Soroban transaction failed; see decoded transaction result above.");
+    const failed = await server.getTransaction(response.hash);
+    console.dir(failed, { depth: 8 });
+    throw new Error("XRP262 policy configuration failed.");
   }
   console.log("XRP262 policy configuration succeeded.");
 }
