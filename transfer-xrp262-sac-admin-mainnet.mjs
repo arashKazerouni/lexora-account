@@ -31,7 +31,7 @@ async function invoke(functionName, args) {
 
 async function main() {
   const read = await invoke("admin", []);
-  const currentAdmin = StrKey.encodeEd25519PublicKey(Buffer.from(scValToNative(read.simulation.result?.retval)));
+  const currentAdmin = Address.fromScVal(read.simulation.result?.retval).toString();
   console.log("XRP262 SAC ADMIN TRANSFER");
   console.log("SAC:", SAC);
   console.log("Current admin:", currentAdmin);
