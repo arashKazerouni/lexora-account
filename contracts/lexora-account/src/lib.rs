@@ -166,14 +166,17 @@ impl LexoraAccount {
         env.storage().instance().get(&XRP262_POLICY)
     }
 
-    pub fn configure_xrp262_sac(env: Env, sac: Address) {
+    pub fn configure_xrp262_sac(env: Env, sac: Address, expected_asset_code: String) {
         require_owner_auth(&env);
         if env.storage().instance().has(&XRP262_SAC) {
             panic!("xrp262 sac already configured");
         }
+        if expected_asset_code == String::from_str(&env, "") {
+            panic!("invalid expected asset code");
+        }
 
         let token = StellarAssetClient::new(&env, &sac);
-        if token.symbol() != String::from_str(&env, "XRP262") {
+        if token.symbol() != expected_asset_code {
             panic!("invalid xrp262 sac");
         }
 
