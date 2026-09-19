@@ -39,7 +39,7 @@ if (owner.publicKey() !== EXPECTED_OWNER) {
 }
 
 const wasm = fs.readFileSync(WASM_PATH);
-const wasmHash = StellarSdk.xdr.Hash(
+const wasmHash = new StellarSdk.xdr.Hash(
   StellarSdk.hash(wasm)
 );
 const server = new StellarSdk.rpc.Server(RPC_URL);
