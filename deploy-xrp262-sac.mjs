@@ -8,7 +8,7 @@ const ISSUER =
   "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";
 
 const EXPECTED_SAC =
-  "CDJXGLSHYWF77E6IHNQBXJXQBA2K6WPNN7KKI4EO3USYTXUAZAHMGEDZ";
+  "CC7L34EWYCTDCA3L7CRRULWX577UJWET32KNJFD2WTEQ4KD7IAUKHIS6";
 
 const SECRET = process.env.DEPLOYER_SECRET;
 
@@ -24,8 +24,8 @@ const source = keypair.publicKey();
 
 const asset = new StellarSdk.Asset(ASSET_CODE, ISSUER);
 
-// SAC contract IDs are network-aware. The SDK's contractId() helper builds
-// HashIDPreimage(ENVELOPE_TYPE_CONTRACT_ID, networkID, ContractIDPreimage).
+// The official SDK derives the SAC ID from the asset preimage plus the
+// network ID, matching Stellar's HashIDPreimage::ENVELOPE_TYPE_CONTRACT_ID.
 const derived = asset.contractId(NETWORK);
 
 // Build the native SAC deployment operation.
