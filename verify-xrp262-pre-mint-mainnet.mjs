@@ -6,6 +6,7 @@ import {
   Address,
   nativeToScVal,
   scValToNative,
+  StrKey,
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
@@ -105,7 +106,7 @@ async function main() {
   console.log("");
 
   const ownerBytes = await simulate(LEXORA, "owner");
-  const owner = StellarSdk.StrKey.encodeEd25519PublicKey(Buffer.from(ownerBytes));
+  const owner = StrKey.encodeEd25519PublicKey(Buffer.from(ownerBytes));
   const configuredSac = await simulate(LEXORA, "xrp262_sac");
   const policy = await simulate(LEXORA, "xrp262_policy");
   const registryStatus = await simulate(LEXORA, "token_status", [assetId()]);
