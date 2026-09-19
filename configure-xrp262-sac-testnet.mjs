@@ -8,6 +8,7 @@ import {
   inspectAuthEntry,
   checkAuthEntryReadiness,
   xdr,
+  nativeToScVal,
 } from "@stellar/stellar-sdk";
 
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
@@ -51,7 +52,7 @@ async function main() {
         function: "configure_xrp262_sac",
         args: [
           Address.fromString(XRP262_SAC).toScVal(),
-          xdr.ScVal.scvString(EXPECTED_ASSET_CODE),
+          nativeToScVal(EXPECTED_ASSET_CODE, { type: "string" }),
         ],
       }),
     )
