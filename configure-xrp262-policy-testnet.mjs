@@ -6,6 +6,7 @@ import {
   authorizeEntry,
   inspectAuthEntry,
   checkAuthEntryReadiness,
+  nativeToScVal,
   xdr,
 } from "@stellar/stellar-sdk";
 
@@ -17,7 +18,7 @@ const NETWORK = Networks.TESTNET;
 const LEXORA =
   "CBXESEYLHVKMOEI5OGPIRY6VQVZ7NYKTKMFBQ2IBAFIBYV3LNKKXNEWY";
 
-const MAX_SUPPLY = "10000000";
+const MAX_SUPPLY = 10_000_000;
 
 // The fee-payer signs the transaction envelope.
 // The owner signs the LEXORA contract-account authorization entry.
@@ -44,9 +45,7 @@ async function main() {
       Operation.invokeContractFunction({
         contract: LEXORA,
         function: "configure_xrp262_policy",
-        args: [xdr.ScVal.scvI128(
-          xdr.Int128Parts.fromString(MAX_SUPPLY),
-        )],
+        args: [nativeToScVal(BigInt(MAX_SUPPLY), { type: "i128" })],
       }),
     )
     .setTimeout(300)
