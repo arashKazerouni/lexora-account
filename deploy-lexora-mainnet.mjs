@@ -69,11 +69,39 @@ const uploadResponse = await server.sendTransaction(preparedUpload);
 if (uploadResponse.status === "ERROR") {
   throw new Error(JSON.stringify(uploadResponse));
 }
-const uploadResult = await server.pollTransaction(uploadResponse.hash);
-if (uploadResult.status !== "SUCCESS") {
-  console.dir(uploadResult, { depth: 10 });
-  throw new Error("WASM upload failed.");
+async function waitForTransaction(hash, label) {
+  const maxAttempts = 30;
+  const delayMs = 2000;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const result = await server.getTransaction(hash);
+
+    if (result.status === "SUCCESS") {
+      return result;
+    }
+
+    if (result.status === "FAILED") {
+      console.error(`${label} transaction FAILED: ${hash}`);
+      console.dir(result, { depth: 10 });
+      throw new Error(`${label} transaction failed.`);
+    }
+
+    if (result.status !== "NOT_FOUND") {
+      console.log(`${label}: ${result.status} (attempt ${attempt}/${maxAttempts})`);
+    } else if (attempt === 1 || attempt % 5 === 0) {
+      console.log(`${label}: NOT_FOUND (attempt ${attempt}/${maxAttempts})`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  const latestLedger = await server.getLatestLedger();
+  throw new Error(
+    `${label} transaction was not confirmed after ${maxAttempts * delayMs / 1000}s. Hash: ${hash}. Latest ledger: ${latestLedger.sequence}`
+  );
 }
+
+const uploadResult = await waitForTransaction(uploadResponse.hash, "WASM upload");
 
 const uploadedHash =
   typeof uploadResult.returnValue?.bytes === "function"
@@ -112,11 +140,10 @@ const deployResponse = await server.sendTransaction(preparedDeploy);
 if (deployResponse.status === "ERROR") {
   throw new Error(JSON.stringify(deployResponse));
 }
-const deployResult = await server.pollTransaction(deployResponse.hash);
-if (deployResult.status !== "SUCCESS") {
-  console.dir(deployResult, { depth: 10 });
-  throw new Error("LEXORA deployment failed.");
-}
+const deployResult = await waitForTransaction(
+  deployResponse.hash,
+  "LEXORA deployment"
+);
 
 const deployedAddress =
   typeof deployResult.returnValue?.address === "function"
