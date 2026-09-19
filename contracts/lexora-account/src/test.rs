@@ -433,3 +433,109 @@ fn xrp262_policy_cannot_be_reinitialized() {
 
     assert!(client.try_configure_xrp262_policy(&2_000).is_err());
 }
+
+
+#[test]
+fn xrp262_policy_rejects_negative_max_supply() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let client = LexoraAccountClient::new(&env, &id);
+
+    env.mock_all_auths();
+    assert!(client.try_configure_xrp262_policy(&-1).is_err());
+    assert_eq!(client.xrp262_policy(), None);
+}
+
+#[test]
+fn xrp262_mint_rejects_disabled_or_paused_policy() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let sac = env.register(MockSac, ());
+    let recipient = Address::generate(&env);
+    let client = LexoraAccountClient::new(&env, &id);
+
+    env.mock_all_auths();
+    client.configure_xrp262_policy(&1_000);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
+
+    client.set_xrp262_minting_enabled(&false);
+    assert!(client.try_mint_xrp262(&recipient, &1).is_err());
+
+    client.set_xrp262_minting_enabled(&true);
+    client.set_xrp262_paused(&true);
+    assert!(client.try_mint_xrp262(&recipient, &1).is_err());
+
+    let sac_client = MockSacClient::new(&env, &sac);
+    assert_eq!(sac_client.balance(&recipient), 0);
+    assert_eq!(client.xrp262_policy().unwrap().minted, 0);
+}
+
+#[test]
+fn xrp262_mint_rejects_supply_ceiling_and_preserves_accounting() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let sac = env.register(MockSac, ());
+    let recipient = Address::generate(&env);
+    let client = LexoraAccountClient::new(&env, &id);
+
+    env.mock_all_auths();
+    client.configure_xrp262_policy(&1_000);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
+    client.mint_xrp262(&recipient, &900);
+
+    assert!(client.try_mint_xrp262(&recipient, &101).is_err());
+
+    let sac_client = MockSacClient::new(&env, &sac);
+    assert_eq!(sac_client.balance(&recipient), 900);
+    let policy = client.xrp262_policy().unwrap();
+    assert_eq!(policy.minted, 900);
+    assert_eq!(policy.burned, 0);
+}
+
+#[test]
+fn xrp262_burn_rejects_over_burn_and_preserves_accounting() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let sac = env.register(MockSac, ());
+    let client = LexoraAccountClient::new(&env, &id);
+
+    env.mock_all_auths();
+    client.configure_xrp262_policy(&1_000);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
+    client.mint_xrp262(&id, &500);
+
+    assert!(client.try_burn_xrp262(&501).is_err());
+
+    let sac_client = MockSacClient::new(&env, &sac);
+    assert_eq!(sac_client.balance(&id), 500);
+    let policy = client.xrp262_policy().unwrap();
+    assert_eq!(policy.minted, 500);
+    assert_eq!(policy.burned, 0);
+}
+
+#[test]
+fn xrp262_strategy_limits_reject_negative_values() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let client = LexoraAccountClient::new(&env, &id);
+    let strategy = Address::generate(&env);
+
+    env.mock_all_auths();
+    assert!(client
+        .try_authorize_strategy(&strategy, &-1, &100)
+        .is_err());
+    assert!(client
+        .try_authorize_strategy(&strategy, &100, &-1)
+        .is_err());
+    assert_eq!(client.strategy_record(&strategy), None);
+}
