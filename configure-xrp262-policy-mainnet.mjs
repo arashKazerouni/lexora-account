@@ -27,7 +27,7 @@ async function main() {
   if (owner.publicKey() !== EXPECTED_OWNER) throw new Error(`Wrong owner: ${owner.publicKey()}`);
   if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  const ownerReadTx = new TransactionBuilder(
     await server.getAccount(deployer.publicKey()),
-    { networkPassphrase: NETWORK, fee: BASE_FEE }
+    { networkPassphrase: NETWORK, fee: SOROBAN_FEE_LIMIT }
   )
     .addOperation(Operation.invokeContractFunction({
       contract: LEXORA,
