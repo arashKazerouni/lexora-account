@@ -98,11 +98,13 @@ async function main() {
   console.log("SAC:", SAC);
   console.log("Issuer:", ISSUER);
   console.log("Planned mint:", MINT_AMOUNT.toString(), "base units");
-  console.log(
-    "Planned mint:",
-    Number(MINT_AMOUNT) / 10_000_000,
-    "XRP262",
-  );
+  const whole = MINT_AMOUNT / 10_000_000n;
+  const fraction = (MINT_AMOUNT % 10_000_000n)
+    .toString()
+    .padStart(7, "0")
+    .replace(/0+$/, "");
+  const humanAmount = fraction ? `${whole}.${fraction}` : whole.toString();
+  console.log("Planned mint:", humanAmount, "XRP262");
   console.log("");
 
   const ownerBytes = await simulate(LEXORA, "owner");
