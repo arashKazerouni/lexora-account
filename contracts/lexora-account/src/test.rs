@@ -349,10 +349,26 @@ fn xrp262_sac_can_be_configured_once() {
 
     let client = LexoraAccountClient::new(&env, &id);
     env.mock_all_auths();
-    client.configure_xrp262_sac(&sac);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
 
     assert_eq!(client.xrp262_sac(), Some(sac.clone()));
     assert!(client.try_configure_xrp262_sac(&sac).is_err());
+}
+
+#[test]
+fn xrp262_sac_rejects_unexpected_asset_code() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let sac = env.register(MockSac, ());
+    let client = LexoraAccountClient::new(&env, &id);
+
+    env.mock_all_auths();
+    assert!(client
+        .try_configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262T"))
+        .is_err());
+    assert_eq!(client.xrp262_sac(), None);
 }
 
 #[test]
@@ -367,7 +383,7 @@ fn xrp262_sac_mint_is_enforced_and_accounted() {
 
     env.mock_all_auths();
     client.configure_xrp262_policy(&1_000);
-    client.configure_xrp262_sac(&sac);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
     client.mint_xrp262(&recipient, &400);
 
     let sac_client = MockSacClient::new(&env, &sac);
@@ -388,7 +404,7 @@ fn xrp262_sac_burn_is_enforced_and_accounted() {
 
     env.mock_all_auths();
     client.configure_xrp262_policy(&1_000);
-    client.configure_xrp262_sac(&sac);
+    client.configure_xrp262_sac(&sac, &String::from_str(&env, "XRP262"));
 
     let lexora = id.clone();
     client.mint_xrp262(&lexora, &600);
