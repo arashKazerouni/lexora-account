@@ -157,3 +157,44 @@ fn xeva_asset_registration_works_through_generic_registry() {
 
     assert!(client.is_token_allowed(&xeva));
 }
+
+#[test]
+fn xrp262_policy_enforces_supply_ceiling() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let client = LexoraAccountClient::new(&env, &id);
+    env.mock_all_auths();
+    client.configure_xrp262_policy(&1_000);
+    assert!(client.can_mint_xrp262(&1_000));
+    assert!(!client.can_mint_xrp262(&1_001));
+}
+
+#[test]
+fn xrp262_policy_can_pause_minting() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let client = LexoraAccountClient::new(&env, &id);
+    env.mock_all_auths();
+    client.configure_xrp262_policy(&1_000);
+    client.set_xrp262_paused(&true);
+    assert!(!client.can_mint_xrp262(&1));
+}
+
+#[test]
+fn strategy_can_be_authorized_and_disabled() {
+    let env = Env::default();
+    let signer = generate_keypair();
+    let key = public_key(&env, &signer);
+    let id = env.register(LexoraAccount, LexoraAccountArgs::__constructor(&key));
+    let client = LexoraAccountClient::new(&env, &id);
+    let strategy = Address::generate(&env);
+    env.mock_all_auths();
+    client.authorize_strategy(&strategy, &500, &100);
+    assert!(client.strategy_record(&strategy).unwrap().active);
+    client.disable_strategy(&strategy);
+    assert!(!client.strategy_record(&strategy).unwrap().active);
+}
