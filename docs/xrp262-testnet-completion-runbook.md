@@ -67,7 +67,16 @@ Expected:
 
 This is the first irreversible architecture transition in the testnet flow. It is intentionally NOT automated by GitHub.
 
-After confirming steps 1-3, invoke:
+**Completed on testnet.** Transaction:
+`579d46252d4125f0e232ab8fa452c3ac0272fa7bb767acc49bbf149c2a5f562e`
+
+The verified result is:
+- XRP262T SAC admin = `CCKK2FG7LZEDCEQZPRGVDEBIYYVIDFYSOZMO24BY54X6HSQUVOKO6UWR`
+- LEXORA is now the on-chain SAC administrator.
+
+The command used was:
+
+
 
 ```bash
 stellar contract invoke --network testnet \
@@ -81,9 +90,24 @@ Then verify `admin` equals the LEXORA contract.
 
 ## 5. Exercise the real mint path
 
-Use the existing owner-authorization flow, not a weakened auth path.
+A real owner-authorized testnet exercise script is now in the repository:
+`exercise-xrp262-testnet.mjs`
 
-Required test:
+Mint to a chosen testnet account:
+```bash
+XRP262_MODE=mint XRP262_AMOUNT=1000000 \
+XRP262_RECIPIENT=<TESTNET_G_ADDRESS> \
+node exercise-xrp262-testnet.mjs
+```
+
+Or mint directly to LEXORA for the subsequent burn test:
+```bash
+XRP262_MODE=mint XRP262_AMOUNT=1000000 \
+XRP262_RECIPIENT=CCKK2FG7LZEDCEQZPRGVDEBIYYVIDFYSOZMO24BY54X6HSQUVOKO6UWR \
+node exercise-xrp262-testnet.mjs
+```
+
+Required verification:
 1. Mint a small amount through `mint_xrp262`.
 2. Verify the recipient balance on the SAC.
 3. Verify LEXORA policy `minted` increased by exactly that amount.
@@ -95,11 +119,17 @@ Amounts are i128 minimal units. Because XRP262T has 7 decimals, 10,000,000 minim
 
 ## 6. Exercise the real burn path
 
-After LEXORA has received XRP262T:
+After LEXORA has received XRP262T, run:
+```bash
+XRP262_MODE=burn XRP262_AMOUNT=250000 \
+node exercise-xrp262-testnet.mjs
+```
+
+Required verification:
 1. Burn a small amount through `burn_xrp262`.
 2. Verify the LEXORA SAC balance decreased.
 3. Verify policy `burned` increased by exactly that amount.
-4. Attempt to burn more than `minted`; it must fail.
+4. Attempt to burn more than the LEXORA balance; it must fail.
 
 ## 7. Strategy layer
 
@@ -124,3 +154,19 @@ Required:
 - no mainnet admin transfer during this phase
 
 Mainnet admin transfer remains a separate, explicit approval step after the complete testnet/security review.
+
+
+## Current code-test checkpoint
+
+GitHub automation has completed the remaining code-side test preparation:
+- Added negative max-supply coverage.
+- Added disabled/paused mint failure coverage.
+- Added mint ceiling/accounting failure coverage.
+- Added burn over-limit/accounting failure coverage.
+- Added negative strategy-limit coverage.
+- Added `exercise-xrp262-testnet.mjs` for real owner-authorized testnet mint/burn execution.
+- No mainnet code or admin state was changed.
+
+The remaining testnet work is on-chain execution/verification of the real mint and burn paths, followed by the security/failure-mode review.
+
+Actual strategy execution is still intentionally deferred because its spending/allocation semantics have not been specified; the current strategy registry is not an execution engine.
