@@ -21,6 +21,8 @@ const LEXORA =
 const XRP262_SAC =
   "CBQZU2IXARXJVH5HCJ3PBZ7KZUXK3Z3HYJSOEFQWWHS2VJ66CDHOLKQB";
 
+const EXPECTED_ASSET_CODE = "XRP262T";
+
 // The fee-payer signs the transaction envelope.
 // The owner signs the LEXORA contract-account authorization entry.
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
@@ -35,6 +37,7 @@ async function main() {
   console.log("Owner:", owner.publicKey());
   console.log("LEXORA:", LEXORA);
   console.log("XRP262 SAC:", XRP262_SAC);
+  console.log("Expected asset code:", EXPECTED_ASSET_CODE);
 
   const account = await server.getAccount(deployer.publicKey());
 
@@ -46,7 +49,10 @@ async function main() {
       Operation.invokeContractFunction({
         contract: LEXORA,
         function: "configure_xrp262_sac",
-        args: [Address.fromString(XRP262_SAC).toScVal()],
+        args: [
+          Address.fromString(XRP262_SAC).toScVal(),
+          xdr.ScVal.scvString(EXPECTED_ASSET_CODE),
+        ],
       }),
     )
     .setTimeout(300)
