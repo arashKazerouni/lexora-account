@@ -27,8 +27,10 @@ Verified state:
 4. Review every PASS and the planned recipient/amount.
 5. Only then execute the guarded mint script:
    `node mint-xrp262-mainnet.mjs`
-6. Verify the resulting transaction, policy accounting, SAC recipient balance, and StellarExpert/indexer state.
-7. Record the mint transaction as the next XRP262 checkpoint.
+6. Run the post-mint verifier:
+   `node verify-xrp262-post-mint-mainnet.mjs`
+7. Verify the resulting transaction, policy accounting, SAC recipient balance, and StellarExpert/indexer state.
+8. Record the mint transaction as the next XRP262 checkpoint.
 
 ## Environment
 
@@ -44,6 +46,19 @@ Mint requires:
 - `XRP262_MINT_AMOUNT` in base units
 - `XRP262_MINT_RECIPIENT`
 - `CONFIRM_XRP262_MAINNET_MINT=YES`
+
+Post-mint verification requires:
+
+- `XRP262_MINT_AMOUNT` in base units
+- `XRP262_MINT_RECIPIENT`
+- optional `XRP262_MINT_TX_HASH` to verify the exact transaction is SUCCESS
+
+Convenience commands:
+
+- `npm run xrp262:pre-mint`
+- `npm run xrp262:mint`
+- `npm run xrp262:post-mint`
+- `npm run xrp262:final`
 
 Never commit secrets.
 
