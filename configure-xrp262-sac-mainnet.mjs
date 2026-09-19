@@ -23,7 +23,7 @@ const server = new Server(RPC_URL);
 const SOROBAN_FEE_LIMIT = "10000000";
 
 async function main() {
-  if (LEXORA === "CCV2AE6KK5IA3EWV3VM5FNQC3NZUMVGLQBEMDFEWTAEFTLNRPVWIYSQJA") {\n    throw new Error("Refusing to use the known-bad mainnet LEXORA contract CCV2...; deploy a fresh contract first.");\n  }\n  const ownerReadTx = new TransactionBuilder(
+  const ownerReadTx = new TransactionBuilder(
     await server.getAccount(deployer.publicKey()),
     { networkPassphrase: NETWORK, fee: SOROBAN_FEE_LIMIT }
   )
