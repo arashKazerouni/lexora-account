@@ -8,6 +8,7 @@ use crate::{
 };
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
+use crate::LexoraAccountClient;
 use soroban_sdk::{
     contract, contractimpl,
     testutils::{Address as _, BytesN as _},
