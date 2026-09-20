@@ -11,7 +11,8 @@
     "xrp262:pre-mint": "node verify-xrp262-pre-mint-mainnet.mjs",
     "xrp262:mint": "node mint-xrp262-mainnet.mjs",
     "xrp262:post-mint": "node verify-xrp262-post-mint-mainnet.mjs",
-    "xrp262:final": "node verify-xrp262-final-mainnet.mjs"
+    "xrp262:final": "node verify-xrp262-final-mainnet.mjs",
+    "xrp262:disable": "node disable-xrp262-mainnet.mjs"
   },
   "repository": {
     "type": "git",
