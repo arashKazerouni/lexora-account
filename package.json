@@ -12,7 +12,9 @@
     "xrp262:mint": "node mint-xrp262-mainnet.mjs",
     "xrp262:post-mint": "node verify-xrp262-post-mint-mainnet.mjs",
     "xrp262:final": "node verify-xrp262-final-mainnet.mjs",
-    "xrp262:disable": "node disable-xrp262-mainnet.mjs"
+    "xrp262:disable": "node disable-xrp262-mainnet.mjs",
+    "xrp262:generate-distribution": "node scripts/generate-xrp262-distribution.mjs",
+    "xrp262:transfer": "node transfer-xrp262-mainnet.mjs"
   },
   "repository": {
     "type": "git",
@@ -29,4 +31,4 @@
   "dependencies": {
     "@stellar/stellar-sdk": "^17.1.0"
   }
-}
+}\n
