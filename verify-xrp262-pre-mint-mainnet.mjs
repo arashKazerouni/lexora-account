@@ -29,13 +29,8 @@ const EXPECTED_OWNER =
 
 const EXPECTED_MAX_SUPPLY = 900_000_000_000n * 10_000_000n;
 
-const amountText = process.env.XRP262_MINT_AMOUNT;
-if (!amountText || !/^\d+$/.test(amountText) || BigInt(amountText) <= 0n) {
-  throw new Error(
-    "Set XRP262_MINT_AMOUNT to a positive integer in base units before running preflight.",
-  );
-}
-const MINT_AMOUNT = BigInt(amountText);
+// Genesis mint is intentionally fixed: mint the full 900,000,000,000 XRP262 max supply.
+const MINT_AMOUNT = EXPECTED_MAX_SUPPLY;
 
 if (!process.env.LEXORA_DEPLOYER_SECRET) {
   throw new Error("Missing LEXORA_DEPLOYER_SECRET.");
