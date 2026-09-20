@@ -8,7 +8,7 @@ import {
   StrKey,
   nativeToScVal,
 } from "@stellar/stellar-sdk";
-import { Server } from "@stellar/stellar-sdk/rpc";
+import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -155,13 +155,8 @@ async function main() {
 
   console.log("Simulation: PASS");
 
-  const prepared = simulation.result
-    ? TransactionBuilder.fromXDR(
-        tx.toXDR(),
-        "base64",
-      )
-    : tx;
-
+  // Rebuild the transaction from simulation resources before signing/submitting.
+  const prepared = assembleTransaction(tx, simulation).build();
   prepared.sign(distribution);
 
   console.log("Submitting to MAINNET...");
