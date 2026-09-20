@@ -13,6 +13,8 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -27,12 +29,32 @@ const SAC =
 const EXPECTED_OWNER =
   "GCGJIJ4YYQR7ROEVXW4QNPN3E2C7AJMTQA7KVA2BMX7JGWFJAYTSFDFU";
 
-const recipient = process.env.XRP262_MINT_RECIPIENT;
+const distributionSecretsPath = join(process.cwd(), ".secrets", "xrp262-distribution.json");
+
+let distributionSecrets;
+try {
+  distributionSecrets = JSON.parse(readFileSync(distributionSecretsPath, "utf8"));
+} catch {
+  throw new Error(
+    `Missing ${distributionSecretsPath}. Run npm run xrp262:generate-distribution first.`,
+  );
+}
+
+if (!distributionSecrets.publicKey || !distributionSecrets.secretKey) {
+  throw new Error("Distribution secret file is missing publicKey or secretKey.");
+}
+
+const distributionKeypair = Keypair.fromSecret(distributionSecrets.secretKey);
+if (distributionKeypair.publicKey() !== distributionSecrets.publicKey) {
+  throw new Error("Distribution publicKey does not match the saved secretKey.");
+}
+
+const recipient = distributionKeypair.publicKey();
 const amountText = process.env.XRP262_MINT_AMOUNT;
 const confirm = process.env.CONFIRM_XRP262_MAINNET_MINT;
 
-if (!recipient || !StrKey.isValidEd25519PublicKey(recipient)) {
-  throw new Error("Set XRP262_MINT_RECIPIENT to a valid G... public key.");
+if (!StrKey.isValidEd25519PublicKey(recipient)) {
+  throw new Error("Generated XRP262 distribution public key is invalid.");
 }
 if (!amountText || !/^\d+$/.test(amountText) || BigInt(amountText) <= 0n) {
   throw new Error("Set XRP262_MINT_AMOUNT to a positive integer in base units.");
