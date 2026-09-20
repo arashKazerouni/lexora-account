@@ -40,3 +40,7 @@ Controlled mint workflow:
 6. Run `npm run xrp262:final` for the final control-state check.
 
 No XRP262 mint transaction is executed by repository automation; the guarded mint command is intentionally run by the operator with the required secrets present locally.
+
+## Soroban fee ceiling
+
+Mainnet Soroban scripts no longer use a hard-coded 1 XLM maximum fee. They default to a 10 XLM transaction fee ceiling (`100000000` stroops). The ceiling can be overridden for a specific run with `SOROBAN_MAX_FEE_STROOPS`. The network charges the actual required fee, not automatically the ceiling.
