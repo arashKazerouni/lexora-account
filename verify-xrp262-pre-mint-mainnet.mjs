@@ -112,6 +112,10 @@ async function main() {
   const configuredSac = await simulate(LEXORA, "xrp262_sac");
   const policy = await simulate(LEXORA, "xrp262_policy");
   const registryStatus = await simulate(LEXORA, "token_status", [assetId()]);
+  // Soroban enum variants decode as arrays, e.g. ["Disabled"].
+  const registryStatusName = Array.isArray(registryStatus)
+    ? registryStatus[0]
+    : registryStatus;
   const allowed = await simulate(LEXORA, "is_token_allowed", [assetId()]);
   const canMint = await simulate(LEXORA, "can_mint_xrp262", [
     nativeToScVal(MINT_AMOUNT.toString(), { type: "i128" }),
@@ -129,6 +133,7 @@ async function main() {
   console.log("Configured SAC:", configuredSac);
   console.log("Policy:", policy);
   console.log("Registry:", registryStatus);
+  console.log("Registry status:", registryStatusName);
   console.log("Allowed:", allowed);
   console.log("can_mint_xrp262(amount):", canMint);
   console.log("SAC admin:", sacAdmin);
@@ -143,7 +148,7 @@ async function main() {
   assert(policy.minting_enabled === true, "Minting is disabled");
   assert(policy.paused === false, "Minting is paused");
   assert(policy.clawback_enabled === false, "Clawback must remain disabled");
-  assert(registryStatus === "Disabled", `Registry status is ${registryStatus}`);
+  assert(registryStatusName === "Disabled", `Registry status is ${registryStatusName}`);
   assert(allowed === false, "XRP262 must remain disabled during genesis setup");
   assert(sacAdmin === LEXORA, `SAC admin mismatch: ${sacAdmin}`);
   assert(BigInt(lexoraBalance) === 0n, "LEXORA already holds XRP262");
