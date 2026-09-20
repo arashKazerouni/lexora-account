@@ -31,4 +31,4 @@
   "dependencies": {
     "@stellar/stellar-sdk": "^17.1.0"
   }
-}\n
+}
