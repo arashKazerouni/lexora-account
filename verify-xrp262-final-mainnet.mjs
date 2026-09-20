@@ -113,13 +113,6 @@ async function main() {
   const registryStatusRaw = await simulate(LEXORA, "token_status", [assetId()]);
   const registryStatus = normalizeTokenStatus(registryStatusRaw);
   const allowed = await simulate(LEXORA, "is_token_allowed", [assetId()]);
-  const ownerBytes = await simulate(LEXORA, "owner");
-  const onChainOwner = xdr.ScVal.scvBytes(Buffer.from(ownerBytes));
-  const ownerAddress = Address.fromScAddress(
-    xdr.ScAddress.sc_addressTypeContract()
-      ? undefined
-      : undefined,
-  );
   const sacAdmin = await simulate(SAC, "admin");
   const lexoraBalance = BigInt(
     await simulate(SAC, "balance", [Address.fromString(LEXORA).toScVal()]),
