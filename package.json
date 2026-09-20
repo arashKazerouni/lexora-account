@@ -14,7 +14,8 @@
     "xrp262:final": "node verify-xrp262-final-mainnet.mjs",
     "xrp262:disable": "node disable-xrp262-mainnet.mjs",
     "xrp262:generate-distribution": "node scripts/generate-xrp262-distribution.mjs",
-    "xrp262:transfer": "node transfer-xrp262-mainnet.mjs"
+    "xrp262:transfer": "node transfer-xrp262-mainnet.mjs",
+    "xrp262:prepare-distribution": "node prepare-xrp262-distribution-mainnet.mjs"
   },
   "repository": {
     "type": "git",
