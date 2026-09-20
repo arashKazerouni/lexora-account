@@ -16,7 +16,8 @@
     "xrp262:generate-distribution": "node scripts/generate-xrp262-distribution.mjs",
     "xrp262:transfer": "node transfer-xrp262-mainnet.mjs",
     "xrp262:prepare-distribution": "node prepare-xrp262-distribution-mainnet.mjs",
-    "xrp262:enable": "node enable-xrp262-mainnet.mjs"
+    "xrp262:enable": "node enable-xrp262-mainnet.mjs",
+    "xrp262:burn": "node burn-xrp262-mainnet.mjs"
   },
   "repository": {
     "type": "git",
