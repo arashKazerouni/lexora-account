@@ -51,6 +51,13 @@ if (!secrets.secretKey || !secrets.publicKey) {
 }
 
 const distribution = Keypair.fromSecret(secrets.secretKey);
+const deployer = process.env.LEXORA_DEPLOYER_SECRET
+  ? Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET)
+  : null;
+
+if (!deployer) {
+  throw new Error("Missing LEXORA_DEPLOYER_SECRET for fee sponsorship.");
+}
 
 if (distribution.publicKey() !== secrets.publicKey) {
   throw new Error("Distribution publicKey does not match the saved secretKey.");
@@ -159,8 +166,20 @@ async function main() {
   const prepared = assembleTransaction(tx, simulation).build();
   prepared.sign(distribution);
 
-  console.log("Submitting to MAINNET...");
-  const response = await server.sendTransaction(prepared);
+  // The distribution account holds XRP262 and its XLM balance may be reserved
+  // by the trustline. Sponsor the network/Soroban fee from the funded deployer
+  // account so the asset treasury does not need excess XLM.
+  const feeBump = TransactionBuilder.buildFeeBumpTransaction(
+    deployer,
+    prepared.fee,
+    prepared,
+    NETWORK,
+  );
+  feeBump.sign(deployer);
+
+  console.log("Fee source:", deployer.publicKey());
+  console.log("Submitting fee-bumped transaction to MAINNET...");
+  const response = await server.sendTransaction(feeBump);
   console.log("Transaction hash:", response.hash);
   console.log("Status:", response.status);
 
