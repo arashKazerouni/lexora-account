@@ -50,14 +50,11 @@ if (distributionKeypair.publicKey() !== distributionSecrets.publicKey) {
 }
 
 const recipient = distributionKeypair.publicKey();
-const amountText = process.env.XRP262_MINT_AMOUNT;
+const EXPECTED_MINT_AMOUNT = 900_000_000_000n * 10_000_000n;
 const confirm = process.env.CONFIRM_XRP262_MAINNET_MINT;
 
 if (!StrKey.isValidEd25519PublicKey(recipient)) {
   throw new Error("Generated XRP262 distribution public key is invalid.");
-}
-if (!amountText || !/^\d+$/.test(amountText) || BigInt(amountText) <= 0n) {
-  throw new Error("Set XRP262_MINT_AMOUNT to a positive integer in base units.");
 }
 if (confirm !== "YES") {
   throw new Error(
@@ -65,7 +62,7 @@ if (confirm !== "YES") {
   );
 }
 
-const amount = BigInt(amountText);
+const amount = EXPECTED_MINT_AMOUNT;
 
 if (!process.env.LEXORA_DEPLOYER_SECRET || !process.env.LEXORA_OWNER_SECRET) {
   throw new Error(
