@@ -19,7 +19,7 @@ const server = new Server(RPC_URL);
 
 async function main() {
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: "10000000",
+    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "100000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "owner", args: [],
   })).setTimeout(300).build();
@@ -33,7 +33,7 @@ async function main() {
     throw new Error(`LEXORA owner mismatch: on-chain=${onChainOwner}, expected=${owner.publicKey()}`);
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: "10000000",
+    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "100000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA,
     function: "configure_xrp262_policy",
