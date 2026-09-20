@@ -32,7 +32,7 @@ function normalizeTokenStatus(value) {
 
 async function simulate(contract, functionName, args = []) {
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "100000000",
+    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
   }).addOperation(Operation.invokeContractFunction({ contract, function: functionName, args }))
     .setTimeout(300).build();
   const result = await server.simulateTransaction(tx);
@@ -63,7 +63,7 @@ async function main() {
     throw new Error("XRP262 must be Disabled before this controlled re-enable.");
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "100000000",
+    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "register_token", args: [assetId()],
   })).setTimeout(300).build();
