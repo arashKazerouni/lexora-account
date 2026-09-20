@@ -43,4 +43,4 @@ No XRP262 mint transaction is executed by repository automation; the guarded min
 
 ## Soroban fee ceiling
 
-Mainnet Soroban scripts no longer use a hard-coded 1 XLM maximum fee. They default to a 10 XLM transaction fee ceiling (`100000000` stroops). The ceiling can be overridden for a specific run with `SOROBAN_MAX_FEE_STROOPS`. The network charges the actual required fee, not automatically the ceiling.
+Mainnet Soroban scripts no longer use a hard-coded 1 XLM maximum fee. They default to a 0.9 XLM transaction fee ceiling (`9000000` stroops). The ceiling can be overridden for a specific run with `SOROBAN_MAX_FEE_STROOPS`. The network charges the actual required fee, not automatically the ceiling.
