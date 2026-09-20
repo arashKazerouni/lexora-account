@@ -1,4 +1,5 @@
 import {
+  Account,
   Asset,
   Keypair,
   Networks,
@@ -69,10 +70,13 @@ async function main() {
     return;
   }
 
-  const transaction = new TransactionBuilder(account, {
-    networkPassphrase: Networks.PUBLIC,
-    fee: "100000",
-  })
+  const transaction = new TransactionBuilder(
+    new Account(accountId, account.sequence),
+    {
+      networkPassphrase: Networks.PUBLIC,
+      fee: "100000",
+    },
+  )
     .addOperation(
       Operation.changeTrust({
         asset: new Asset(CODE, ISSUER),
