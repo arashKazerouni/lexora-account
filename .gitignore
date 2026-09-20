@@ -4,3 +4,4 @@ target
 # Local settings
 .soroban
 .stellar
+\n# XRP262 local distribution secrets\n.secrets/\n
