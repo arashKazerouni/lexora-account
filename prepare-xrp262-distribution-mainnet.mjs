@@ -1,1 +1,112 @@
-import {\n  Asset,\n  Keypair,\n  Networks,\n  Operation,\n  TransactionBuilder,\n} from "@stellar/stellar-sdk";\nimport { readFileSync } from "node:fs";\nimport { join } from "node:path";\n\nconst HORIZON_URL = "https://horizon.stellar.org";\nconst DISTRIBUTION_PATH = join(process.cwd(), ".secrets", "xrp262-distribution.json");\nconst ISSUER = "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";\nconst CODE = "XRP262";\nconst TRUSTLINE_LIMIT = "900000000000";\nconst confirm = process.env.CONFIRM_XRP262_MAINNET_TRUSTLINE;\n\nif (confirm !== "YES") {\n  throw new Error("Set CONFIRM_XRP262_MAINNET_TRUSTLINE=YES to create the XRP262 trustline on mainnet.");\n}\n\nlet secrets;\ntry {\n  secrets = JSON.parse(readFileSync(DISTRIBUTION_PATH, "utf8"));\n} catch {\n  throw new Error("Missing " + DISTRIBUTION_PATH + ". Restore the existing funded distribution key file first.");\n}\n\nif (!secrets.publicKey || !secrets.secretKey) {\n  throw new Error("Distribution secret file is missing publicKey or secretKey.");\n}\n\nconst keypair = Keypair.fromSecret(secrets.secretKey);\nif (keypair.publicKey() !== secrets.publicKey) {\n  throw new Error("Distribution publicKey does not match the saved secretKey.");\n}\n\nasync function main() {\n  const accountId = keypair.publicKey();\n  console.log("XRP262 DISTRIBUTION TRUSTLINE");\n  console.log("=============================");\n  console.log("Distribution:", accountId);\n  console.log("Asset:", CODE);\n  console.log("Issuer:", ISSUER);\n  console.log("Limit:", TRUSTLINE_LIMIT);\n\n  const response = await fetch(\n    HORIZON_URL + "/accounts/" + accountId + "?signers=false&transactions=false&operations=false&payments=false&effects=false&offers=false&trade_effects=false&trades=false&claimable_balances=false&liquidity_pools=false",\n  );\n  if (!response.ok) {\n    throw new Error("Horizon account lookup failed: " + response.status + " " + await response.text());\n  }\n\n  const account = await response.json();\n  const existing = account.balances?.find(\n    (balance) =>\n      balance.asset_type !== "native" &&\n      balance.asset_code === CODE &&\n      balance.asset_issuer === ISSUER,\n  );\n\n  if (existing) {\n    console.log("Trustline: ALREADY EXISTS");\n    console.log("Current limit:", existing.limit);\n    console.log("Current balance:", existing.balance);\n    console.log("No transaction submitted.");\n    return;\n  }\n\n  const transaction = new TransactionBuilder(account, {\n    networkPassphrase: Networks.PUBLIC,\n    fee: "100000",\n  })\n    .addOperation(\n      Operation.changeTrust({\n        asset: new Asset(CODE, ISSUER),\n        limit: TRUSTLINE_LIMIT,\n      }),\n    )\n    .setTimeout(300)\n    .build();\n\n  transaction.sign(keypair);\n  console.log("Submitting trustline transaction to MAINNET...");\n  const submitResponse = await fetch(HORIZON_URL + "/transactions", {\n    method: "POST",\n    headers: { "Content-Type": "application/x-www-form-urlencoded" },\n    body: "tx=" + encodeURIComponent(transaction.toXDR()),\n  });\n\n  const result = await submitResponse.json();\n  if (!submitResponse.ok) {\n    console.dir(result, { depth: 8 });\n    throw new Error("Trustline transaction failed: " + (result.extras?.result_codes?.transaction ?? submitResponse.status));\n  }\n\n  console.log("Trustline transaction: PASS");\n  console.log("Transaction hash:", result.hash);\n  console.log("Trustline limit:", TRUSTLINE_LIMIT);\n}\n\nmain().catch((err) => {\n  console.error(err);\n  process.exit(1);\n});
+import {
+  Asset,
+  Keypair,
+  Networks,
+  Operation,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const HORIZON_URL = "https://horizon.stellar.org";
+const DISTRIBUTION_PATH = join(process.cwd(), ".secrets", "xrp262-distribution.json");
+const ISSUER = "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";
+const CODE = "XRP262";
+const TRUSTLINE_LIMIT = "900000000000";
+const confirm = process.env.CONFIRM_XRP262_MAINNET_TRUSTLINE;
+
+if (confirm !== "YES") {
+  throw new Error("Set CONFIRM_XRP262_MAINNET_TRUSTLINE=YES to create the XRP262 trustline on mainnet.");
+}
+
+let secrets;
+try {
+  secrets = JSON.parse(readFileSync(DISTRIBUTION_PATH, "utf8"));
+} catch {
+  throw new Error("Missing " + DISTRIBUTION_PATH + ". Restore the existing funded distribution key file first.");
+}
+
+if (!secrets.publicKey || !secrets.secretKey) {
+  throw new Error("Distribution secret file is missing publicKey or secretKey.");
+}
+
+const keypair = Keypair.fromSecret(secrets.secretKey);
+if (keypair.publicKey() !== secrets.publicKey) {
+  throw new Error("Distribution publicKey does not match the saved secretKey.");
+}
+
+async function main() {
+  const accountId = keypair.publicKey();
+  console.log("XRP262 DISTRIBUTION TRUSTLINE");
+  console.log("=============================");
+  console.log("Distribution:", accountId);
+  console.log("Asset:", CODE);
+  console.log("Issuer:", ISSUER);
+  console.log("Limit:", TRUSTLINE_LIMIT);
+
+  const response = await fetch(
+    HORIZON_URL + "/accounts/" + accountId +
+      "?signers=false&transactions=false&operations=false&payments=false&effects=false&offers=false&trade_effects=false&trades=false&claimable_balances=false&liquidity_pools=false",
+  );
+
+  if (!response.ok) {
+    throw new Error("Horizon account lookup failed: " + response.status + " " + await response.text());
+  }
+
+  const account = await response.json();
+  const existing = account.balances?.find(
+    (balance) =>
+      balance.asset_type !== "native" &&
+      balance.asset_code === CODE &&
+      balance.asset_issuer === ISSUER,
+  );
+
+  if (existing) {
+    console.log("Trustline: ALREADY EXISTS");
+    console.log("Current limit:", existing.limit);
+    console.log("Current balance:", existing.balance);
+    console.log("No transaction submitted.");
+    return;
+  }
+
+  const transaction = new TransactionBuilder(account, {
+    networkPassphrase: Networks.PUBLIC,
+    fee: "100000",
+  })
+    .addOperation(
+      Operation.changeTrust({
+        asset: new Asset(CODE, ISSUER),
+        limit: TRUSTLINE_LIMIT,
+      }),
+    )
+    .setTimeout(300)
+    .build();
+
+  transaction.sign(keypair);
+
+  console.log("Submitting trustline transaction to MAINNET...");
+  const submitResponse = await fetch(HORIZON_URL + "/transactions", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "tx=" + encodeURIComponent(transaction.toXDR()),
+  });
+
+  const result = await submitResponse.json();
+
+  if (!submitResponse.ok) {
+    console.dir(result, { depth: 8 });
+    throw new Error(
+      "Trustline transaction failed: " +
+        (result.extras?.result_codes?.transaction ?? submitResponse.status),
+    );
+  }
+
+  console.log("Trustline transaction: PASS");
+  console.log("Transaction hash:", result.hash);
+  console.log("Trustline limit:", TRUSTLINE_LIMIT);
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
