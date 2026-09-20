@@ -143,8 +143,8 @@ async function main() {
   assert(policy.minting_enabled === true, "Minting is disabled");
   assert(policy.paused === false, "Minting is paused");
   assert(policy.clawback_enabled === false, "Clawback must remain disabled");
-  assert(registryStatus === "Active", `Registry status is ${registryStatus}`);
-  assert(allowed === true, "XRP262 is not allowed by registry");
+  assert(registryStatus === "Disabled", `Registry status is ${registryStatus}`);
+  assert(allowed === false, "XRP262 must remain disabled during genesis setup");
   assert(sacAdmin === LEXORA, `SAC admin mismatch: ${sacAdmin}`);
   assert(BigInt(lexoraBalance) === 0n, "LEXORA already holds XRP262");
   assert(MINT_AMOUNT <= EXPECTED_MAX_SUPPLY, "Planned mint exceeds max supply");
@@ -154,7 +154,7 @@ async function main() {
   console.log("SAC binding: PASS");
   console.log("SAC admin = LEXORA: PASS");
   console.log("Policy: PASS");
-  console.log("Registry: PASS");
+  console.log("Registry: Disabled PASS");
   console.log("Mint amount: PASS");
   console.log("");
   console.log("XRP262 PRE-MINT PREFLIGHT: PASS");
