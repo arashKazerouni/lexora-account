@@ -26,6 +26,10 @@ function assetId() {
   ]);
 }
 
+function normalizeTokenStatus(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 async function simulate(contract, functionName, args = []) {
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK, fee: "10000000",
@@ -49,7 +53,8 @@ async function main() {
   if (onChainOwner !== owner.publicKey())
     throw new Error(`LEXORA owner mismatch: ${onChainOwner}`);
 
-  const statusBefore = await simulate(LEXORA, "token_status", [assetId()]);
+  const statusBeforeRaw = await simulate(LEXORA, "token_status", [assetId()]);
+  const statusBefore = normalizeTokenStatus(statusBeforeRaw);
   const allowedBefore = await simulate(LEXORA, "is_token_allowed", [assetId()]);
   console.log("Registry before:", statusBefore);
   console.log("Allowed before:", allowedBefore);
@@ -100,7 +105,8 @@ async function main() {
     throw new Error("XRP262 registry enable failed.");
   }
 
-  const statusAfter = await simulate(LEXORA, "token_status", [assetId()]);
+  const statusAfterRaw = await simulate(LEXORA, "token_status", [assetId()]);
+  const statusAfter = normalizeTokenStatus(statusAfterRaw);
   const allowedAfter = await simulate(LEXORA, "is_token_allowed", [assetId()]);
   if (statusAfter !== "Active" || allowedAfter !== true)
     throw new Error(`Post-enable verification failed: status=${statusAfter}, allowed=${allowedAfter}`);
