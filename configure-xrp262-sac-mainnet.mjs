@@ -33,7 +33,7 @@ if (!process.env.LEXORA_OWNER_SECRET) {
 const deployer = Keypair.fromSecret(process.env.LEXORA_DEPLOYER_SECRET);
 const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
 const server = new Server(RPC_URL);
-const SOROBAN_FEE_LIMIT = "10000000";
+const SOROBAN_FEE_LIMIT = process.env.SOROBAN_MAX_FEE_STROOPS ?? "100000000";
 
 async function main() {
   const ownerReadTx = new TransactionBuilder(
