@@ -5,3 +5,4 @@ target
 .soroban
 .stellar
 \n# XRP262 local distribution secrets\n.secrets/\n
+.secrets/xrp262-distribution.json
