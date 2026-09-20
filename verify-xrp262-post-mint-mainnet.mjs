@@ -9,6 +9,8 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -25,21 +27,25 @@ const ISSUER =
 
 const EXPECTED_MAX_SUPPLY = 900_000_000_000n * 10_000_000n;
 
-const recipient = process.env.XRP262_MINT_RECIPIENT;
-const amountText = process.env.XRP262_MINT_AMOUNT;
-const txHash = process.env.XRP262_MINT_TX_HASH;
-
-if (!recipient || !StrKey.isValidEd25519PublicKey(recipient)) {
-  throw new Error("Set XRP262_MINT_RECIPIENT to the exact G... recipient.");
-}
-
-if (!amountText || !/^\d+$/.test(amountText) || BigInt(amountText) <= 0n) {
+const distributionSecretsPath = join(process.cwd(), ".secrets", "xrp262-distribution.json");
+let distributionSecrets;
+try {
+  distributionSecrets = JSON.parse(readFileSync(distributionSecretsPath, "utf8"));
+} catch {
   throw new Error(
-    "Set XRP262_MINT_AMOUNT to the exact positive base-unit amount that was minted.",
+    `Missing ${distributionSecretsPath}. Restore the existing XRP262 distribution secret file.`,
   );
 }
-
-const amount = BigInt(amountText);
+if (!distributionSecrets.publicKey || !distributionSecrets.secretKey) {
+  throw new Error("Distribution secret file is missing publicKey or secretKey.");
+}
+const distributionKeypair = Keypair.fromSecret(distributionSecrets.secretKey);
+if (distributionKeypair.publicKey() !== distributionSecrets.publicKey) {
+  throw new Error("Distribution publicKey does not match the saved secretKey.");
+}
+const recipient = distributionKeypair.publicKey();
+const amount = EXPECTED_MAX_SUPPLY;
+const txHash = process.env.XRP262_MINT_TX_HASH;
 const server = new Server(RPC_URL);
 
 function assetId() {
@@ -148,10 +154,10 @@ async function main() {
   if (policy.clawback_enabled !== false) {
     throw new Error("Clawback unexpectedly enabled.");
   }
-  if (registryStatus !== "Active") {
-    throw new Error(`Registry status is ${registryStatus}`);
+  if (registryStatus !== "Disabled") {
+    throw new Error(`Registry status is ${registryStatus}; genesis must remain Disabled until the controlled distribution and burn are complete.`);
   }
-  if (allowed !== true) throw new Error("XRP262 is not allowed.");
+  if (allowed !== false) throw new Error("XRP262 must remain disallowed during genesis.");
   if (sacAdmin !== LEXORA) throw new Error("SAC admin is not LEXORA.");
   if (BigInt(lexoraBalance) !== 0n) {
     throw new Error(`LEXORA unexpectedly holds XRP262: ${lexoraBalance}`);
@@ -164,7 +170,7 @@ async function main() {
 
   console.log("SAC binding: PASS");
   console.log("Policy accounting: PASS");
-  console.log("Registry: ACTIVE");
+  console.log("Registry: DISABLED (genesis): PASS");
   console.log("SAC admin = LEXORA: PASS");
   console.log("LEXORA XRP262 balance: 0");
   console.log("Recipient XRP262 balance: PASS");
