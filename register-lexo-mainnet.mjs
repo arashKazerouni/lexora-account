@@ -100,8 +100,7 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  const simulation = await server.simulateTransaction(tx);
-  if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
+  // LEXORA registration uses require_auth and can exceed the RPC default instruction budget.\n  // Give simulation 100k instruction leeway so assembleTransaction carries a sufficient CPU limit.\n  const simulation = await server.simulateTransaction(tx, { instructionLeeway: 100000 });\n  if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
 
   const validUntil = simulation.latestLedger + 60;
