@@ -2,6 +2,7 @@ import {
   Address,
   Keypair,
   Networks,
+  Transaction,
   Operation,
   TransactionBuilder,
   scValToNative,
@@ -195,8 +196,46 @@ async function main() {
     }
   }
 
-  const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "LEXO mainnet registration");
+  // Re-simulate with the signed authorization entries enforced.
+  // The first simulation records require_auth, but the apply-time execution
+  // measures the authenticated path. That path is the authoritative CPU cost.
+  const authorizedEnvelope = tx.toEnvelope();
+  const authorizedOperation = authorizedEnvelope
+    .v1()
+    .tx()
+    .operations()[0];
+  authorizedOperation.body().invokeHostFunctionOp().auth(simulation.result.auth);
+  const authorizedTx = new Transaction(authorizedEnvelope.toXDR(), NETWORK);
+
+  console.log("[DEBUG] Phase 3: enforced simulation with signed authorization...");
+  const finalSimulation = await server.simulateTransaction(
+    authorizedTx,
+    undefined,
+    "enforce",
+  );
+  if (finalSimulation.error) {
+    console.error("[DEBUG] Enforced simulation error:", finalSimulation.error);
+    throw new Error("Registration enforced simulation failed: " + finalSimulation.error);
+  }
+
+  const finalSimulatedInstructions = Number(
+    finalSimulation.transactionData?._data?.resources?.instructions ?? 0,
+  );
+  if (!Number.isSafeInteger(finalSimulatedInstructions) || finalSimulatedInstructions <= 0) {
+    throw new Error(
+      "Enforced simulation returned invalid instruction budget: " + finalSimulatedInstructions,
+    );
+  }
+  console.log("FINAL SIMULATED INSTRUCTIONS:", finalSimulatedInstructions);
+  console.log("FINAL SIMULATED RESOURCE FEE (stroops):", Number(finalSimulation.minResourceFee ?? 0));
+  console.log("FINAL SIMULATION LATEST LEDGER:", finalSimulation.latestLedger);
+
+  const prepared = assembleTransaction(authorizedTx, finalSimulation).build();
+  validateAssembledSorobanResources(
+    prepared,
+    finalSimulation,
+    "LEXO mainnet registration",
+  );
   const preparedTx = prepared.innerTransaction?.tx ?? prepared.tx;
   console.log("[DEBUG] Prepared transaction fee:", preparedTx?.fee?.toString?.() ?? preparedTx?.fee);
   console.log("[DEBUG] Prepared Soroban resources:", JSON.stringify(preparedTx?.ext?.sorobanData?.resources ?? null, null, 2));
