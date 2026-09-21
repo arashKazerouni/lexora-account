@@ -143,7 +143,7 @@ async function main() {
   let assembledResources = null;
   try {
     const envelope = prepared.toEnvelope();
-    const txBody = envelope.tx();
+    const txBody = envelope.v1().tx();
     const ext = txBody.ext();
     if (ext.switch().name === "sorobanTransactionData") {
       assembledResources = ext.sorobanData().resources();
