@@ -17,7 +17,10 @@
     "xrp262:transfer": "node transfer-xrp262-mainnet.mjs",
     "xrp262:prepare-distribution": "node prepare-xrp262-distribution-mainnet.mjs",
     "xrp262:enable": "node enable-xrp262-mainnet.mjs",
-    "xrp262:burn": "node burn-xrp262-mainnet.mjs"
+    "xrp262:burn": "node burn-xrp262-mainnet.mjs",
+    "lexo:generate-accounts": "node scripts/generate-lexo-accounts.mjs",
+    "lexo:create": "node create-lexo-mainnet.mjs",
+    "lexo:register": "node register-lexo-mainnet.mjs"
   },
   "repository": {
     "type": "git",
