@@ -13,7 +13,7 @@ const HORIZON_URL = "https://horizon.stellar.org";
 const NETWORK = Networks.PUBLIC;
 const CODE = "VANTA";
 const SUPPLY = "922000000000";
-const DISTRIBUTION_MIN_XLM = "2";
+const ACCOUNT_MIN_XLM = "2";
 const ISSUER_PUBLIC_KEY =
   "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const ACCOUNTS_PATH = join(process.cwd(), ".secrets", "vanta-accounts.json");
@@ -112,20 +112,20 @@ async function waitForAccounts() {
   }
 }
 
-async function ensureDistributionFunding() {
-  const distributionAccount = await account(distribution.publicKey());
-  const native = distributionAccount.balances?.find(
+async function ensureFunding(publicKey, label) {
+  const target = await account(publicKey);
+  const native = target.balances?.find(
     (balance) => balance.asset_type === "native",
   );
   const current = Number(native?.balance ?? "0");
 
-  if (current >= Number(DISTRIBUTION_MIN_XLM)) {
-    console.log("Distribution XLM reserve: OK");
+  if (current >= Number(ACCOUNT_MIN_XLM)) {
+    console.log(`${label} XLM reserve: OK`);
     return;
   }
 
   const sourceAccount = await account(source.publicKey());
-  const amount = (Number(DISTRIBUTION_MIN_XLM) - current).toFixed(7);
+  const amount = (Number(ACCOUNT_MIN_XLM) - current).toFixed(7);
 
   const tx = new TransactionBuilder(
     new Account(source.publicKey(), sourceAccount.sequence),
@@ -133,7 +133,7 @@ async function ensureDistributionFunding() {
   )
     .addOperation(
       Operation.payment({
-        destination: distribution.publicKey(),
+        destination: publicKey,
         asset: Asset.native(),
         amount,
       }),
@@ -142,9 +142,9 @@ async function ensureDistributionFunding() {
     .build();
 
   tx.sign(source);
-  console.log(`Funding distribution reserve with ${amount} XLM...`);
+  console.log(`Funding ${label} reserve with ${amount} XLM...`);
   const result = await submit(tx);
-  console.log("Distribution funding transaction:", result.hash);
+  console.log(`${label} funding transaction:`, result.hash);
 }
 
 async function main() {
@@ -168,7 +168,7 @@ async function main() {
     operations.push(
       Operation.createAccount({
         destination: issuer.publicKey(),
-        startingBalance: "1",
+        startingBalance: ACCOUNT_MIN_XLM,
       }),
     );
   }
@@ -177,7 +177,7 @@ async function main() {
     operations.push(
       Operation.createAccount({
         destination: distribution.publicKey(),
-        startingBalance: DISTRIBUTION_MIN_XLM,
+        startingBalance: ACCOUNT_MIN_XLM,
       }),
     );
   }
@@ -202,7 +202,8 @@ async function main() {
     console.log("Distribution account: ALREADY EXISTS");
   }
 
-  await ensureDistributionFunding();
+  await ensureFunding(issuer.publicKey(), "Issuer");
+  await ensureFunding(distribution.publicKey(), "Distribution");
 
   const distributionAccount = await account(distribution.publicKey());
   const existingTrustline = distributionAccount.balances?.find(
