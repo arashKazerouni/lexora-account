@@ -196,18 +196,6 @@ async function main() {
 
   console.log("LEXO registration: SUCCESS");
 
-  prepared.sign(deployer);
-
-  console.log("Submitting LEXO registration to MAINNET...");
-  const response = await server.sendTransaction(prepared);
-  console.log("Transaction hash:", response.hash);
-  if (response.status === "ERROR") throw new Error(JSON.stringify(response));
-
-  const result = await server.pollTransaction(response.hash);
-  console.log("Final status:", result.status);
-  if (result.status === "FAILED") throw new Error("LEXO registration transaction failed.");
-
-  console.log("LEXO registration: SUCCESS");
 }
 
 main().catch((err) => {
