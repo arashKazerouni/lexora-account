@@ -42,7 +42,7 @@ async function main() {
     throw new Error(`LEXORA owner mismatch: ${onChainOwner}`);
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    networkPassphrase: NETWORK, fee: FEE,
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "register_token", args: [assetId()],
   })).setTimeout(300).build();
