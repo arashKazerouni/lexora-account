@@ -27,7 +27,7 @@ function assetId() {
 
 async function main() {
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "owner", args: [],
   })).setTimeout(300).build();
@@ -41,7 +41,7 @@ async function main() {
     throw new Error(`LEXORA owner mismatch: ${onChainOwner}`);
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "disable_token", args: [assetId()],
   })).setTimeout(300).build();
