@@ -2,7 +2,6 @@ import {
   Address,
   Keypair,
   Networks,
-  Transaction,
   Operation,
   TransactionBuilder,
   scValToNative,
@@ -196,23 +195,38 @@ async function main() {
     }
   }
 
-  // Re-simulate with the signed authorization entries enforced.
-  // The first simulation records require_auth, but the apply-time execution
-  // measures the authenticated path. That path is the authoritative CPU cost.
-  const authorizedEnvelope = tx.toEnvelope();
-  const authorizedOperation = authorizedEnvelope
-    .v1()
-    .tx()
-    .operations()[0];
-  authorizedOperation.body().invokeHostFunctionOp().auth(simulation.result.auth);
-  const authorizedTx = new Transaction(authorizedEnvelope.toXDR(), NETWORK);
+  // Rebuild the exact contract invocation with the signed authorization entries.
+  // Operation.invokeContractFunction accepts auth directly; this makes the
+  // simulation run in enforcement mode without depending on internal XDR
+  // envelope accessors.
+  const authorizedTx = new TransactionBuilder(
+    await server.getAccount(deployer.publicKey()),
+    { networkPassphrase: NETWORK, fee: "9000000" },
+  )
+    .addOperation(
+      Operation.invokeContractFunction({
+        contract: LEXORA,
+        function: "register_token",
+        args: [
+          xdr.ScVal.scvMap([
+            new xdr.ScMapEntry({
+              key: xdr.ScVal.scvSymbol("code"),
+              val: xdr.ScVal.scvString("LEXO"),
+            }),
+            new xdr.ScMapEntry({
+              key: xdr.ScVal.scvSymbol("issuer"),
+              val: Address.fromString(issuer).toScVal(),
+            }),
+          ]),
+        ],
+        auth: simulation.result.auth,
+      }),
+    )
+    .setTimeout(300)
+    .build();
 
   console.log("[DEBUG] Phase 3: enforced simulation with signed authorization...");
-  const finalSimulation = await server.simulateTransaction(
-    authorizedTx,
-    undefined,
-    "enforce",
-  );
+  const finalSimulation = await server.simulateTransaction(authorizedTx);
   if (finalSimulation.error) {
     console.error("[DEBUG] Enforced simulation error:", finalSimulation.error);
     throw new Error("Registration enforced simulation failed: " + finalSimulation.error);
