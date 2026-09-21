@@ -165,7 +165,7 @@ async function main() {
 
   // Rebuild the transaction from simulation resources before signing/submitting.
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation.transactionData?.resources?.instructions, "XRP262 mainnet mutation");
+  validateAssembledSorobanResources(prepared, simulation, "XRP262 mainnet mutation");
   prepared.sign(distribution);
 
   // The distribution account holds XRP262 and its XLM balance may be reserved
