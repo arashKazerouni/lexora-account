@@ -104,6 +104,20 @@ async function main() {
     console.log("Creating missing LEXO accounts...");
     const result = await server.submit(tx);
     console.log("Account creation transaction:", result.hash);
+
+    // Horizon can briefly lag after a successful account-creation transaction.
+    // Wait until both accounts are visible before building dependent transactions.
+    for (let attempt = 1; attempt <= 15; attempt += 1) {
+      const [issuerCheck, distributionCheck] = await Promise.all([
+        fetch(HORIZON_URL + "/accounts/" + issuer.publicKey()),
+        fetch(HORIZON_URL + "/accounts/" + distribution.publicKey()),
+      ]);
+      if (issuerCheck.ok && distributionCheck.ok) break;
+      if (attempt === 15) {
+        throw new Error("Accounts were created on-chain but Horizon did not expose both accounts within the retry window.");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
   } else {
     console.log("Issuer account: ALREADY EXISTS");
     console.log("Distribution account: ALREADY EXISTS");
