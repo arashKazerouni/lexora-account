@@ -242,11 +242,11 @@ async function main() {
   prepared.sign(deployer);
 
   console.log("");
-  console.log("READY TO SUBMIT");
-  console.log("================");
-  console.log("The transaction has NOT been submitted yet.");
-  console.log("Run this script with CONFIRM_XRP262_MAINNET_BURN=YES");
-  console.log("after reviewing the preflight output.");
+  console.log("CONFIRMATION RECEIVED");
+  console.log("=====================");
+  console.log("CONFIRM_XRP262_MAINNET_BURN=YES was supplied.");
+  console.log("Preflight, simulation, authorization, and assembly all passed.");
+  console.log("Submitting the signed transaction to MAINNET now.");
   console.log("");
 
   const response = await server.sendTransaction(prepared);
