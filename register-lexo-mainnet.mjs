@@ -4,7 +4,6 @@ import {
   Networks,
   Operation,
   TransactionBuilder,
-  nativeToScVal,
   scValToNative,
   StrKey,
   xdr,
@@ -13,12 +12,15 @@ import {
   inspectAuthEntry,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
+import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
+import { getSorobanFee } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 const LEXORA =
   process.env.LEXORA_MAINNET_CONTRACT ??
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
+const FEE = getSorobanFee();
 const confirm = process.env.CONFIRM_LEXO_REGISTRATION;
 
 if (confirm !== "YES") {
@@ -39,7 +41,7 @@ const server = new Server(RPC_URL);
 async function simulate(functionName, args = []) {
   const tx = new TransactionBuilder(
     await server.getAccount(deployer.publicKey()),
-    { networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "10000000" },
+    { networkPassphrase: NETWORK, fee: FEE },
   )
     .addOperation(Operation.invokeContractFunction({ contract: LEXORA, function: functionName, args }))
     .setTimeout(300)
@@ -56,6 +58,7 @@ async function main() {
   console.log("LEXORA:", LEXORA);
   console.log("Asset: LEXO");
   console.log("Issuer:", issuer);
+  console.log("Soroban fee ceiling:", FEE, "stroops");
 
   let statusBefore;
   try {
@@ -73,13 +76,9 @@ async function main() {
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-
-    // A missing registry entry is the only expected reason to continue.
-    // RPC, simulation, authorization, and contract errors must stop execution.
     if (!/not found|does not exist|missing/i.test(message)) {
       throw new Error(`Could not verify existing LEXO registry entry: ${message}`);
     }
-
     statusBefore = null;
   }
 
@@ -90,7 +89,7 @@ async function main() {
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK,
-    fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "10000000",
+    fee: FEE,
   })
     .addOperation(
       Operation.invokeContractFunction({
@@ -113,8 +112,6 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  // Simulate first. The returned transactionData contains the exact Soroban resource
-  // requirements needed to assemble the real transaction.
   const simulation = await server.simulateTransaction(tx, { instructionLeeway: 100000 });
   if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
 
@@ -134,7 +131,9 @@ async function main() {
         entry,
         async (_preimage, signingHash) => {
           const signature = owner.sign(signingHash);
-          if (!owner.verify(signingHash, signature)) throw new Error("Local owner signature verification failed.");
+          if (!owner.verify(signingHash, signature)) {
+            throw new Error("Local owner signature verification failed.");
+          }
           return { signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA };
         },
         validUntil,
@@ -145,63 +144,13 @@ async function main() {
 
   for (const entry of simulation.result.auth) {
     const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
-    if (!readiness.ready) throw new Error(`Authorization entry not ready: ${JSON.stringify(readiness)}`);
+    if (!readiness.ready) {
+      throw new Error(`Authorization entry not ready: ${JSON.stringify(readiness)}`);
+    }
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-
-  // Safety gate: inspect the assembled transaction before any mainnet submission.
-  // The simulation requires the exact Soroban resource budget. Refuse submission
-  // unless the assembled transaction preserves that instruction limit.
-  let assembledResources = null;
-  try {
-    const envelope = prepared.toEnvelope();
-    const envelopeType = envelope.switch().name;
-    let txBody = null;
-    if (envelopeType === "tx") {
-      txBody = envelope.tx();
-    } else if (envelopeType === "txFeeBump") {
-      txBody = envelope.tx().innerTx().v1().tx();
-    }
-    if (!txBody) throw new Error(`Unsupported envelope type: ${envelopeType}`);
-    const ext = txBody.ext();
-    if (ext.switch().name === "sorobanTransactionData") {
-      assembledResources = ext.sorobanData().resources();
-    } else if (ext.switch().name === "sorobanTransactionDataSigned") {
-      assembledResources = ext.sorobanData().resources();
-    }
-  } catch (error) {
-    throw new Error(`Could not inspect assembled Soroban resources: ${error.message}`);
-  }
-
-  const assembledInstructions = assembledResources?.instructions;
-  console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
-  console.log(
-    "SIMULATED RESOURCE FEE (stroops):",
-    simulatedResourceFee,
-  );
-  console.log(
-    "ASSEMBLED RESOURCES:",
-    assembledResources ? JSON.stringify(assembledResources, null, 2) : null,
-  );
-
-  if (
-    typeof assembledInstructions !== "number" &&
-    typeof assembledInstructions !== "bigint"
-  ) {
-    throw new Error(
-      "Could not inspect assembled Soroban instruction limit; refusing mainnet submission.",
-    );
-  }
-
-  if (Number(assembledInstructions) < Number(simulatedInstructions)) {
-    throw new Error(
-      `Assembled instruction limit ${assembledInstructions} is below simulated requirement ${simulatedInstructions}; refusing mainnet submission.`,
-    );
-  }
-
-  console.log("ASSEMBLED INSTRUCTIONS:", assembledInstructions);
-  console.log("RESOURCE INSPECTION PASSED — ready for mainnet submission.");
+  validateAssembledSorobanResources(prepared, simulation, "LEXO mainnet registration");
 
   prepared.sign(deployer);
 
@@ -215,7 +164,6 @@ async function main() {
   if (result.status === "FAILED") throw new Error("LEXO registration transaction failed.");
 
   console.log("LEXO registration: SUCCESS");
-
 }
 
 main().catch((err) => {
