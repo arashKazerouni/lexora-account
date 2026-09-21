@@ -20,7 +20,10 @@
     "xrp262:burn": "node burn-xrp262-mainnet.mjs",
     "lexo:generate-accounts": "node scripts/generate-lexo-accounts.mjs",
     "lexo:create": "node create-lexo-mainnet.mjs",
-    "lexo:register": "node register-lexo-mainnet.mjs"
+    "lexo:register": "node register-lexo-mainnet.mjs",
+    "vanta:generate-distribution": "node scripts/generate-vanta-distribution.mjs",
+    "vanta:create": "node create-vanta-mainnet.mjs",
+    "vanta:register": "node register-vanta-mainnet.mjs"
   },
   "repository": {
     "type": "git",
