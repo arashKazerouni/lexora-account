@@ -4,14 +4,13 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { requireMainnetConfirmation, getSorobanFee } from "./lib/mainnet-guards.mjs";
+import { requireMainnetConfirmation } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 const LEXORA = process.env.LEXORA_MAINNET_CONTRACT ||
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
 const XRP262_ISSUER = "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";
-const FEE = getSorobanFee();
 
 if (!process.env.LEXORA_DEPLOYER_SECRET || !process.env.LEXORA_OWNER_SECRET)
   throw new Error("Missing LEXORA_DEPLOYER_SECRET or LEXORA_OWNER_SECRET.");
@@ -30,7 +29,7 @@ function assetId() {
 async function main() {
   requireMainnetConfirmation("CONFIRM_XRP262_MAINNET_REGISTRATION", process.env.CONFIRM_XRP262_MAINNET_REGISTRATION);
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: FEE,
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({ contract: LEXORA, function: "owner", args: [] }))
     .setTimeout(300).build();
   const read = await server.simulateTransaction(readTx);
@@ -42,7 +41,7 @@ async function main() {
     throw new Error(`LEXORA owner mismatch: ${onChainOwner}`);
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: FEE,
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "register_token", args: [assetId()],
   })).setTimeout(300).build();
