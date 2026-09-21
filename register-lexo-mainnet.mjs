@@ -169,7 +169,7 @@ async function main() {
   simulation.result.auth = await Promise.all(
     simulation.result.auth.map(async (entry) => {
       const info = inspectAuthEntry(entry);
-      console.log("[DEBUG] Auth entry:", JSON.stringify(info, null, 2));
+      console.log("[DEBUG] Auth entry:", info);
       if (info.address !== LEXORA) throw new Error(`Unexpected auth address: ${info.address}`);
       return authorizeEntry(
         entry,
