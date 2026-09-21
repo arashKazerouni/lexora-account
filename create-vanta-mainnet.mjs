@@ -13,6 +13,7 @@ const HORIZON_URL = "https://horizon.stellar.org";
 const NETWORK = Networks.PUBLIC;
 const CODE = "VANTA";
 const SUPPLY = "922000000000";
+const DISTRIBUTION_MIN_XLM = "2";
 const ISSUER_PUBLIC_KEY =
   "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const ACCOUNTS_PATH = join(process.cwd(), ".secrets", "vanta-accounts.json");
@@ -111,6 +112,41 @@ async function waitForAccounts() {
   }
 }
 
+async function ensureDistributionFunding() {
+  const distributionAccount = await account(distribution.publicKey());
+  const native = distributionAccount.balances?.find(
+    (balance) => balance.asset_type === "native",
+  );
+  const current = Number(native?.balance ?? "0");
+
+  if (current >= Number(DISTRIBUTION_MIN_XLM)) {
+    console.log("Distribution XLM reserve: OK");
+    return;
+  }
+
+  const sourceAccount = await account(source.publicKey());
+  const amount = (Number(DISTRIBUTION_MIN_XLM) - current).toFixed(7);
+
+  const tx = new TransactionBuilder(
+    new Account(source.publicKey(), sourceAccount.sequence),
+    { networkPassphrase: NETWORK, fee: "100000" },
+  )
+    .addOperation(
+      Operation.payment({
+        destination: distribution.publicKey(),
+        asset: Asset.native(),
+        amount,
+      }),
+    )
+    .setTimeout(300)
+    .build();
+
+  tx.sign(source);
+  console.log(`Funding distribution reserve with ${amount} XLM...`);
+  const result = await submit(tx);
+  console.log("Distribution funding transaction:", result.hash);
+}
+
 async function main() {
   console.log("VANTA MAINNET CREATION");
   console.log("======================");
@@ -141,7 +177,7 @@ async function main() {
     operations.push(
       Operation.createAccount({
         destination: distribution.publicKey(),
-        startingBalance: "1",
+        startingBalance: DISTRIBUTION_MIN_XLM,
       }),
     );
   }
@@ -165,6 +201,8 @@ async function main() {
     console.log("Issuer account: ALREADY EXISTS");
     console.log("Distribution account: ALREADY EXISTS");
   }
+
+  await ensureDistributionFunding();
 
   const distributionAccount = await account(distribution.publicKey());
   const existingTrustline = distributionAccount.balances?.find(
