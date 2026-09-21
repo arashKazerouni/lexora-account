@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 const ISSUER_PUBLIC_KEY =
   "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
-const OUTPUT_PATH = join(process.cwd(), ".secrets", "vanta-distribution.json");
+const OUTPUT_PATH = join(process.cwd(), ".secrets", "vanta-accounts.json");
 
 mkdirSync(join(process.cwd(), ".secrets"), { recursive: true });
 
