@@ -35,6 +35,6 @@
   },
   "homepage": "https://github.com/arashKazerouni/lexora-account#readme",
   "dependencies": {
-    "@stellar/stellar-sdk": "^17.1.0"
+    "@stellar/stellar-sdk": "17.1.0"
   }
 }
