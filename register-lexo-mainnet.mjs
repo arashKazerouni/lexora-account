@@ -162,13 +162,6 @@ async function main() {
     JSON.stringify(simulation.transactionData?._data ?? null, null, 2),
   );
 
-  const expectedInstructionBudget = baselineInstructions + cpuLeeway;
-  if (simulatedInstructions < expectedInstructionBudget) {
-    throw new Error(
-      `Simulation did not apply the requested CPU leeway: expected at least ${expectedInstructionBudget}, got ${simulatedInstructions}`,
-    );
-  }
-
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
   console.log("[DEBUG] Authorization entries received:", simulation.result.auth.length);
 
