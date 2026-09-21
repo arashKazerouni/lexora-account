@@ -13,6 +13,7 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
+import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -239,6 +240,7 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
+  validateAssembledSorobanResources(prepared, simulation.transactionData?.resources?.instructions, "XRP262 mainnet mutation");
   prepared.sign(deployer);
 
   console.log("");
