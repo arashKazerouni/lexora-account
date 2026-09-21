@@ -39,7 +39,7 @@ const server = new Server(RPC_URL);
 async function simulate(functionName, args = []) {
   const tx = new TransactionBuilder(
     await server.getAccount(deployer.publicKey()),
-    { networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000" },
+    { networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "10000000" },
   )
     .addOperation(Operation.invokeContractFunction({ contract: LEXORA, function: functionName, args }))
     .setTimeout(300)
@@ -77,7 +77,7 @@ async function main() {
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK,
-    fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "10000000",
   })
     .addOperation(
       Operation.invokeContractFunction({
@@ -138,62 +138,8 @@ async function main() {
   const prepared = assembleTransaction(tx, simulation).build();
 
   // Safety gate: inspect the assembled transaction before any mainnet submission.
-  let assembledResources = null;
-  try {
-    const txData = prepared.toEnvelope().tx().ext();
-    if (txData.switch().name === "sorobanTransactionData") {
-      assembledResources = txData.sorobanData().resources();
-    }
-  } catch (error) {
-    console.log("ASSEMBLED RESOURCE INSPECTION ERROR:", error?.message ?? error);
-  }
-
-  const assembledInstructions = assembledResources?.instructions;
-  console.log("ASSEMBLED INSTRUCTIONS:", assembledInstructions);
-  console.log("ASSEMBLED RESOURCE FEE:", assembledResources ? JSON.stringify(assembledResources, null, 2) : null);
-
-  if (typeof assembledInstructions !== "number" && typeof assembledInstructions !== "bigint") {
-    throw new Error("Could not inspect assembled Soroban instruction limit; refusing mainnet submission.");
-  }
-
-  if (Number(assembledInstructions) < Number(simulatedInstructions)) {
-    throw new Error(`Assembled instruction limit ${assembledInstructions} is below simulated requirement ${simulatedInstructions}; refusing mainnet submission.`);
-  }
-
-  throw new Error("STOPPED BEFORE MAINNET SUBMISSION — assembled resource inspection complete.");
-
-  prepared.sign(deployer);
-
-  console.log("Submitting LEXO registration to MAINNET..."); throw new Error("Registration returned no authorization entries.");
-
-  const validUntil = simulation.latestLedger + 60;
-  simulation.result.auth = await Promise.all(
-    simulation.result.auth.map(async (entry) => {
-      const info = inspectAuthEntry(entry);
-      if (info.address !== LEXORA) throw new Error(`Unexpected auth address: ${info.address}`);
-      return authorizeEntry(
-        entry,
-        async (_preimage, signingHash) => {
-          const signature = owner.sign(signingHash);
-          if (!owner.verify(signingHash, signature)) throw new Error("Local owner signature verification failed.");
-          return { signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA };
-        },
-        validUntil,
-        NETWORK,
-      );
-    }),
-  );
-
-  for (const entry of simulation.result.auth) {
-    const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
-    if (!readiness.ready) throw new Error(`Authorization entry not ready: ${JSON.stringify(readiness)}`);
-  }
-
-  const prepared = assembleTransaction(tx, simulation).build();
-
-  // Safety gate: inspect the assembled transaction's Soroban resources before any mainnet submission.
-  // The simulation requires 701,928 instructions; previous failures occurred because the
-  // submitted transaction carried a smaller instruction budget.
+  // The simulation requires the exact Soroban resource budget. Refuse submission
+  // unless the assembled transaction preserves that instruction limit.
   let assembledResources = null;
   try {
     const envelope = prepared.toEnvelope();
@@ -208,9 +154,47 @@ async function main() {
     console.log("ASSEMBLED RESOURCE INSPECTION ERROR:", error?.message ?? error);
   }
 
-  console.log("SIMULATED INSTRUCTIONS:", simulation.transactionData?._data?.resources?.instructions);
-  console.log("ASSEMBLED RESOURCES:", assembledResources ? JSON.stringify(assembledResources, null, 2) : null);
-  throw new Error("STOPPED BEFORE MAINNET SUBMISSION — assembled resource inspection complete.");
+  const assembledInstructions = assembledResources?.instructions;
+  console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
+  console.log(
+    "SIMULATED RESOURCE FEE (stroops):",
+    simulatedResourceFee,
+  );
+  console.log(
+    "ASSEMBLED RESOURCES:",
+    assembledResources ? JSON.stringify(assembledResources, null, 2) : null,
+  );
+
+  if (
+    typeof assembledInstructions !== "number" &&
+    typeof assembledInstructions !== "bigint"
+  ) {
+    throw new Error(
+      "Could not inspect assembled Soroban instruction limit; refusing mainnet submission.",
+    );
+  }
+
+  if (Number(assembledInstructions) < Number(simulatedInstructions)) {
+    throw new Error(
+      `Assembled instruction limit ${assembledInstructions} is below simulated requirement ${simulatedInstructions}; refusing mainnet submission.`,
+    );
+  }
+
+  console.log("ASSEMBLED INSTRUCTIONS:", assembledInstructions);
+  console.log("RESOURCE INSPECTION PASSED — ready for mainnet submission.");
+
+  prepared.sign(deployer);
+
+  console.log("Submitting LEXO registration to MAINNET...");
+  const response = await server.sendTransaction(prepared);
+  console.log("Transaction hash:", response.hash);
+  if (response.status === "ERROR") throw new Error(JSON.stringify(response));
+
+  const result = await server.pollTransaction(response.hash);
+  console.log("Final status:", result.status);
+  if (result.status === "FAILED") throw new Error("LEXO registration transaction failed.");
+
+  console.log("LEXO registration: SUCCESS");
 
   prepared.sign(deployer);
 
