@@ -130,9 +130,10 @@ async function main() {
     throw new Error(`Baseline simulation returned invalid instruction budget: ${baselineInstructions}`);
   }
 
-  // Soroban apply-time execution can vary from the simulation. Use a bounded,
-  // proportional CPU margin rather than a fixed oversized budget.
-  const cpuLeeway = Math.max(100000, Math.ceil(baselineInstructions * 0.2));
+  // Keep the additional CPU budget bounded so the existing registration fee
+  // strategy is unchanged. The second simulation's returned resources are
+  // authoritative and are passed directly to assembleTransaction().
+  const cpuLeeway = 140000;
   console.log("BASELINE SIMULATED INSTRUCTIONS:", baselineInstructions);
   console.log("CPU LEEWAY SELECTED:", cpuLeeway);
   console.log("TARGET INSTRUCTION BUDGET:", baselineInstructions + cpuLeeway);
