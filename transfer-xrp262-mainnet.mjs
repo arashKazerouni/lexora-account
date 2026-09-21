@@ -73,7 +73,7 @@ const server = new Server(RPC_URL);
 async function simulate(contract, functionName, args = []) {
   const tx = new TransactionBuilder(
     await server.getAccount(distribution.publicKey()),
-    { networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000" },
+    { networkPassphrase: NETWORK, fee: "10000000" },
   )
     .addOperation(
       Operation.invokeContractFunction({
@@ -139,7 +139,7 @@ async function main() {
   const account = await server.getAccount(distribution.publicKey());
   const tx = new TransactionBuilder(account, {
     networkPassphrase: NETWORK,
-    fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    fee: "10000000",
   })
     .addOperation(
       Operation.invokeContractFunction({
