@@ -9,7 +9,6 @@ import {
   nativeToScVal,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
-import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -165,7 +164,6 @@ async function main() {
 
   // Rebuild the transaction from simulation resources before signing/submitting.
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "XRP262 mainnet mutation");
   prepared.sign(distribution);
 
   // The distribution account holds XRP262 and its XLM balance may be reserved

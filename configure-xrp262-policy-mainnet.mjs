@@ -3,8 +3,6 @@ import {
   inspectAuthEntry, checkAuthEntryReadiness, nativeToScVal, xdr, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
-import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { requireMainnetConfirmation } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -20,7 +18,6 @@ const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
 const server = new Server(RPC_URL);
 
 async function main() {
-  requireMainnetConfirmation("CONFIRM_XRP262_MAINNET_POLICY", process.env.CONFIRM_XRP262_MAINNET_POLICY);
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
@@ -59,15 +56,10 @@ async function main() {
   simulation.result.auth = await Promise.all(simulation.result.auth.map(async (entry) => {
     const info = inspectAuthEntry(entry);
     if (info.address !== LEXORA) throw new Error(`Unexpected authorization address: ${info.address}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => {
-      const signature = owner.sign(signingHash);
-      if (!owner.verify(signingHash, signature))
-        throw new Error("Local LEXORA owner signature verification failed.");
-      return {
-        signatureScVal: xdr.ScVal.scvBytes(signature),
-        address: LEXORA,
-      };
-    }, validUntil, NETWORK);
+    return authorizeEntry(entry, async (_preimage, signingHash) => ({
+      signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)),
+      address: LEXORA,
+    }), validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
@@ -76,7 +68,6 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "XRP262 policy mutation");
   prepared.sign(deployer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);

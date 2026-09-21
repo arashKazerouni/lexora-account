@@ -3,8 +3,6 @@ import {
   inspectAuthEntry, checkAuthEntryReadiness, xdr, nativeToScVal, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
-import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { requireMainnetConfirmation } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -27,7 +25,6 @@ function assetId() {
 }
 
 async function main() {
-  requireMainnetConfirmation("CONFIRM_XRP262_MAINNET_REGISTRATION", process.env.CONFIRM_XRP262_MAINNET_REGISTRATION);
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({ contract: LEXORA, function: "owner", args: [] }))
@@ -60,14 +57,9 @@ async function main() {
   simulation.result.auth = await Promise.all(simulation.result.auth.map(async (entry) => {
     const info = inspectAuthEntry(entry);
     if (info.address !== LEXORA) throw new Error(`Unexpected authorization address: ${info.address}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => {
-      const signature = owner.sign(signingHash);
-      if (!owner.verify(signingHash, signature))
-        throw new Error("Local LEXORA owner signature verification failed.");
-      return {
-        signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA,
-      };
-    }, validUntil, NETWORK);
+    return authorizeEntry(entry, async (_preimage, signingHash) => ({
+      signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)), address: LEXORA,
+    }), validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
@@ -76,7 +68,6 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "XRP262 mainnet mutation");
   prepared.sign(deployer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);

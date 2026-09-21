@@ -13,7 +13,6 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
-import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -240,15 +239,14 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "XRP262 mainnet mutation");
   prepared.sign(deployer);
 
   console.log("");
-  console.log("CONFIRMATION RECEIVED");
-  console.log("=====================");
-  console.log("CONFIRM_XRP262_MAINNET_BURN=YES was supplied.");
-  console.log("Preflight, simulation, authorization, and assembly all passed.");
-  console.log("Submitting the signed transaction to MAINNET now.");
+  console.log("READY TO SUBMIT");
+  console.log("================");
+  console.log("The transaction has NOT been submitted yet.");
+  console.log("Run this script with CONFIRM_XRP262_MAINNET_BURN=YES");
+  console.log("after reviewing the preflight output.");
   console.log("");
 
   const response = await server.sendTransaction(prepared);

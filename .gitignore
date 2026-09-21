@@ -1,12 +1,8 @@
-# Rust build output
-target/
+# Rust's output directory
+target
 
-# Local Stellar/Soroban settings
-.soroban/
-.stellar/
-
-# Local secrets
-.secrets/
-
-# Node dependencies
-node_modules/
+# Local settings
+.soroban
+.stellar
+\n# XRP262 local distribution secrets\n.secrets/\n
+.secrets/xrp262-distribution.json

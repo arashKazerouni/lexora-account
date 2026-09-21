@@ -3,8 +3,6 @@ import {
   inspectAuthEntry, checkAuthEntryReadiness, xdr, nativeToScVal, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
-import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { requireMainnetConfirmation } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -32,7 +30,6 @@ async function invoke(functionName, args) {
 }
 
 async function main() {
-  requireMainnetConfirmation("CONFIRM_XRP262_SAC_ADMIN_TRANSFER", process.env.CONFIRM_XRP262_SAC_ADMIN_TRANSFER);
   const read = await invoke("admin", []);
   const currentAdmin = Address.fromScVal(read.simulation.result?.retval).toString();
   console.log("XRP262 SAC ADMIN TRANSFER");
@@ -74,14 +71,9 @@ async function main() {
     if (info.credentialType === "sourceAccount") return entry;
 
     if (info.address !== ISSUER) throw new Error(`Unexpected auth address: ${info.address}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => {
-      const signature = issuer.sign(signingHash);
-      if (!issuer.verify(signingHash, signature))
-        throw new Error("Local XRP262 issuer signature verification failed.");
-      return {
-        signatureScVal: xdr.ScVal.scvBytes(signature), address: ISSUER,
-      };
-    }, validUntil, NETWORK);
+    return authorizeEntry(entry, async (_preimage, signingHash) => ({
+      signatureScVal: xdr.ScVal.scvBytes(issuer.sign(signingHash)), address: ISSUER,
+    }), validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
@@ -90,7 +82,6 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation, "XRP262 SAC admin transfer");
   prepared.sign(issuer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);

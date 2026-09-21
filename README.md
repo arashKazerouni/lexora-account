@@ -40,4 +40,3 @@ Controlled mint workflow:
 6. Run `npm run xrp262:final` for the final control-state check.
 
 No XRP262 mint transaction is executed by repository automation; the guarded mint command is intentionally run by the operator with the required secrets present locally.
-
