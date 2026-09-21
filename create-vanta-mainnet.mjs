@@ -16,7 +16,7 @@ const SUPPLY = "922000000000";
 const ISSUER_PUBLIC_KEY =
   "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const ISSUER_SECRET_PATH = join(process.cwd(), ".secrets", "vanta-issuer.secret");
-const ACCOUNTS_PATH = join(process.cwd(), ".secrets", "vanta-distribution.json");
+const ACCOUNTS_PATH = join(process.cwd(), ".secrets", "vanta-accounts.json");
 const confirm = process.env.CONFIRM_VANTA_MAINNET;
 
 if (confirm !== "YES") {
