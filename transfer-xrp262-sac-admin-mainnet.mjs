@@ -47,7 +47,7 @@ async function main() {
   }
 
   const tx = new TransactionBuilder(await server.getAccount(issuer.publicKey()), {
-    networkPassphrase: NETWORK, fee: "10000000",
+    networkPassphrase: NETWORK, fee: FEE,
   }).addOperation(Operation.invokeContractFunction({
     contract: SAC,
     function: "set_admin",
