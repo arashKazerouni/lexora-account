@@ -13,14 +13,12 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { getSorobanFee } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 const LEXORA =
   process.env.LEXORA_MAINNET_CONTRACT ??
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
-const FEE = getSorobanFee();
 const confirm = process.env.CONFIRM_LEXO_REGISTRATION;
 
 if (confirm !== "YES") {
@@ -41,7 +39,7 @@ const server = new Server(RPC_URL);
 async function simulate(functionName, args = []) {
   const tx = new TransactionBuilder(
     await server.getAccount(deployer.publicKey()),
-    { networkPassphrase: NETWORK, fee: FEE },
+    { networkPassphrase: NETWORK, fee: "9000000" },
   )
     .addOperation(Operation.invokeContractFunction({ contract: LEXORA, function: functionName, args }))
     .setTimeout(300)
@@ -58,7 +56,6 @@ async function main() {
   console.log("LEXORA:", LEXORA);
   console.log("Asset: LEXO");
   console.log("Issuer:", issuer);
-  console.log("Soroban fee ceiling:", FEE, "stroops");
 
   let statusBefore;
   try {
@@ -89,7 +86,7 @@ async function main() {
 
   const tx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
     networkPassphrase: NETWORK,
-    fee: FEE,
+    fee: "9000000",
   })
     .addOperation(
       Operation.invokeContractFunction({
