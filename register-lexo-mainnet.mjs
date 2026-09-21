@@ -8,8 +8,11 @@ import {
   scValToNative,
   StrKey,
   xdr,
+  authorizeEntry,
+  checkAuthEntryReadiness,
+  inspectAuthEntry,
 } from "@stellar/stellar-sdk";
-import { Server, assembleTransaction, authorizeEntry, checkAuthEntryReadiness, inspectAuthEntry } from "@stellar/stellar-sdk/rpc";
+import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
