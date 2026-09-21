@@ -71,7 +71,7 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
-  validateAssembledSorobanResources(prepared, simulation.transactionData?.resources?.instructions, "XRP262 mainnet mutation");
+  validateAssembledSorobanResources(prepared, simulation, "XRP262 mainnet mutation");
   prepared.sign(deployer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);
