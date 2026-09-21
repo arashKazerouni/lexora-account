@@ -56,9 +56,13 @@ async function main() {
   console.log("LEXORA:", LEXORA);
   console.log("Asset: LEXO");
   console.log("Issuer:", issuer);
+  console.log("RPC:", RPC_URL);
+  console.log("Deployer:", deployer.publicKey());
+  console.log("Owner:", owner.publicKey());
 
   let statusBefore;
   try {
+    console.log("[DEBUG] Checking existing LEXO registry entry...");
     statusBefore = await simulate("token_status", [
       xdr.ScVal.scvMap([
         new xdr.ScMapEntry({
@@ -73,9 +77,11 @@ async function main() {
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    console.error("[DEBUG] token_status check failed:", message);
     if (!/not found|does not exist|missing/i.test(message)) {
       throw new Error(`Could not verify existing LEXO registry entry: ${message}`);
     }
+    console.log("[DEBUG] No existing registry entry detected; proceeding with registration.");
     statusBefore = null;
   }
 
@@ -109,20 +115,31 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  const simulation = await server.simulateTransaction(tx, { instructionLeeway: 100000 });
-  if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
+  console.log("[DEBUG] Simulating register_token...");
+  const simulation = await server.simulateTransaction(tx, { cpuInstructions: 100000 });
+  if (simulation.error) {
+    console.error("[DEBUG] Simulation error:", simulation.error);
+    console.error("[DEBUG] Simulation object:", JSON.stringify(simulation, null, 2));
+    throw new Error(`Registration simulation failed: ${simulation.error}`);
+  }
 
   const simulatedInstructions = simulation.transactionData?._data?.resources?.instructions;
   const simulatedResourceFee = Number(simulation.minResourceFee ?? 0);
   console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
   console.log("SIMULATED RESOURCE FEE (stroops):", simulatedResourceFee);
+  console.log("SIMULATION LATEST LEDGER:", simulation.latestLedger);
+  console.log("SIMULATION AUTH ENTRIES:", simulation.result?.auth?.length ?? 0);
+  console.log("SIMULATION RESOURCE DATA:", JSON.stringify(simulation.transactionData?._data?.resources ?? null, null, 2));
+  console.log("SIMULATION TRANSACTION DATA:", JSON.stringify(simulation.transactionData?._data ?? null, null, 2));
 
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
+  console.log("[DEBUG] Authorization entries received:", simulation.result.auth.length);
 
   const validUntil = simulation.latestLedger + 60;
   simulation.result.auth = await Promise.all(
     simulation.result.auth.map(async (entry) => {
       const info = inspectAuthEntry(entry);
+      console.log("[DEBUG] Auth entry:", JSON.stringify(info, null, 2));
       if (info.address !== LEXORA) throw new Error(`Unexpected auth address: ${info.address}`);
       return authorizeEntry(
         entry,
@@ -141,6 +158,7 @@ async function main() {
 
   for (const entry of simulation.result.auth) {
     const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
+    console.log("[DEBUG] Auth readiness:", JSON.stringify(readiness, null, 2));
     if (!readiness.ready) {
       throw new Error(`Authorization entry not ready: ${JSON.stringify(readiness)}`);
     }
@@ -148,16 +166,24 @@ async function main() {
 
   const prepared = assembleTransaction(tx, simulation).build();
   validateAssembledSorobanResources(prepared, simulation, "LEXO mainnet registration");
+  const preparedTx = prepared.innerTransaction?.tx ?? prepared.tx;
+  console.log("[DEBUG] Prepared transaction fee:", preparedTx?.fee?.toString?.() ?? preparedTx?.fee);
+  console.log("[DEBUG] Prepared Soroban resources:", JSON.stringify(preparedTx?.ext?.sorobanData?.resources ?? null, null, 2));
+  console.log("[DEBUG] Prepared transaction ext type:", preparedTx?.ext?.type ?? null);
 
   prepared.sign(deployer);
+  console.log("[DEBUG] Deployer signature attached.");
 
   console.log("Submitting LEXO registration to MAINNET...");
   const response = await server.sendTransaction(prepared);
+  console.log("[DEBUG] sendTransaction response:", JSON.stringify(response, null, 2));
   console.log("Transaction hash:", response.hash);
   if (response.status === "ERROR") throw new Error(JSON.stringify(response));
 
+  console.log("[DEBUG] Polling transaction result...");
   const result = await server.pollTransaction(response.hash);
   console.log("Final status:", result.status);
+  console.log("[DEBUG] Final transaction result:", JSON.stringify(result, null, 2));
   if (result.status === "FAILED") throw new Error("LEXO registration transaction failed.");
 
   console.log("LEXO registration: SUCCESS");
