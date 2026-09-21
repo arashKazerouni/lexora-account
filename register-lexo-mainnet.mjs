@@ -135,6 +135,28 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
+
+  // Safety gate: inspect the assembled transaction's Soroban resources before any mainnet submission.
+  // The simulation requires 701,928 instructions; previous failures occurred because the
+  // submitted transaction carried a smaller instruction budget.
+  let assembledResources = null;
+  try {
+    const envelope = prepared.toEnvelope();
+    const txBody = envelope.tx();
+    const ext = txBody.ext();
+    if (ext.switch().name === "sorobanTransactionData") {
+      assembledResources = ext.sorobanData().resources();
+    } else if (ext.switch().name === "sorobanTransactionDataSigned") {
+      assembledResources = ext.sorobanData().resources();
+    }
+  } catch (error) {
+    console.log("ASSEMBLED RESOURCE INSPECTION ERROR:", error?.message ?? error);
+  }
+
+  console.log("SIMULATED INSTRUCTIONS:", simulation.transactionData?._data?.resources?.instructions);
+  console.log("ASSEMBLED RESOURCES:", assembledResources ? JSON.stringify(assembledResources, null, 2) : null);
+  throw new Error("STOPPED BEFORE MAINNET SUBMISSION — assembled resource inspection complete.");
+
   prepared.sign(deployer);
 
   console.log("Submitting LEXO registration to MAINNET...");
