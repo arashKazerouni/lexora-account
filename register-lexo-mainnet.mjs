@@ -100,16 +100,71 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  // LEXORA registration uses require_auth and can exceed the RPC default instruction budget.
-  // Give simulation 100k instruction leeway so assembleTransaction carries a sufficient CPU limit.
+  // Simulate first. The returned transactionData contains the exact Soroban resource
+  // requirements needed to assemble the real transaction.
   const simulation = await server.simulateTransaction(tx, { instructionLeeway: 100000 });
   if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
-  console.log("SIMULATION KEYS:", Object.keys(simulation));
-  console.log("SIMULATION RESULT KEYS:", simulation.result ? Object.keys(simulation.result) : []);
-  console.log("SIMULATION RAW:", JSON.stringify(simulation, null, 2));
-  throw new Error("STOPPED AFTER SIMULATION — no mainnet transaction submitted.");
+
+  const simulatedInstructions = simulation.transactionData?._data?.resources?.instructions;
+  const simulatedResourceFee = Number(simulation.minResourceFee ?? 0);
+  console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
+  console.log("SIMULATED RESOURCE FEE (stroops):", simulatedResourceFee);
 
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
+
+  const validUntil = simulation.latestLedger + 60;
+  simulation.result.auth = await Promise.all(
+    simulation.result.auth.map(async (entry) => {
+      const info = inspectAuthEntry(entry);
+      if (info.address !== LEXORA) throw new Error(`Unexpected auth address: ${info.address}`);
+      return authorizeEntry(
+        entry,
+        async (_preimage, signingHash) => {
+          const signature = owner.sign(signingHash);
+          if (!owner.verify(signingHash, signature)) throw new Error("Local owner signature verification failed.");
+          return { signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA };
+        },
+        validUntil,
+        NETWORK,
+      );
+    }),
+  );
+
+  for (const entry of simulation.result.auth) {
+    const readiness = checkAuthEntryReadiness(entry, simulation.latestLedger);
+    if (!readiness.ready) throw new Error(`Authorization entry not ready: ${JSON.stringify(readiness)}`);
+  }
+
+  const prepared = assembleTransaction(tx, simulation).build();
+
+  // Safety gate: inspect the assembled transaction before any mainnet submission.
+  let assembledResources = null;
+  try {
+    const txData = prepared.toEnvelope().tx().ext();
+    if (txData.switch().name === "sorobanTransactionData") {
+      assembledResources = txData.sorobanData().resources();
+    }
+  } catch (error) {
+    console.log("ASSEMBLED RESOURCE INSPECTION ERROR:", error?.message ?? error);
+  }
+
+  const assembledInstructions = assembledResources?.instructions;
+  console.log("ASSEMBLED INSTRUCTIONS:", assembledInstructions);
+  console.log("ASSEMBLED RESOURCE FEE:", assembledResources ? JSON.stringify(assembledResources, null, 2) : null);
+
+  if (typeof assembledInstructions !== "number" && typeof assembledInstructions !== "bigint") {
+    throw new Error("Could not inspect assembled Soroban instruction limit; refusing mainnet submission.");
+  }
+
+  if (Number(assembledInstructions) < Number(simulatedInstructions)) {
+    throw new Error(`Assembled instruction limit ${assembledInstructions} is below simulated requirement ${simulatedInstructions}; refusing mainnet submission.`);
+  }
+
+  throw new Error("STOPPED BEFORE MAINNET SUBMISSION — assembled resource inspection complete.");
+
+  prepared.sign(deployer);
+
+  console.log("Submitting LEXO registration to MAINNET..."); throw new Error("Registration returned no authorization entries.");
 
   const validUntil = simulation.latestLedger + 60;
   simulation.result.auth = await Promise.all(
