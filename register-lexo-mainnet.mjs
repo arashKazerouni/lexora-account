@@ -157,6 +157,9 @@ async function main() {
     } else if (ext.switch().name === "sorobanTransactionDataSigned") {
       assembledResources = ext.sorobanData().resources();
     }
+  } catch (error) {
+    throw new Error(`Could not inspect assembled Soroban resources: ${error.message}`);
+  }
 
   const assembledInstructions = assembledResources?.instructions;
   console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
