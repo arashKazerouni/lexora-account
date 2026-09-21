@@ -115,22 +115,59 @@ async function main() {
     .setTimeout(300)
     .build();
 
-  console.log("[DEBUG] Simulating register_token...");
-  const simulation = await server.simulateTransaction(tx, { cpuInstructions: 100000 });
+  console.log("[DEBUG] Phase 1: baseline simulation (no extra CPU leeway)...");
+  const baselineSimulation = await server.simulateTransaction(tx);
+  if (baselineSimulation.error) {
+    console.error("[DEBUG] Baseline simulation error:", baselineSimulation.error);
+    console.error("[DEBUG] Baseline simulation object:", JSON.stringify(baselineSimulation, null, 2));
+    throw new Error(`Registration baseline simulation failed: ${baselineSimulation.error}`);
+  }
+
+  const baselineInstructions = Number(
+    baselineSimulation.transactionData?._data?.resources?.instructions ?? 0,
+  );
+  if (!Number.isSafeInteger(baselineInstructions) || baselineInstructions <= 0) {
+    throw new Error(`Baseline simulation returned invalid instruction budget: ${baselineInstructions}`);
+  }
+
+  // Soroban apply-time execution can vary from the simulation. Use a bounded,
+  // proportional CPU margin rather than a fixed oversized budget.
+  const cpuLeeway = Math.max(100000, Math.ceil(baselineInstructions * 0.2));
+  console.log("BASELINE SIMULATED INSTRUCTIONS:", baselineInstructions);
+  console.log("CPU LEEWAY SELECTED:", cpuLeeway);
+  console.log("TARGET INSTRUCTION BUDGET:", baselineInstructions + cpuLeeway);
+
+  console.log("[DEBUG] Phase 2: submission simulation with adaptive CPU leeway...");
+  const simulation = await server.simulateTransaction(tx, { cpuInstructions: cpuLeeway });
   if (simulation.error) {
-    console.error("[DEBUG] Simulation error:", simulation.error);
-    console.error("[DEBUG] Simulation object:", JSON.stringify(simulation, null, 2));
+    console.error("[DEBUG] Submission simulation error:", simulation.error);
+    console.error("[DEBUG] Submission simulation object:", JSON.stringify(simulation, null, 2));
     throw new Error(`Registration simulation failed: ${simulation.error}`);
   }
 
-  const simulatedInstructions = simulation.transactionData?._data?.resources?.instructions;
+  const simulatedInstructions = Number(
+    simulation.transactionData?._data?.resources?.instructions ?? 0,
+  );
   const simulatedResourceFee = Number(simulation.minResourceFee ?? 0);
-  console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
+  console.log("SIMULATED INSTRUCTION BUDGET:", simulatedInstructions);
   console.log("SIMULATED RESOURCE FEE (stroops):", simulatedResourceFee);
   console.log("SIMULATION LATEST LEDGER:", simulation.latestLedger);
   console.log("SIMULATION AUTH ENTRIES:", simulation.result?.auth?.length ?? 0);
-  console.log("SIMULATION RESOURCE DATA:", JSON.stringify(simulation.transactionData?._data?.resources ?? null, null, 2));
-  console.log("SIMULATION TRANSACTION DATA:", JSON.stringify(simulation.transactionData?._data ?? null, null, 2));
+  console.log(
+    "SIMULATION RESOURCE DATA:",
+    JSON.stringify(simulation.transactionData?._data?.resources ?? null, null, 2),
+  );
+  console.log(
+    "SIMULATION TRANSACTION DATA:",
+    JSON.stringify(simulation.transactionData?._data ?? null, null, 2),
+  );
+
+  const expectedInstructionBudget = baselineInstructions + cpuLeeway;
+  if (simulatedInstructions < expectedInstructionBudget) {
+    throw new Error(
+      `Simulation did not apply the requested CPU leeway: expected at least ${expectedInstructionBudget}, got ${simulatedInstructions}`,
+    );
+  }
 
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
   console.log("[DEBUG] Authorization entries received:", simulation.result.auth.length);
