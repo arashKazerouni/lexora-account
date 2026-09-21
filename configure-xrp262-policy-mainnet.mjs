@@ -3,12 +3,15 @@ import {
   inspectAuthEntry, checkAuthEntryReadiness, nativeToScVal, xdr, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
+import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
+import { requireMainnetConfirmation, getSorobanFee } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
 const LEXORA = process.env.LEXORA_MAINNET_CONTRACT ||
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
 const MAX_SUPPLY = 900_000_000_000n * 10_000_000n;
+const FEE = getSorobanFee();
 
 if (!process.env.LEXORA_DEPLOYER_SECRET || !process.env.LEXORA_OWNER_SECRET)
   throw new Error("Missing LEXORA_DEPLOYER_SECRET or LEXORA_OWNER_SECRET.");
@@ -18,8 +21,9 @@ const owner = Keypair.fromSecret(process.env.LEXORA_OWNER_SECRET);
 const server = new Server(RPC_URL);
 
 async function main() {
+  requireMainnetConfirmation("CONFIRM_XRP262_MAINNET_POLICY", process.env.CONFIRM_XRP262_MAINNET_POLICY);
   const readTx = new TransactionBuilder(await server.getAccount(deployer.publicKey()), {
-    networkPassphrase: NETWORK, fee: process.env.SOROBAN_MAX_FEE_STROOPS ?? "9000000",
+    networkPassphrase: NETWORK, fee: FEE,
   }).addOperation(Operation.invokeContractFunction({
     contract: LEXORA, function: "owner", args: [],
   })).setTimeout(300).build();
@@ -68,6 +72,7 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
+  validateAssembledSorobanResources(prepared, simulation, "XRP262 policy mutation");
   prepared.sign(deployer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);
