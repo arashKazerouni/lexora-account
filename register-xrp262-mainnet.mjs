@@ -61,9 +61,14 @@ async function main() {
   simulation.result.auth = await Promise.all(simulation.result.auth.map(async (entry) => {
     const info = inspectAuthEntry(entry);
     if (info.address !== LEXORA) throw new Error(`Unexpected authorization address: ${info.address}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => ({
-      signatureScVal: xdr.ScVal.scvBytes(owner.sign(signingHash)), address: LEXORA,
-    }), validUntil, NETWORK);
+    return authorizeEntry(entry, async (_preimage, signingHash) => {
+      const signature = owner.sign(signingHash);
+      if (!owner.verify(signingHash, signature))
+        throw new Error("Local LEXORA owner signature verification failed.");
+      return {
+        signatureScVal: xdr.ScVal.scvBytes(signature), address: LEXORA,
+      };
+    }, validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
