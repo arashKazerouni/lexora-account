@@ -15,7 +15,6 @@ const CODE = "VANTA";
 const SUPPLY = "922000000000";
 const ISSUER_PUBLIC_KEY =
   "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
-const ISSUER_SECRET_PATH = join(process.cwd(), ".secrets", "vanta-issuer.secret");
 const ACCOUNTS_PATH = join(process.cwd(), ".secrets", "vanta-accounts.json");
 const confirm = process.env.CONFIRM_VANTA_MAINNET;
 
@@ -30,31 +29,39 @@ if (!process.env.LEXORA_DEPLOYER_SECRET) {
   );
 }
 
-let distributionConfig;
+let accountsConfig;
 try {
-  distributionConfig = JSON.parse(readFileSync(ACCOUNTS_PATH, "utf8"));
+  accountsConfig = JSON.parse(readFileSync(ACCOUNTS_PATH, "utf8"));
 } catch {
   throw new Error(
-    `Missing ${ACCOUNTS_PATH}. Run npm run vanta:generate-distribution first.`,
+    `Missing or invalid ${ACCOUNTS_PATH}. Run npm run vanta:generate-distribution first.`,
   );
 }
 
-let issuerSecret;
-try {
-  issuerSecret = readFileSync(ISSUER_SECRET_PATH, "utf8").trim();
-} catch {
+if (accountsConfig.asset !== CODE) {
+  throw new Error(`VANTA accounts config has unexpected asset: ${accountsConfig.asset}`);
+}
+if (accountsConfig.issuer?.publicKey !== ISSUER_PUBLIC_KEY) {
+  throw new Error("VANTA issuer publicKey does not match the expected issuer.");
+}
+if (!accountsConfig.issuer?.secretKey) {
   throw new Error(
-    `Missing ${ISSUER_SECRET_PATH}. Add the VANTA issuer secret locally before mainnet creation.`,
+    "Missing VANTA issuer secretKey in .secrets/vanta-accounts.json.",
+  );
+}
+if (!accountsConfig.distribution?.publicKey || !accountsConfig.distribution?.secretKey) {
+  throw new Error(
+    "Missing VANTA distribution publicKey or secretKey in .secrets/vanta-accounts.json.",
   );
 }
 
-const issuer = Keypair.fromSecret(issuerSecret);
+const issuer = Keypair.fromSecret(accountsConfig.issuer.secretKey);
 if (issuer.publicKey() !== ISSUER_PUBLIC_KEY) {
   throw new Error("VANTA issuer secret does not derive the expected issuer public key.");
 }
 
-const distribution = Keypair.fromSecret(distributionConfig.distribution.secretKey);
-if (distribution.publicKey() !== distributionConfig.distribution.publicKey) {
+const distribution = Keypair.fromSecret(accountsConfig.distribution.secretKey);
+if (distribution.publicKey() !== accountsConfig.distribution.publicKey) {
   throw new Error("VANTA distribution publicKey does not match its local secretKey.");
 }
 
