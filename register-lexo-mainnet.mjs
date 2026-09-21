@@ -104,6 +104,11 @@ async function main() {
   // Give simulation 100k instruction leeway so assembleTransaction carries a sufficient CPU limit.
   const simulation = await server.simulateTransaction(tx, { instructionLeeway: 100000 });
   if (simulation.error) throw new Error(`Registration simulation failed: ${simulation.error}`);
+  console.log("SIMULATION KEYS:", Object.keys(simulation));
+  console.log("SIMULATION RESULT KEYS:", simulation.result ? Object.keys(simulation.result) : []);
+  console.log("SIMULATION RAW:", JSON.stringify(simulation, null, 2));
+  throw new Error("STOPPED AFTER SIMULATION — no mainnet transaction submitted.");
+
   if (!simulation.result?.auth) throw new Error("Registration returned no authorization entries.");
 
   const validUntil = simulation.latestLedger + 60;
