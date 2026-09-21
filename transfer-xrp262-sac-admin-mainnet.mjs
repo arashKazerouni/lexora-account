@@ -3,6 +3,8 @@ import {
   inspectAuthEntry, checkAuthEntryReadiness, xdr, nativeToScVal, scValToNative, StrKey,
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
+import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
+import { requireMainnetConfirmation, getSorobanFee } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -10,6 +12,7 @@ const SAC = "CC7L34EWYCTDCA3L7CRRULWX577UJWET32KNJFD2WTEQ4KD7IAUKHIS6";
 const LEXORA = process.env.LEXORA_MAINNET_CONTRACT ||
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
 const ISSUER = "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";
+const FEE = getSorobanFee();
 
 if (!process.env.XRP262_ISSUER_SECRET) throw new Error("Missing XRP262_ISSUER_SECRET.");
 const issuer = Keypair.fromSecret(process.env.XRP262_ISSUER_SECRET);
@@ -19,7 +22,7 @@ const server = new Server(RPC_URL);
 
 async function invoke(functionName, args) {
   const tx = new TransactionBuilder(await server.getAccount(issuer.publicKey()), {
-    networkPassphrase: NETWORK, fee: "10000000",
+    networkPassphrase: NETWORK, fee: FEE,
   }).addOperation(Operation.invokeContractFunction({
     contract: SAC, function: functionName, args,
   })).setTimeout(300).build();
@@ -30,6 +33,7 @@ async function invoke(functionName, args) {
 }
 
 async function main() {
+  requireMainnetConfirmation("CONFIRM_XRP262_SAC_ADMIN_TRANSFER", process.env.CONFIRM_XRP262_SAC_ADMIN_TRANSFER);
   const read = await invoke("admin", []);
   const currentAdmin = Address.fromScVal(read.simulation.result?.retval).toString();
   console.log("XRP262 SAC ADMIN TRANSFER");
@@ -82,6 +86,7 @@ async function main() {
   }
 
   const prepared = assembleTransaction(tx, simulation).build();
+  validateAssembledSorobanResources(prepared, simulation, "XRP262 SAC admin transfer");
   prepared.sign(issuer);
   console.log("Submitting to MAINNET...");
   const response = await server.sendTransaction(prepared);
