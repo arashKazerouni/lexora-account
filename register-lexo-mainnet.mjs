@@ -143,16 +143,20 @@ async function main() {
   let assembledResources = null;
   try {
     const envelope = prepared.toEnvelope();
-    const txBody = envelope.v1().tx();
+    const envelopeType = envelope.switch().name;
+    let txBody = null;
+    if (envelopeType === "tx") {
+      txBody = envelope.tx();
+    } else if (envelopeType === "txFeeBump") {
+      txBody = envelope.tx().innerTx().v1().tx();
+    }
+    if (!txBody) throw new Error(`Unsupported envelope type: ${envelopeType}`);
     const ext = txBody.ext();
     if (ext.switch().name === "sorobanTransactionData") {
       assembledResources = ext.sorobanData().resources();
     } else if (ext.switch().name === "sorobanTransactionDataSigned") {
       assembledResources = ext.sorobanData().resources();
     }
-  } catch (error) {
-    console.log("ASSEMBLED RESOURCE INSPECTION ERROR:", error?.message ?? error);
-  }
 
   const assembledInstructions = assembledResources?.instructions;
   console.log("SIMULATED INSTRUCTIONS:", simulatedInstructions);
