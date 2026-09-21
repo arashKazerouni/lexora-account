@@ -57,20 +57,33 @@ async function main() {
   console.log("Asset: LEXO");
   console.log("Issuer:", issuer);
 
-  const statusBefore = await simulate("token_status", [
-    xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("code"),
-        val: xdr.ScVal.scvString("LEXO"),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol("issuer"),
-        val: Address.fromString(issuer).toScVal(),
-      }),
-    ]),
-  ]).catch(() => null);
+  let statusBefore;
+  try {
+    statusBefore = await simulate("token_status", [
+      xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("code"),
+          val: xdr.ScVal.scvString("LEXO"),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("issuer"),
+          val: Address.fromString(issuer).toScVal(),
+        }),
+      ]),
+    ]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
 
-  if (statusBefore !== null) {
+    // A missing registry entry is the only expected reason to continue.
+    // RPC, simulation, authorization, and contract errors must stop execution.
+    if (!/not found|does not exist|missing/i.test(message)) {
+      throw new Error(`Could not verify existing LEXO registry entry: ${message}`);
+    }
+
+    statusBefore = null;
+  }
+
+  if (statusBefore !== null && statusBefore !== undefined) {
     console.log("LEXO registry entry already exists. No registration submitted.");
     return;
   }
