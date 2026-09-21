@@ -75,9 +75,14 @@ async function main() {
     if (info.credentialType === "sourceAccount") return entry;
 
     if (info.address !== ISSUER) throw new Error(`Unexpected auth address: ${info.address}`);
-    return authorizeEntry(entry, async (_preimage, signingHash) => ({
-      signatureScVal: xdr.ScVal.scvBytes(issuer.sign(signingHash)), address: ISSUER,
-    }), validUntil, NETWORK);
+    return authorizeEntry(entry, async (_preimage, signingHash) => {
+      const signature = issuer.sign(signingHash);
+      if (!issuer.verify(signingHash, signature))
+        throw new Error("Local XRP262 issuer signature verification failed.");
+      return {
+        signatureScVal: xdr.ScVal.scvBytes(signature), address: ISSUER,
+      };
+    }, validUntil, NETWORK);
   }));
 
   for (const entry of simulation.result.auth) {
