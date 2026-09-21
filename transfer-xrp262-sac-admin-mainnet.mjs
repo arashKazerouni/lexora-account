@@ -4,7 +4,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server, assembleTransaction } from "@stellar/stellar-sdk/rpc";
 import { validateAssembledSorobanResources } from "./lib/soroban-safety.mjs";
-import { requireMainnetConfirmation, getSorobanFee } from "./lib/mainnet-guards.mjs";
+import { requireMainnetConfirmation } from "./lib/mainnet-guards.mjs";
 
 const RPC_URL = "https://mainnet.sorobanrpc.com";
 const NETWORK = Networks.PUBLIC;
@@ -12,7 +12,6 @@ const SAC = "CC7L34EWYCTDCA3L7CRRULWX577UJWET32KNJFD2WTEQ4KD7IAUKHIS6";
 const LEXORA = process.env.LEXORA_MAINNET_CONTRACT ||
   "CAJL2JO6EILWBTHDRMIQVJA6MTZIUWHOD6WNVJDN7FWTYD6H3NFXH542";
 const ISSUER = "GCGVZEE7RD2BFF2EIQUT37DYJUR7WDCQ2KWA5LUWYATRFLKEYHMJ3XRP";
-const FEE = getSorobanFee();
 
 if (!process.env.XRP262_ISSUER_SECRET) throw new Error("Missing XRP262_ISSUER_SECRET.");
 const issuer = Keypair.fromSecret(process.env.XRP262_ISSUER_SECRET);
@@ -22,7 +21,7 @@ const server = new Server(RPC_URL);
 
 async function invoke(functionName, args) {
   const tx = new TransactionBuilder(await server.getAccount(issuer.publicKey()), {
-    networkPassphrase: NETWORK, fee: FEE,
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: SAC, function: functionName, args,
   })).setTimeout(300).build();
@@ -47,7 +46,7 @@ async function main() {
   }
 
   const tx = new TransactionBuilder(await server.getAccount(issuer.publicKey()), {
-    networkPassphrase: NETWORK, fee: FEE,
+    networkPassphrase: NETWORK, fee: "10000000",
   }).addOperation(Operation.invokeContractFunction({
     contract: SAC,
     function: "set_admin",
