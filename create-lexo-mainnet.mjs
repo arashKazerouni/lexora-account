@@ -92,11 +92,16 @@ async function main() {
   }
 
   if (operations.length > 0) {
-    const tx = new TransactionBuilder(new Account(source.publicKey(), sourceAccount.sequence), {
+    const txBuilder = new TransactionBuilder(new Account(source.publicKey(), sourceAccount.sequence), {
       networkPassphrase: NETWORK,
       fee: "100000",
-    })
-      .addOperations(operations)
+    });
+
+    for (const operation of operations) {
+      txBuilder.addOperation(operation);
+    }
+
+    const tx = txBuilder
       .setTimeout(300)
       .build();
 
