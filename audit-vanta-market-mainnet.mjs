@@ -61,21 +61,42 @@ async function getPool(id) {
     throw new Error("Liquidity pool not found in RPC: " + id);
   }
 
-  // SDK 17.1.0 returns entries[0].val as the decoded LedgerEntryData object.
-  // It is a property, not a callable function.
+  // RPC v17 decodes entries[0].val into XDR objects, but generated
+  // accessor shapes can differ between SDK builds. Never assume an accessor
+  // is callable: support both method and property forms.
   const entry = response.entries[0].val;
 
-  // SDK 17.1.0 uses xdrgen union accessors for decoded LedgerEntryData.
-  // The liquidity-pool arm is exposed as mustLiquidityPool(), not liquidityPool().
-  const liquidityPool = entry.mustLiquidityPool();
-  const cp = liquidityPool.body.mustConstantProduct();
+  function readXdrMember(object, ...names) {
+    for (const name of names) {
+      if (object == null) continue;
+      const value = object[name];
+      if (typeof value === "function") return value.call(object);
+      if (value !== undefined && value !== null) return value;
+    }
+    throw new TypeError(
+      "Missing XDR member: " + names.join(" / "),
+    );
+  }
+
+  const liquidityPool = readXdrMember(
+    entry,
+    "mustLiquidityPool",
+    "liquidityPool",
+  );
+  const body = readXdrMember(liquidityPool, "body");
+  const cp = readXdrMember(body, "mustConstantProduct", "constantProduct");
+  const params = readXdrMember(cp, "params");
+  const fee = readXdrMember(params, "fee");
+  const reserveA = readXdrMember(cp, "reserveA");
+  const reserveB = readXdrMember(cp, "reserveB");
+  const totalPoolShares = readXdrMember(cp, "totalPoolShares");
 
   return {
     type: "constant_product",
-    fee_bp: Number(cp.params.fee),
-    reserveA: Number(cp.reserveA) / 1e7,
-    reserveB: Number(cp.reserveB) / 1e7,
-    total_shares: Number(cp.totalPoolShares) / 1e7,
+    fee_bp: Number(fee),
+    reserveA: Number(reserveA) / 1e7,
+    reserveB: Number(reserveB) / 1e7,
+    total_shares: Number(totalPoolShares) / 1e7,
   };
 }
 
