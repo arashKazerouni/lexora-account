@@ -27,7 +27,8 @@
     "vanta:liquidity:preflight": "node prepare-vanta-liquidity-mainnet.mjs",
     "vanta:liquidity:execute": "node execute-vanta-liquidity-mainnet.mjs",
     "vanta:liquidity:audit": "node audit-vanta-liquidity-mainnet.mjs",
-    "vanta:market:audit": "node audit-vanta-market-mainnet.mjs"
+    "vanta:market:audit": "node audit-vanta-market-mainnet.mjs",
+    "vanta:accounts:audit": "node audit-vanta-accounts-mainnet.mjs"
   },
   "repository": {
     "type": "git",
