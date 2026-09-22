@@ -44,11 +44,25 @@ function assetParams(asset, prefix) {
   };
 }
 
-const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLedgerKey(id) {\n  return StellarSdk.xdr.LedgerKey.liquidityPool(\n    new StellarSdk.xdr.LedgerKeyLiquidityPool({\n      liquidityPoolId: new StellarSdk.xdr.PoolId(Buffer.from(id, "hex")),\n    }),\n  );\n}\n\nasync function getPool(id) {
+const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);
+
+function poolLedgerKey(id) {
+  return StellarSdk.xdr.LedgerKey.liquidityPool(
+    new StellarSdk.xdr.LedgerKeyLiquidityPool({
+      liquidityPoolId: new StellarSdk.xdr.PoolId(Buffer.from(id, "hex")),
+    }),
+  );
+}
+
+async function getPool(id) {
   const response = await rpcServer.getLedgerEntries(poolLedgerKey(id));
-  if (!response.entries?.length) throw new Error(`Liquidity pool not found in RPC: ${id}`);
+  if (!response.entries?.length) {
+    throw new Error("Liquidity pool not found in RPC: " + id);
+  }
+
   const entry = response.entries[0].val();
   const cp = entry.liquidityPool().body().constantProduct();
+
   return {
     type: "constant_product",
     fee_bp: Number(cp.params().fee()),
@@ -56,10 +70,12 @@ const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLed
     reserveB: Number(cp.reserveB()) / 1e7,
     total_shares: Number(cp.totalPoolShares()) / 1e7,
   };
-}\n\nasync function getJson(url) {
+}
+
+async function getJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${url}`);
+    throw new Error("HTTP " + response.status + ": " + url);
   }
   return response.json();
 }
@@ -73,6 +89,7 @@ function reserve(pool, pair, asset) {
 function printOrderBook(book) {
   const asks = book.asks ?? [];
   const bids = book.bids ?? [];
+
   console.log("  order book asks: " + asks.length);
   console.log("  order book bids: " + bids.length);
 
@@ -88,7 +105,8 @@ async function main() {
   console.log("VANTA MAINNET MARKET + DISCOVERABILITY AUDIT");
   console.log("============================================");
   console.log("READ-ONLY: no transactions are submitted.");
-  console.log("Horizon (order book): " + HORIZON_URL);\n  console.log("Stellar RPC (pool state): " + RPC_URL);
+  console.log("Horizon (order book): " + HORIZON_URL);
+  console.log("Stellar RPC (pool state): " + RPC_URL);
   console.log("");
 
   for (const pair of PAIRS) {
@@ -100,30 +118,54 @@ async function main() {
       limit: "20",
     });
 
-    const [pool, orderBook] = await Promise.all([
-      getJson(HORIZON_URL + "/liquidity_pools/" + id),
-      getJson(HORIZON_URL + "/order_book?" + params.toString()),
-    ]);
+    const pool = await getPool(id);
+    let orderBook = null;
 
-    const baseReserve = reserve(pool, pair.base);
-    const counterReserve = reserve(pool, pair.counter);
+    try {
+      orderBook = await getJson(
+        HORIZON_URL + "/order_book?" + params.toString(),
+      );
+    } catch (error) {
+      console.log("  order book: UNAVAILABLE (" + (error.message || error) + ")");
+    }
+
+    const baseReserve = reserve(pool, pair, pair.base);
+    const counterReserve = reserve(pool, pair, pair.counter);
     const spot = baseReserve > 0 ? counterReserve / baseReserve : 0;
     const inverse = counterReserve > 0 ? baseReserve / counterReserve : 0;
 
     console.log(pair.name);
     console.log("  pool ID: " + id);
-    console.log("  Horizon pool status: DISCOVERABLE");
+    console.log("  pool state source: Stellar RPC");
     console.log("  type: " + pool.type);
     console.log("  fee: " + pool.fee_bp + " bp");
     console.log("  total shares: " + pool.total_shares);
-        console.log("  " + (pair.base.isNative() ? "XLM" : pair.base.getCode()) + ": " + baseReserve.toFixed(7));
-    console.log("  " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + ": " + counterReserve.toFixed(7));
-    console.log("  implied spot: 1 " + pair.base.getCode() + " = " + spot.toFixed(12) + " " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()));
-    console.log("  inverse spot: 1 " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + " = " + inverse.toFixed(7) + " VANTA");
+    console.log(
+      "  " + (pair.base.isNative() ? "XLM" : pair.base.getCode()) +
+        ": " + baseReserve.toFixed(7),
+    );
+    console.log(
+      "  " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) +
+        ": " + counterReserve.toFixed(7),
+    );
+    console.log(
+      "  implied spot: 1 " + pair.base.getCode() + " = " +
+        spot.toFixed(12) + " " +
+        (pair.counter.isNative() ? "XLM" : pair.counter.getCode()),
+    );
+    console.log(
+      "  inverse spot: 1 " +
+        (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) +
+        " = " + inverse.toFixed(7) + " VANTA",
+    );
+
     const tradeParams = new URLSearchParams({ limit: "20" });
-    const tradeUrl = HORIZON_URL + "/liquidity_pools/" + id + "/trades?" + tradeParams.toString();
+    const tradeUrl =
+      HORIZON_URL + "/liquidity_pools/" + id + "/trades?" + tradeParams.toString();
+
     let tradeStatus = "UNKNOWN";
     let tradeCount = null;
+
     try {
       const trades = await getJson(tradeUrl);
       tradeStatus = "AVAILABLE";
@@ -131,15 +173,24 @@ async function main() {
     } catch (error) {
       tradeStatus = String(error.message || error);
     }
-    console.log("  related LP trades: " + (tradeCount === null ? tradeStatus : tradeCount + " returned"));
-    printOrderBook(orderBook);
+
+    console.log(
+      "  related LP trades: " +
+        (tradeCount === null ? tradeStatus : tradeCount + " returned"),
+    );
+
+    if (orderBook) {
+      printOrderBook(orderBook);
+    }
+
     console.log("");
   }
 
   console.log("INTERPRETATION");
   console.log("  AMM ratios above are on-chain pool spot ratios, not guaranteed market prices.");
   console.log("  FARM/SIKE ratios are bootstrap exchange ratios; they do not establish independent fair value.");
-  console.log("  Horizon exposes all three pools; trade history availability depends on the public provider.");
+  console.log("  Live pool state is read directly from Stellar RPC.");
+  console.log("  Horizon is used for order-book and historical LP trade data.");
   console.log("  No transactions were submitted by this audit.");
 }
 
