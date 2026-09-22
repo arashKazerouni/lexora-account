@@ -1,4 +1,5 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
+import { Server as RpcServer } from "@stellar/stellar-sdk/rpc";
 
 const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.lobstr.co";
 const RPC_URL = process.env.SOROBAN_RPC_URL || "https://mainnet.sorobanrpc.com";
@@ -44,7 +45,7 @@ function assetParams(asset, prefix) {
   };
 }
 
-const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);
+const rpcServer = new RpcServer(RPC_URL);
 
 function poolLedgerKey(id) {
   return StellarSdk.xdr.LedgerKey.liquidityPool(
