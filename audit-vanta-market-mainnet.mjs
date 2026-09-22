@@ -1,7 +1,11 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { Server as RpcServer } from "@stellar/stellar-sdk/rpc";
 
-const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.lobstr.co";
+const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.org";
+const HORIZON_FALLBACK_URLS = [
+  HORIZON_URL,
+  "https://horizon.stellar.lobstr.co",
+].filter((url, index, urls) => urls.indexOf(url) === index);
 const RPC_URL = process.env.SOROBAN_RPC_URL || "https://mainnet.sorobanrpc.com";
 
 const VANTA_ISSUER = "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
@@ -108,6 +112,22 @@ async function getJson(url) {
   return response.json();
 }
 
+async function getJsonFromHorizon(path) {
+  const errors = [];
+
+  for (const baseUrl of HORIZON_FALLBACK_URLS) {
+    try {
+      const url = baseUrl + path;
+      const data = await getJson(url);
+      return { data, baseUrl };
+    } catch (error) {
+      errors.push(String(error.message || error));
+    }
+  }
+
+  throw new Error(errors.join(" | "));
+}
+
 function reserve(pool, pair, asset) {
   const baseIsA = StellarSdk.Asset.compare(pair.base, pair.counter) <= 0;
   const isBase = asset.equals(pair.base);
@@ -133,7 +153,7 @@ async function main() {
   console.log("VANTA MAINNET MARKET + DISCOVERABILITY AUDIT");
   console.log("============================================");
   console.log("READ-ONLY: no transactions are submitted.");
-  console.log("Horizon (order book): " + HORIZON_URL);
+  console.log("Horizon providers: " + HORIZON_FALLBACK_URLS.join(", "));
   console.log("Stellar RPC (pool state): " + RPC_URL);
   console.log("");
 
@@ -150,9 +170,11 @@ async function main() {
     let orderBook = null;
 
     try {
-      orderBook = await getJson(
-        HORIZON_URL + "/order_book?" + params.toString(),
+      const result = await getJsonFromHorizon(
+        "/order_book?" + params.toString(),
       );
+      orderBook = result.data;
+      console.log("  order book source: " + result.baseUrl);
     } catch (error) {
       console.log("  order book: UNAVAILABLE (" + (error.message || error) + ")");
     }
@@ -188,23 +210,26 @@ async function main() {
     );
 
     const tradeParams = new URLSearchParams({ limit: "20" });
-    const tradeUrl =
-      HORIZON_URL + "/liquidity_pools/" + id + "/trades?" + tradeParams.toString();
-
     let tradeStatus = "UNKNOWN";
     let tradeCount = null;
+    let tradeSource = null;
 
     try {
-      const trades = await getJson(tradeUrl);
+      const result = await getJsonFromHorizon(
+        "/liquidity_pools/" + id + "/trades?" + tradeParams.toString(),
+      );
       tradeStatus = "AVAILABLE";
-      tradeCount = (trades.records ?? []).length;
+      tradeCount = (result.data.records ?? []).length;
+      tradeSource = result.baseUrl;
     } catch (error) {
       tradeStatus = String(error.message || error);
     }
 
     console.log(
       "  related LP trades: " +
-        (tradeCount === null ? tradeStatus : tradeCount + " returned"),
+        (tradeCount === null
+          ? tradeStatus
+          : tradeCount + " returned from " + tradeSource),
     );
 
     if (orderBook) {
@@ -218,7 +243,7 @@ async function main() {
   console.log("  AMM ratios above are on-chain pool spot ratios, not guaranteed market prices.");
   console.log("  FARM/SIKE ratios are bootstrap exchange ratios; they do not establish independent fair value.");
   console.log("  Live pool state is read directly from Stellar RPC.");
-  console.log("  Horizon is used for order-book and historical LP trade data.");
+  console.log("  Horizon is optional enrichment; RPC remains the source of truth for live pool state.");
   console.log("  No transactions were submitted by this audit.");
 }
 
