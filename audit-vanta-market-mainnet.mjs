@@ -107,7 +107,19 @@ async function getPool(id) {
 async function getJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error("HTTP " + response.status + ": " + url);
+    let detail = "";
+    try {
+      detail = (await response.text()).trim();
+    } catch {
+      // Keep the HTTP status if the provider does not return a readable body.
+    }
+    throw new Error(
+      "HTTP " +
+        response.status +
+        (detail ? " " + detail : "") +
+        ": " +
+        url,
+    );
   }
   return response.json();
 }
@@ -161,8 +173,8 @@ async function main() {
     const id = poolId(pair.base, pair.counter);
 
     const params = new URLSearchParams({
-      ...assetParams(pair.base, "selling"),
-      ...assetParams(pair.counter, "buying"),
+      ...assetParams(pair.base, "base"),
+      ...assetParams(pair.counter, "counter"),
       limit: "20",
     });
 
