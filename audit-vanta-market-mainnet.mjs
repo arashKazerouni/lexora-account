@@ -1,6 +1,7 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
 
 const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.lobstr.co";
+const RPC_URL = process.env.SOROBAN_RPC_URL || "https://mainnet.sorobanrpc.com";
 
 const VANTA_ISSUER = "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const FARM_ISSUER = "GBF7ZMNV4L2PFQRHJEMQLH7FEYMIP4ZSUKQ42ZOCYL5MI5P234C2NMNB";
@@ -43,7 +44,7 @@ function assetParams(asset, prefix) {
   };
 }
 
-async function getJson(url) {
+const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLedgerKey(id) {\n  return StellarSdk.xdr.LedgerKey.liquidityPool(\n    new StellarSdk.xdr.LedgerKeyLiquidityPool({\n      liquidityPoolId: new StellarSdk.xdr.PoolId(Buffer.from(id, "hex")),\n    }),\n  );\n}\n\nasync function getPool(id) {\n  const response = await rpcServer.getLedgerEntries(poolLedgerKey(id));\n  if (!response.entries?.length) throw new Error(`Liquidity pool not found in RPC: ${id}`);\n  const entry = response.entries[0].val();\n  const lp = entry.liquidityPool();\n  const cp = lp.body().constantProduct();\n  const params = cp.params();\n  const assetString = (asset) => {\n    const type = asset.switch().name;\n    if (type === "assetTypeNative") return "native";\n    if (type === "assetTypeCreditAlphanum4") {\n      const a = asset.alphaNum4();\n      return `${a.assetCode().toString().replace(/\\0+$/, "")}:${StellarSdk.StrKey.encodeEd25519PublicKey(a.issuer().value())}`;\n    }\n    if (type === "assetTypeCreditAlphanum12") {\n      const a = asset.alphaNum12();\n      return `${a.assetCode().toString().replace(/\\0+$/, "")}:${StellarSdk.StrKey.encodeEd25519PublicKey(a.issuer().value())}`;\n    }\n    throw new Error("Unsupported liquidity-pool asset type: " + type);\n  };\n  return {\n    type: "constant_product",\n    fee_bp: Number(params.fee()),\n    total_shares: StellarSdk.StrKey.encodeEd25519PublicKey ? Number(cp.totalPoolShares()) / 1e7 : Number(cp.totalPoolShares()),\n    reserves: [\n      { asset: assetString(params.assetA()), amount: Number(cp.reserveA()) / 1e7 },\n      { asset: assetString(params.assetB()), amount: Number(cp.reserveB()) / 1e7 },\n    ],\n  };\n}\n\nasync function getJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${url}`);
@@ -79,7 +80,7 @@ async function main() {
   console.log("VANTA MAINNET MARKET + DISCOVERABILITY AUDIT");
   console.log("============================================");
   console.log("READ-ONLY: no transactions are submitted.");
-  console.log("Horizon: " + HORIZON_URL);
+  console.log("Horizon (order book): " + HORIZON_URL);\n  console.log("Stellar RPC (pool state): " + RPC_URL);
   console.log("");
 
   for (const pair of PAIRS) {
