@@ -107,8 +107,7 @@ async function main() {
     console.log("  type: " + pool.type);
     console.log("  fee: " + pool.fee_bp + " bp");
     console.log("  total shares: " + pool.total_shares);
-    console.log("  reserves: " + pair.base.getCode?.() ?? "XLM" + "=" + baseReserve);
-    console.log("  " + (pair.base.isNative() ? "XLM" : pair.base.getCode()) + ": " + baseReserve.toFixed(7));
+        console.log("  " + (pair.base.isNative() ? "XLM" : pair.base.getCode()) + ": " + baseReserve.toFixed(7));
     console.log("  " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + ": " + counterReserve.toFixed(7));
     console.log("  implied spot: 1 " + pair.base.getCode() + " = " + spot.toFixed(12) + " " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()));
     console.log("  inverse spot: 1 " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + " = " + inverse.toFixed(7) + " VANTA");
