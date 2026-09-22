@@ -61,7 +61,9 @@ async function getPool(id) {
     throw new Error("Liquidity pool not found in RPC: " + id);
   }
 
-  const entry = response.entries[0].val();
+  // SDK 17.1.0 returns entries[0].val as the decoded LedgerEntryData object.
+  // It is a property, not a callable function.
+  const entry = response.entries[0].val;
   const cp = entry.liquidityPool().body().constantProduct();
 
   return {
