@@ -185,22 +185,32 @@ async function main() {
     console.log("  pool-share trustline: REQUIRED before deposit");
   }
 
-  const estimatedSubentries = 3;
-  const requiredBaseReserve = 0.5 * estimatedSubentries;
+  const poolShareTrustlineReserve = 1.0;
+  const poolShareTrustlines = 3;
+  const requiredPoolShareReserve = poolShareTrustlineReserve * poolShareTrustlines;
   const postLiquidityXlm = values.sourceXlm - PLAN.xlm;
+
   console.log("");
   console.log("RESERVE CHECK");
   console.log("Planned untouched XLM:", PLAN.reserve);
   console.log("Estimated post-deposit XLM:", postLiquidityXlm.toFixed(7));
-  console.log("Additional 3 pool-share subentries would require approximately:", requiredBaseReserve.toFixed(7), "XLM");
-  console.log("Note: exact reserve headroom depends on existing source-account subentries.");
+  console.log(
+    `Three new pool-share trustlines require approximately ${requiredPoolShareReserve.toFixed(7)} XLM of additional reserve (1.0 XLM each at the current 0.5 XLM base reserve).`,
+  );
+  console.log("The source already has the three underlying VANTA/FARM/SIKE trustlines, so this check counts only the new pool-share trustlines.");
+  console.log("Note: exact reserve headroom also depends on any other existing source-account subentries.");
 
   console.log("");
   console.log("STATUS");
   const allFundingReady = checks.every(([, ok]) => ok);
+  const reserveReady = postLiquidityXlm >= requiredPoolShareReserve + PLAN.reserve;
+
   console.log(allFundingReady
     ? "Funding balances are sufficient for the approved deposits."
     : "BLOCKED: asset funding must be consolidated into the source account first.");
+  console.log(reserveReady
+    ? "Reserve headroom is sufficient for the planned pool-share trustlines."
+    : "BLOCKED: additional XLM reserve headroom is required before pool-share trustlines.");
   console.log("Classic Stellar AMM operations do not have Soroban-style simulation; this script intentionally stops before signing/submitting.");
 }
 
