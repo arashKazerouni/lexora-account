@@ -7,7 +7,6 @@ const VANTA = new StellarSdk.Asset("VANTA", "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKB
 const FARM = new StellarSdk.Asset("FARM", "GBF7ZMNV4L2PFQRHJEMQLH7FEYMIP4ZSUKQ42ZOCYL5MI5P234C2NMNB");
 const SIKE = new StellarSdk.Asset("SIKE", "GBPBUOS7DG7IOK3CCX3TPVLG4PW44C7J5M4VEXREYSM7EOQAGEYPY7QV");
 
-const PRICE_VANTA_PER_XLM = 100_000_000; // 1 XLM = 100M VANTA
 const PLAN = {
   vantaXlm: { xlm: 10, vanta: 1_000_000_000 },
   vantaFarm: { xlmEquivalent: 4, vanta: 400_000_000, farm: 4_000_000 },
@@ -16,25 +15,33 @@ const PLAN = {
 
 function poolId(a, b) {
   const [x, y] = StellarSdk.Asset.compare(a, b) <= 0 ? [a, b] : [b, a];
-  const params = new StellarSdk.LiquidityPoolAsset(x, y, StellarSdk.LiquidityPoolFeeV18)
-    .getLiquidityPoolParameters();
+  const params = new StellarSdk.LiquidityPoolAsset(
+    x,
+    y,
+    StellarSdk.LiquidityPoolFeeV18,
+  ).getLiquidityPoolParameters();
   return StellarSdk.getLiquidityPoolId("constant_product", params).toString("hex");
 }
 
 async function checkPool(name, a, b) {
   const id = poolId(a, b);
-  try {
-    const p = await server.liquidityPools().liquidityPool(id).call();
-    console.log(name, "EXISTS", p.id);
-    console.log("  reserves:", p.reserves);
-    return true;
-  } catch (e) {
-    if (e?.response?.status === 404) {
-      console.log(name, "NO POOL", id);
-      return false;
-    }
-    throw e;
+  const url = `${HORIZON_URL}/liquidity_pools/${id}`;
+  const response = await fetch(url);
+
+  if (response.status === 404) {
+    console.log(name, "NO POOL", id);
+    return false;
   }
+
+  if (!response.ok) {
+    throw new Error(`${name}: Horizon returned ${response.status} for ${url}`);
+  }
+
+  const p = await response.json();
+  console.log(name, "EXISTS", p.id);
+  console.log("  reserves:", p.reserves);
+  console.log("  total_shares:", p.total_shares);
+  return true;
 }
 
 console.log("VANTA MARKET MAINNET PREFLIGHT");
