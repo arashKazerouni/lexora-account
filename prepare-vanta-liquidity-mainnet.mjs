@@ -29,7 +29,7 @@ const PLAN = {
   farm: 4_000_000,
   vantaSike: 200_000_000,
   sike: 2_000_000,
-  reserve: 2.2,
+  safetyXlm: 1.0,
 };
 
 function assetBalance(account, code, issuer) {
@@ -185,25 +185,30 @@ async function main() {
     console.log("  pool-share trustline: REQUIRED before deposit");
   }
 
-  const poolShareTrustlineReserve = 1.0;
-  const poolShareTrustlines = 3;
-  const requiredPoolShareReserve = poolShareTrustlineReserve * poolShareTrustlines;
+  const BASE_RESERVE = 0.5;
+  const ACCOUNT_BASE_RESERVE_COUNT = 2;
+  const newPoolShareTrustlines = 3;
+  const currentSubentries = Number(source.subentry_count ?? 0);
+  const currentMinimumBalance = ACCOUNT_BASE_RESERVE_COUNT * BASE_RESERVE + currentSubentries * BASE_RESERVE;
+  const projectedMinimumBalance = currentMinimumBalance + newPoolShareTrustlines * (2 * BASE_RESERVE - BASE_RESERVE);
   const postLiquidityXlm = values.sourceXlm - PLAN.xlm;
+  const reserveHeadroom = postLiquidityXlm - projectedMinimumBalance;
 
   console.log("");
   console.log("RESERVE CHECK");
-  console.log("Planned untouched XLM:", PLAN.reserve);
+  console.log("Current source subentries:", currentSubentries);
+  console.log("Current estimated minimum balance:", currentMinimumBalance.toFixed(7));
+  console.log("Projected minimum balance after 3 pool-share trustlines:", projectedMinimumBalance.toFixed(7));
   console.log("Estimated post-deposit XLM:", postLiquidityXlm.toFixed(7));
-  console.log(
-    `Three new pool-share trustlines require approximately ${requiredPoolShareReserve.toFixed(7)} XLM of additional reserve (1.0 XLM each at the current 0.5 XLM base reserve).`,
-  );
-  console.log("The source already has the three underlying VANTA/FARM/SIKE trustlines, so this check counts only the new pool-share trustlines.");
-  console.log("Note: exact reserve headroom also depends on any other existing source-account subentries.");
+  console.log("Projected reserve headroom after deposits:", reserveHeadroom.toFixed(7));
+  console.log("Safety margin required:", PLAN.safetyXlm.toFixed(7));
+  console.log("Pool-share trustlines require 2 base reserves each; with a 0.5 XLM base reserve, each adds 1.0 XLM to minimum balance.");
+  console.log("The source already has the three underlying VANTA/FARM/SIKE trustlines.");
 
   console.log("");
   console.log("STATUS");
   const allFundingReady = checks.every(([, ok]) => ok);
-  const reserveReady = postLiquidityXlm >= requiredPoolShareReserve + PLAN.reserve;
+  const reserveReady = reserveHeadroom >= PLAN.safetyXlm;
 
   console.log(allFundingReady
     ? "Funding balances are sufficient for the approved deposits."
