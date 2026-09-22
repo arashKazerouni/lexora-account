@@ -62,9 +62,11 @@ async function poolId(a, b) {
     y,
     StellarSdk.LiquidityPoolFeeV18,
   );
-  return StellarSdk.getLiquidityPoolId(
-    "constant_product",
-    poolAsset.getLiquidityPoolParameters(),
+  return Buffer.from(
+    StellarSdk.getLiquidityPoolId(
+      "constant_product",
+      poolAsset.getLiquidityPoolParameters(),
+    ),
   ).toString("hex");
 }
 
