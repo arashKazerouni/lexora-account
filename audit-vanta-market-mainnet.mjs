@@ -1,6 +1,6 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
 
-const HORIZON_URL = "https://horizon.stellar.org";
+const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.lobstr.co";
 
 const VANTA_ISSUER = "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const FARM_ISSUER = "GBF7ZMNV4L2PFQRHJEMQLH7FEYMIP4ZSUKQ42ZOCYL5MI5P234C2NMNB";
@@ -79,6 +79,7 @@ async function main() {
   console.log("VANTA MAINNET MARKET + DISCOVERABILITY AUDIT");
   console.log("============================================");
   console.log("READ-ONLY: no transactions are submitted.");
+  console.log("Horizon: " + HORIZON_URL);
   console.log("");
 
   for (const pair of PAIRS) {
