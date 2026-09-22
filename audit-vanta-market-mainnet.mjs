@@ -91,9 +91,8 @@ async function main() {
       limit: "20",
     });
 
-    const [pool, trades, orderBook] = await Promise.all([
+    const [pool, orderBook] = await Promise.all([
       getJson(HORIZON_URL + "/liquidity_pools/" + id),
-      getJson(HORIZON_URL + "/liquidity_pools/" + id + "/trades?limit=20"),
       getJson(HORIZON_URL + "/order_book?" + params.toString()),
     ]);
 
@@ -113,7 +112,18 @@ async function main() {
     console.log("  " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + ": " + counterReserve.toFixed(7));
     console.log("  implied spot: 1 " + pair.base.getCode() + " = " + spot.toFixed(12) + " " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()));
     console.log("  inverse spot: 1 " + (pair.counter.isNative() ? "XLM" : pair.counter.getCode()) + " = " + inverse.toFixed(7) + " VANTA");
-    console.log("  related LP trades returned: " + (trades.records ?? []).length);
+    const tradeParams = new URLSearchParams({ limit: "20" });
+    const tradeUrl = HORIZON_URL + "/liquidity_pools/" + id + "/trades?" + tradeParams.toString();
+    let tradeStatus = "UNKNOWN";
+    let tradeCount = null;
+    try {
+      const trades = await getJson(tradeUrl);
+      tradeStatus = "AVAILABLE";
+      tradeCount = (trades.records ?? []).length;
+    } catch (error) {
+      tradeStatus = String(error.message || error);
+    }
+    console.log("  related LP trades: " + (tradeCount === null ? tradeStatus : tradeCount + " returned"));
     printOrderBook(orderBook);
     console.log("");
   }
@@ -121,7 +131,7 @@ async function main() {
   console.log("INTERPRETATION");
   console.log("  AMM ratios above are on-chain pool spot ratios, not guaranteed market prices.");
   console.log("  FARM/SIKE ratios are bootstrap exchange ratios; they do not establish independent fair value.");
-  console.log("  Horizon exposes all three pools and their related-trade endpoints.");
+  console.log("  Horizon exposes all three pools; trade history availability depends on the public provider.");
   console.log("  No transactions were submitted by this audit.");
 }
 
