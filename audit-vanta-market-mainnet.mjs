@@ -68,14 +68,14 @@ async function getPool(id) {
   // SDK 17.1.0 uses xdrgen union accessors for decoded LedgerEntryData.
   // The liquidity-pool arm is exposed as mustLiquidityPool(), not liquidityPool().
   const liquidityPool = entry.mustLiquidityPool();
-  const cp = liquidityPool.body().mustConstantProduct();
+  const cp = liquidityPool.body.mustConstantProduct();
 
   return {
     type: "constant_product",
-    fee_bp: Number(cp.params().fee()),
-    reserveA: Number(cp.reserveA()) / 1e7,
-    reserveB: Number(cp.reserveB()) / 1e7,
-    total_shares: Number(cp.totalPoolShares()) / 1e7,
+    fee_bp: Number(cp.params.fee),
+    reserveA: Number(cp.reserveA) / 1e7,
+    reserveB: Number(cp.reserveB) / 1e7,
+    total_shares: Number(cp.totalPoolShares) / 1e7,
   };
 }
 
