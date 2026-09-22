@@ -94,13 +94,12 @@ function poolShareAsset(plan) {
 }
 
 function hasPoolShareTrustline(account, plan) {
-  const poolAsset = poolShareAsset(plan);
-  const poolId = Buffer.from(poolAsset.getLiquidityPoolId()).toString("hex");
+  const id = poolId(plan.a, plan.b);
   return Boolean(
     account.balances?.find(
       (b) =>
         b.asset_type === "liquidity_pool_shares" &&
-        b.liquidity_pool_id === poolId,
+        b.liquidity_pool_id === id,
     ),
   );
 }
