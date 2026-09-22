@@ -64,7 +64,11 @@ async function getPool(id) {
   // SDK 17.1.0 returns entries[0].val as the decoded LedgerEntryData object.
   // It is a property, not a callable function.
   const entry = response.entries[0].val;
-  const cp = entry.liquidityPool().body().constantProduct();
+
+  // SDK 17.1.0 uses xdrgen union accessors for decoded LedgerEntryData.
+  // The liquidity-pool arm is exposed as mustLiquidityPool(), not liquidityPool().
+  const liquidityPool = entry.mustLiquidityPool();
+  const cp = liquidityPool.body().mustConstantProduct();
 
   return {
     type: "constant_product",
