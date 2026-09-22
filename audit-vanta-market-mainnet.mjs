@@ -42,9 +42,11 @@ function assetParams(asset, prefix) {
   if (asset.isNative()) {
     return { [prefix + "_asset_type"]: "native" };
   }
+  const code = asset.getCode();
+  const assetType = code.length <= 4 ? "credit_alphanum4" : "credit_alphanum12";
   return {
-    [prefix + "_asset_type"]: "credit_alphanum4",
-    [prefix + "_asset_code"]: asset.getCode(),
+    [prefix + "_asset_type"]: assetType,
+    [prefix + "_asset_code"]: code,
     [prefix + "_asset_issuer"]: asset.getIssuer(),
   };
 }
@@ -173,8 +175,8 @@ async function main() {
     const id = poolId(pair.base, pair.counter);
 
     const params = new URLSearchParams({
-      ...assetParams(pair.base, "base"),
-      ...assetParams(pair.counter, "counter"),
+      ...assetParams(pair.base, "selling"),
+      ...assetParams(pair.counter, "buying"),
       limit: "20",
     });
 
