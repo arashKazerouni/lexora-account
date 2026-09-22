@@ -86,6 +86,25 @@ function orderedPair(a, b) {
   return StellarSdk.Asset.compare(a, b) <= 0 ? [a, b] : [b, a];
 }
 
+function poolShareAsset(plan) {
+  return new StellarSdk.LiquidityPoolAsset(
+    ...orderedPair(plan.a, plan.b),
+    StellarSdk.LiquidityPoolFeeV18,
+  );
+}
+
+function hasPoolShareTrustline(account, plan) {
+  const poolAsset = poolShareAsset(plan);
+  const poolId = Buffer.from(poolAsset.getLiquidityPoolId()).toString("hex");
+  return Boolean(
+    account.balances?.find(
+      (b) =>
+        b.asset_type === "liquidity_pool_shares" &&
+        b.liquidity_pool_id === poolId,
+    ),
+  );
+}
+
 async function submitChangeTrust(kp) {
   const account = await server.loadAccount(SOURCE);
   const tx = new StellarSdk.TransactionBuilder(account, {
@@ -200,22 +219,35 @@ async function main() {
 
   for (const plan of PLAN) {
     const id = poolId(plan.a, plan.b);
-    const r = await fetch(`${HORIZON_URL}/liquidity_pools/${id}`);
-    if (r.ok) {
-      throw new Error(`BLOCKED: ${plan.name} pool already exists: ${id}`);
+    const r = await fetch(HORIZON_URL + "/liquidity_pools/" + id);
+    if (r.status === 404) {
+      console.log(plan.name + ": NEW POOL " + id);
+    } else if (r.ok) {
+      const pool = await r.json();
+      const reserves = pool.reserves ?? [];
+      const reserveA = Number(reserves[0]?.amount ?? "0");
+      const reserveB = Number(reserves[1]?.amount ?? "0");
+      if (reserveA !== 0 || reserveB !== 0) {
+        throw new Error("BLOCKED: " + plan.name + " pool already has liquidity: " + id);
+      }
+      console.log(plan.name + ": EMPTY POOL " + id + " (safe to initialize)");
+    } else {
+      throw new Error("Unexpected pool lookup status for " + plan.name + ": " + r.status);
     }
-    if (r.status !== 404) {
-      throw new Error(`Unexpected pool lookup status for ${plan.name}: ${r.status}`);
-    }
-    console.log(`${plan.name}: NEW POOL ${id}`);
-    console.log(`  ratio A/B = ${plan.price}`);
-    console.log(`  deposit = ${plan.amountA} A + ${plan.amountB} B`);
+    console.log("  ratio A/B = " + plan.price);
+    console.log("  deposit = " + plan.amountA + " A + " + plan.amountB + " B");
   }
 
-  console.log("");
-  console.log("STEP 1/4: creating the three required pool-share trustlines...");
-  const trustTx = await submitChangeTrust(kp);
-  console.log("TRUSTLINE TX:", trustTx.hash);
+  const missingTrustlines = PLAN.filter((plan) => !hasPoolShareTrustline(account, plan));
+  if (missingTrustlines.length > 0) {
+    console.log("");
+    console.log("STEP 1/4: creating " + missingTrustlines.length + " required pool-share trustline(s)...");
+    const trustTx = await submitChangeTrust(kp);
+    console.log("TRUSTLINE TX:", trustTx.hash);
+  } else {
+    console.log("");
+    console.log("STEP 1/4: pool-share trustlines already exist; skipping trustline transaction.");
+  }
 
   for (let i = 0; i < PLAN.length; i++) {
     const plan = PLAN[i];
