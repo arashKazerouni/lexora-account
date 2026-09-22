@@ -125,7 +125,7 @@ async function main() {
   console.log("");
 
   const checks = [
-    ["XLM available", values.sourceXlm >= PLAN.xlm + PLAN.reserve, values.sourceXlm, PLAN.xlm + PLAN.reserve],
+    ["XLM available", values.sourceXlm >= PLAN.xlm + PLAN.safetyXlm, values.sourceXlm, PLAN.xlm + PLAN.safetyXlm],
     ["VANTA in source", values.sourceVanta >= PLAN.vantaXlm + PLAN.vantaFarm + PLAN.vantaSike, values.sourceVanta, PLAN.vantaXlm + PLAN.vantaFarm + PLAN.vantaSike],
     ["FARM in source", values.sourceFarm >= PLAN.farm, values.sourceFarm, PLAN.farm],
     ["SIKE in source", values.sourceSike >= PLAN.sike, values.sourceSike, PLAN.sike],
