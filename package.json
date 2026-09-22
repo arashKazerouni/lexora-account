@@ -25,7 +25,8 @@
     "vanta:create": "node create-vanta-mainnet.mjs",
     "vanta:register": "node register-vanta-mainnet.mjs",
     "vanta:liquidity:preflight": "node prepare-vanta-liquidity-mainnet.mjs",
-    "vanta:liquidity:execute": "node execute-vanta-liquidity-mainnet.mjs"
+    "vanta:liquidity:execute": "node execute-vanta-liquidity-mainnet.mjs",
+    "vanta:liquidity:audit": "node audit-vanta-liquidity-mainnet.mjs"
   },
   "repository": {
     "type": "git",
