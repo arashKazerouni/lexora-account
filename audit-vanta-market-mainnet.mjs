@@ -44,7 +44,19 @@ function assetParams(asset, prefix) {
   };
 }
 
-const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLedgerKey(id) {\n  return StellarSdk.xdr.LedgerKey.liquidityPool(\n    new StellarSdk.xdr.LedgerKeyLiquidityPool({\n      liquidityPoolId: new StellarSdk.xdr.PoolId(Buffer.from(id, "hex")),\n    }),\n  );\n}\n\nasync function getPool(id) {\n  const response = await rpcServer.getLedgerEntries(poolLedgerKey(id));\n  if (!response.entries?.length) throw new Error(`Liquidity pool not found in RPC: ${id}`);\n  const entry = response.entries[0].val();\n  const lp = entry.liquidityPool();\n  const cp = lp.body().constantProduct();\n  const params = cp.params();\n  const assetString = (asset) => {\n    const type = asset.switch().name;\n    if (type === "assetTypeNative") return "native";\n    if (type === "assetTypeCreditAlphanum4") {\n      const a = asset.alphaNum4();\n      return `${a.assetCode().toString().replace(/\\0+$/, "")}:${StellarSdk.StrKey.encodeEd25519PublicKey(a.issuer().value())}`;\n    }\n    if (type === "assetTypeCreditAlphanum12") {\n      const a = asset.alphaNum12();\n      return `${a.assetCode().toString().replace(/\\0+$/, "")}:${StellarSdk.StrKey.encodeEd25519PublicKey(a.issuer().value())}`;\n    }\n    throw new Error("Unsupported liquidity-pool asset type: " + type);\n  };\n  return {\n    type: "constant_product",\n    fee_bp: Number(params.fee()),\n    total_shares: StellarSdk.StrKey.encodeEd25519PublicKey ? Number(cp.totalPoolShares()) / 1e7 : Number(cp.totalPoolShares()),\n    reserves: [\n      { asset: assetString(params.assetA()), amount: Number(cp.reserveA()) / 1e7 },\n      { asset: assetString(params.assetB()), amount: Number(cp.reserveB()) / 1e7 },\n    ],\n  };\n}\n\nasync function getJson(url) {
+const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLedgerKey(id) {\n  return StellarSdk.xdr.LedgerKey.liquidityPool(\n    new StellarSdk.xdr.LedgerKeyLiquidityPool({\n      liquidityPoolId: new StellarSdk.xdr.PoolId(Buffer.from(id, "hex")),\n    }),\n  );\n}\n\nasync function getPool(id) {
+  const response = await rpcServer.getLedgerEntries(poolLedgerKey(id));
+  if (!response.entries?.length) throw new Error(`Liquidity pool not found in RPC: ${id}`);
+  const entry = response.entries[0].val();
+  const cp = entry.liquidityPool().body().constantProduct();
+  return {
+    type: "constant_product",
+    fee_bp: Number(cp.params().fee()),
+    reserveA: Number(cp.reserveA()) / 1e7,
+    reserveB: Number(cp.reserveB()) / 1e7,
+    total_shares: Number(cp.totalPoolShares()) / 1e7,
+  };
+}\n\nasync function getJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${url}`);
@@ -52,14 +64,10 @@ const rpcServer = new StellarSdk.SorobanRpc.Server(RPC_URL);\n\nfunction poolLed
   return response.json();
 }
 
-function reserve(pool, asset) {
-  return Number(
-    (pool.reserves ?? []).find((r) =>
-      asset.isNative()
-        ? r.asset === "native"
-        : r.asset === asset.getCode() + ":" + asset.getIssuer(),
-    )?.amount ?? "0",
-  );
+function reserve(pool, pair, asset) {
+  const baseIsA = StellarSdk.Asset.compare(pair.base, pair.counter) <= 0;
+  const isBase = asset.equals(pair.base);
+  return isBase === baseIsA ? pool.reserveA : pool.reserveB;
 }
 
 function printOrderBook(book) {
