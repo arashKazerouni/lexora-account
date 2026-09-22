@@ -161,8 +161,8 @@ async function main() {
     const id = poolId(pair.base, pair.counter);
 
     const params = new URLSearchParams({
-      ...assetParams(pair.base, "base"),
-      ...assetParams(pair.counter, "counter"),
+      ...assetParams(pair.base, "selling"),
+      ...assetParams(pair.counter, "buying"),
       limit: "20",
     });
 
