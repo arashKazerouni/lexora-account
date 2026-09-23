@@ -39,6 +39,14 @@ function assetLabel(asset) {
   return asset.isNative() ? "XLM" : asset.getCode();
 }
 
+function horizonAssetKey(asset) {
+  return asset.isNative() ? "native" : asset.getCode() + ":" + asset.getIssuer();
+}
+
+function horizonAssetMatches(assetString, asset) {
+  return assetString === horizonAssetKey(asset);
+}
+
 function readXdrMember(object, ...names) {
   for (const name of names) {
     if (object == null) continue;
@@ -224,6 +232,94 @@ async function getPoolTrades(id) {
   };
 }
 
+async function getPoolTransactions(id) {
+  const result = await getJsonFromHorizon(
+    "/liquidity_pools/" + id + "/transactions?limit=200&order=asc",
+  );
+  return {
+    records: result.data?._embedded?.records ?? [],
+    source: result.baseUrl,
+  };
+}
+
+async function getTransactionOperations(hash) {
+  const result = await getJsonFromHorizon(
+    "/transactions/" + hash + "/operations?limit=200&order=asc",
+  );
+  return result.data?._embedded?.records ?? [];
+}
+
+function emptyReconciliation() {
+  return {
+    tradeCount: 0,
+    baseDelta: 0,
+    counterDelta: 0,
+    transactionCount: 0,
+    operationCount: 0,
+  };
+}
+
+function applyTradeOperation(reconciliation, operation, pair, poolIdValue) {
+  if (operation.type !== "liquidity_pool_trade") return false;
+  if (operation.liquidity_pool_id !== poolIdValue) return false;
+
+  const sold = Number(operation.sold_amount);
+  const bought = Number(operation.bought_amount);
+  if (!Number.isFinite(sold) || !Number.isFinite(bought)) return false;
+
+  if (horizonAssetMatches(operation.sold_asset, pair.base)) {
+    reconciliation.baseDelta += sold;
+  } else if (horizonAssetMatches(operation.sold_asset, pair.counter)) {
+    reconciliation.counterDelta += sold;
+  } else {
+    return false;
+  }
+
+  if (horizonAssetMatches(operation.bought_asset, pair.base)) {
+    reconciliation.baseDelta -= bought;
+  } else if (horizonAssetMatches(operation.bought_asset, pair.counter)) {
+    reconciliation.counterDelta -= bought;
+  } else {
+    return false;
+  }
+
+  reconciliation.tradeCount += 1;
+  return true;
+}
+
+async function reconcilePool(id, pair, initialBase, initialCounter) {
+  const result = await getPoolTransactions(id);
+  const reconciliation = emptyReconciliation();
+  const seenHashes = new Set();
+
+  for (const transaction of result.records) {
+    const hash = transaction.hash;
+    if (!hash || seenHashes.has(hash)) continue;
+    seenHashes.add(hash);
+    reconciliation.transactionCount += 1;
+
+    let operations;
+    try {
+      operations = await getTransactionOperations(hash);
+    } catch {
+      continue;
+    }
+
+    for (const operation of operations) {
+      if (applyTradeOperation(reconciliation, operation, pair, id)) {
+        reconciliation.operationCount += 1;
+      }
+    }
+  }
+
+  return {
+    ...reconciliation,
+    source: result.source,
+    expectedBase: initialBase + reconciliation.baseDelta,
+    expectedCounter: initialCounter + reconciliation.counterDelta,
+  };
+}
+
 async function main() {
   console.log("VANTA MAINNET MARKET FORENSICS");
   console.log("================================");
@@ -349,6 +445,69 @@ async function main() {
       console.log("  trades: UNAVAILABLE (" + (error.message || error) + ")");
     }
 
+    try {
+      const reconciliation = await reconcilePool(
+        id,
+        pair,
+        pair.initialBase,
+        pair.initialCounter,
+      );
+      const residualBase = baseReserve - reconciliation.expectedBase;
+      const residualCounter = counterReserve - reconciliation.expectedCounter;
+      const tolerance = 0.0000001;
+      const status =
+        Math.abs(residualBase) <= tolerance && Math.abs(residualCounter) <= tolerance
+          ? "PASS"
+          : "CHECK";
+
+      console.log("  RESERVE RECONCILIATION");
+      console.log("    transaction records scanned: " + reconciliation.transactionCount);
+      console.log("    liquidity_pool_trade operations: " + reconciliation.tradeCount);
+      console.log(
+        "    reconstructed delta: " +
+          formatNumber(reconciliation.baseDelta) +
+          " " +
+          assetLabel(pair.base) +
+          " / " +
+          formatNumber(reconciliation.counterDelta) +
+          " " +
+          assetLabel(pair.counter),
+      );
+      console.log(
+        "    expected after trades: " +
+          formatNumber(reconciliation.expectedBase) +
+          " " +
+          assetLabel(pair.base) +
+          " / " +
+          formatNumber(reconciliation.expectedCounter) +
+          " " +
+          assetLabel(pair.counter),
+      );
+      console.log(
+        "    RPC current: " +
+          formatNumber(baseReserve) +
+          " " +
+          assetLabel(pair.base) +
+          " / " +
+          formatNumber(counterReserve) +
+          " " +
+          assetLabel(pair.counter),
+      );
+      console.log(
+        "    residual: " +
+          formatNumber(residualBase) +
+          " " +
+          assetLabel(pair.base) +
+          " / " +
+          formatNumber(residualCounter) +
+          " " +
+          assetLabel(pair.counter),
+      );
+      console.log("    status: " + status);
+    } catch (error) {
+      console.log("  RESERVE RECONCILIATION: UNAVAILABLE (" + (error.message || error) + ")");
+    }
+
     console.log("");
   }
 
@@ -358,7 +517,7 @@ async function main() {
   console.log("  UNRECOGNIZED ACCOUNT only means the key was not found in the local known-account set.");
   console.log("  It does NOT establish that the account is independent, unrelated, or controlled by a third party.");
   console.log("  A KNOWN PROJECT ACCOUNT interaction is evidence of project-account activity.");
-  console.log("  Horizon pool operations expose actual deposited/withdrawn reserves; pool trades expose successful trades referencing the pool.");
+  console.log("  The reconciliation uses Horizon transaction operations to reconstruct pool-side trade deltas and compares them with current RPC reserves.");
   console.log("  Historical endpoints are used only for forensic enrichment; RPC remains the source of truth for current pool state.");
 }
 
