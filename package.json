@@ -28,7 +28,8 @@
     "vanta:liquidity:execute": "node execute-vanta-liquidity-mainnet.mjs",
     "vanta:liquidity:audit": "node audit-vanta-liquidity-mainnet.mjs",
     "vanta:market:audit": "node audit-vanta-market-mainnet.mjs",
-    "vanta:accounts:audit": "node audit-vanta-accounts-mainnet.mjs"
+    "vanta:accounts:audit": "node audit-vanta-accounts-mainnet.mjs",
+    "vanta:accounts:restore": "node scripts/restore-vanta-market-accounts.mjs"
   },
   "repository": {
     "type": "git",
