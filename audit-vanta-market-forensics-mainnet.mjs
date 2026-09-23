@@ -3,14 +3,12 @@ import { Server as RpcServer } from "@stellar/stellar-sdk/rpc";
 import fs from "node:fs/promises";
 
 const HORIZON_URL = process.env.HORIZON_URL || "https://horizon.stellar.org";
-const HORIZON_FALLBACK_URLS = [
-  HORIZON_URL,
-  "https://horizon.stellar.lobstr.co",
-].filter((url, index, urls) => urls.indexOf(url) === index);
+const HORIZON_FALLBACK_URLS = [HORIZON_URL, "https://horizon.stellar.lobstr.co"].filter(
+  (url, index, urls) => urls.indexOf(url) === index,
+);
 const RPC_URL = process.env.SOROBAN_RPC_URL || "https://mainnet.sorobanrpc.com";
 const SECRETS_PATH =
-  process.env.VANTA_MARKET_ACCOUNTS_PATH ||
-  ".secrets/vanta-market-accounts.json";
+  process.env.VANTA_MARKET_ACCOUNTS_PATH || ".secrets/vanta-market-accounts.json";
 
 const VANTA_ISSUER = "GABER3CCXQ44LCM5CBHKCPRNLMJFEKN2QKBQHQPJD6TFV3WXU63PKXRP";
 const FARM_ISSUER = "GBF7ZMNV4L2PFQRHJEMQLH7FEYMIP4ZSUKQ42ZOCYL5MI5P234C2NMNB";
@@ -137,62 +135,88 @@ function formatNumber(value, digits = 7) {
   });
 }
 
-async function getPoolTransactions(id) {
-  const result = await getJsonFromHorizon(
-    "/liquidity_pools/" + id + "/transactions?limit=200&order=asc",
+function classify(account, knownAccounts) {
+  return knownAccounts.has(account) ? "KNOWN PROJECT ACCOUNT" : "UNRECOGNIZED ACCOUNT";
+}
+
+function printOperation(operation, knownAccounts, pair) {
+  const source = operation.source_account;
+  console.log(
+    "  " +
+      operation.created_at +
+      " | ledger " +
+      operation.ledger +
+      " | " +
+      operation.transaction_hash,
   );
-  return { records: result.data?._embedded?.records ?? [], source: result.baseUrl };
-}
+  console.log("    source: " + source + " [" + classify(source, knownAccounts) + "]");
+  console.log("    operation: " + operation.type);
 
-async function getTransactionOperations(hash) {
-  const result = await getJsonFromHorizon(
-    "/transactions/" + hash + "/operations?limit=200",
-  );
-  return { records: result.data?._embedded?.records ?? [], source: result.baseUrl };
-}
-
-function operationSummary(operation, poolIdHex) {
-  if (operation.type === "liquidity_pool_deposit" || operation.type === "liquidity_pool_withdraw") {
-    return {
-      type: operation.type,
-      source: operation.source_account,
-      assets: [
-        [operation.asset_a, operation.amount_a],
-        [operation.asset_b, operation.amount_b],
-      ],
-    };
+  if (operation.type === "liquidity_pool_deposit") {
+    for (const item of operation.reserves_deposited ?? []) {
+      console.log("    deposited: " + item.amount + " " + item.asset);
+    }
+    console.log("    shares received: " + (operation.shares_received ?? "n/a"));
+  } else if (operation.type === "liquidity_pool_withdraw") {
+    for (const item of operation.reserves_received ?? []) {
+      console.log("    withdrawn: " + item.amount + " " + item.asset);
+    }
+    console.log("    shares burned: " + (operation.shares ?? "n/a"));
   }
 
-  if (
-    operation.type === "liquidity_pool_trade" &&
-    (!operation.liquidity_pool_id || operation.liquidity_pool_id === poolIdHex)
-  ) {
-    return {
-      type: operation.type,
-      source: operation.source_account,
-      sold: [operation.sold_asset, operation.sold_amount],
-      bought: [operation.bought_asset, operation.bought_amount],
-    };
-  }
-
-  return null;
-}
-
-function printEvent(event, knownAccounts, pair) {
-  const classification = knownAccounts.has(event.source)
-    ? "KNOWN PROJECT ACCOUNT"
-    : "UNRECOGNIZED ACCOUNT";
-
-  console.log("  " + event.created_at + " | ledger " + event.ledger + " | " + event.hash);
-  console.log("    source: " + event.source + " [" + classification + "]");
-  console.log("    operation: " + event.type);
-  if (event.sold) {
-    console.log("    sold: " + event.sold[1] + " " + event.sold[0]);
-    console.log("    bought: " + event.bought[1] + " " + event.bought[0]);
-  } else if (event.assets) {
-    for (const [asset, amount] of event.assets) console.log("    amount: " + amount + " " + asset);
-  }
   console.log("    pair: " + pair.name);
+}
+
+function printTrade(trade, knownAccounts, pair) {
+  const participants = [];
+  if (trade.base_account) participants.push(["base", trade.base_account]);
+  if (trade.counter_account) participants.push(["counter", trade.counter_account]);
+
+  console.log("  " + trade.ledger_close_time + " | trade " + trade.id);
+  console.log("    pair: " + pair.name);
+  for (const [role, account] of participants) {
+    console.log("    " + role + " account: " + account + " [" + classify(account, knownAccounts) + "]");
+  }
+  console.log(
+    "    base: " +
+      trade.base_amount +
+      " " +
+      (trade.base_asset_code || "XLM"),
+  );
+  console.log(
+    "    counter: " +
+      trade.counter_amount +
+      " " +
+      (trade.counter_asset_code || "XLM"),
+  );
+  console.log(
+    "    pool side: " +
+      (trade.base_liquidity_pool_id === trade.counter_liquidity_pool_id
+        ? "both"
+        : trade.base_liquidity_pool_id
+          ? "base"
+          : "counter"),
+  );
+}
+
+async function getPoolOperations(id) {
+  const result = await getJsonFromHorizon(
+    "/liquidity_pools/" + id + "/operations?limit=200&order=asc",
+  );
+  return {
+    records: result.data?._embedded?.records ?? [],
+    source: result.baseUrl,
+  };
+}
+
+async function getPoolTrades(id) {
+  const result = await getJsonFromHorizon(
+    "/liquidity_pools/" + id + "/trades?limit=200&order=asc",
+  );
+  return {
+    records: result.data?._embedded?.records ?? [],
+    source: result.baseUrl,
+  };
 }
 
 async function main() {
@@ -206,7 +230,9 @@ async function main() {
 
   const knownAccounts = await loadKnownAccounts();
   console.log("Known project account keys loaded: " + knownAccounts.size);
-  if (!knownAccounts.size) console.log("  WARNING: no known account keys loaded; classification is limited.");
+  if (!knownAccounts.size) {
+    console.log("  WARNING: no known account keys loaded; classification is limited.");
+  }
   console.log("");
 
   for (const pair of PAIRS) {
@@ -226,43 +252,98 @@ async function main() {
     console.log("  type: " + pool.type);
     console.log("  fee: " + pool.fee_bp + " bp");
     console.log("  total shares: " + formatNumber(pool.total_shares));
-    console.log("  current: " + formatNumber(baseReserve) + " " + assetLabel(pair.base) + " / " + formatNumber(counterReserve) + " " + assetLabel(pair.counter));
-    console.log("  initial: " + formatNumber(pair.initialBase) + " " + assetLabel(pair.base) + " / " + formatNumber(pair.initialCounter) + " " + assetLabel(pair.counter));
-    console.log("  delta: " + formatNumber(deltaBase) + " " + assetLabel(pair.base) + " (" + pct(deltaBase, pair.initialBase).toFixed(4) + "%), " + formatNumber(deltaCounter) + " " + assetLabel(pair.counter) + " (" + pct(deltaCounter, pair.initialCounter).toFixed(4) + "%)");
-    console.log("  spot now: 1 " + assetLabel(pair.base) + " = " + spot.toFixed(12) + " " + assetLabel(pair.counter));
-    console.log("  spot initial: 1 " + assetLabel(pair.base) + " = " + initialSpot.toFixed(12) + " " + assetLabel(pair.counter));
+    console.log(
+      "  current: " +
+        formatNumber(baseReserve) +
+        " " +
+        assetLabel(pair.base) +
+        " / " +
+        formatNumber(counterReserve) +
+        " " +
+        assetLabel(pair.counter),
+    );
+    console.log(
+      "  initial: " +
+        formatNumber(pair.initialBase) +
+        " " +
+        assetLabel(pair.base) +
+        " / " +
+        formatNumber(pair.initialCounter) +
+        " " +
+        assetLabel(pair.counter),
+    );
+    console.log(
+      "  delta: " +
+        formatNumber(deltaBase) +
+        " " +
+        assetLabel(pair.base) +
+        " (" +
+        pct(deltaBase, pair.initialBase).toFixed(4) +
+        "%), " +
+        formatNumber(deltaCounter) +
+        " " +
+        assetLabel(pair.counter) +
+        " (" +
+        pct(deltaCounter, pair.initialCounter).toFixed(4) +
+        "%)",
+    );
+    console.log(
+      "  spot now: 1 " +
+        assetLabel(pair.base) +
+        " = " +
+        spot.toFixed(12) +
+        " " +
+        assetLabel(pair.counter),
+    );
+    console.log(
+      "  spot initial: 1 " +
+        assetLabel(pair.base) +
+        " = " +
+        initialSpot.toFixed(12) +
+        " " +
+        assetLabel(pair.counter),
+    );
     console.log("  spot change: " + pct(spot - initialSpot, initialSpot).toFixed(4) + "%");
-    console.log("  K initial: " + initialK.toLocaleString("en-US", { maximumFractionDigits: 7 }));
-    console.log("  K current: " + currentK.toLocaleString("en-US", { maximumFractionDigits: 7 }));
+    console.log(
+      "  K initial: " +
+        initialK.toLocaleString("en-US", { maximumFractionDigits: 7 }),
+    );
+    console.log(
+      "  K current: " +
+        currentK.toLocaleString("en-US", { maximumFractionDigits: 7 }),
+    );
     console.log("  K change: " + pct(currentK - initialK, initialK).toFixed(6) + "%");
-    if (pool.last_modified_ledger !== null) console.log("  pool last modified ledger: " + pool.last_modified_ledger);
+    if (pool.last_modified_ledger !== null) {
+      console.log("  pool last modified ledger: " + pool.last_modified_ledger);
+    }
 
-    let events = [];
     try {
-      const txResult = await getPoolTransactions(id);
-      console.log("  history source: " + txResult.source);
-      console.log("  pool transactions returned: " + txResult.records.length);
-
-      for (const tx of txResult.records) {
-        try {
-          const opResult = await getTransactionOperations(tx.hash);
-          for (const operation of opResult.records) {
-            const summary = operationSummary(operation, id);
-            if (summary) {
-              events.push({ ...summary, hash: tx.hash, ledger: tx.ledger, created_at: tx.created_at });
-            }
-          }
-        } catch (error) {
-          console.log("  transaction operations unavailable for " + tx.hash + ": " + (error.message || error));
+      const operationResult = await getPoolOperations(id);
+      console.log("  operations source: " + operationResult.source);
+      console.log("  pool operations returned: " + operationResult.records.length);
+      for (const operation of operationResult.records) {
+        if (
+          operation.type === "liquidity_pool_deposit" ||
+          operation.type === "liquidity_pool_withdraw"
+        ) {
+          printOperation(operation, knownAccounts, pair);
         }
       }
     } catch (error) {
-      console.log("  history: UNAVAILABLE (" + (error.message || error) + ")");
+      console.log("  operations: UNAVAILABLE (" + (error.message || error) + ")");
     }
 
-    console.log("  relevant operations reconstructed: " + events.length);
-    for (const event of events) printEvent(event, knownAccounts, pair);
-    if (!events.length) console.log("  no reconstructable LP operations found in returned history.");
+    try {
+      const tradeResult = await getPoolTrades(id);
+      console.log("  trades source: " + tradeResult.source);
+      console.log("  pool trades returned: " + tradeResult.records.length);
+      for (const trade of tradeResult.records) {
+        printTrade(trade, knownAccounts, pair);
+      }
+    } catch (error) {
+      console.log("  trades: UNAVAILABLE (" + (error.message || error) + ")");
+    }
+
     console.log("");
   }
 
@@ -272,7 +353,8 @@ async function main() {
   console.log("  UNRECOGNIZED ACCOUNT only means the key was not found in the local known-account set.");
   console.log("  It does NOT establish that the account is independent, unrelated, or controlled by a third party.");
   console.log("  A KNOWN PROJECT ACCOUNT interaction is evidence of project-account activity.");
-  console.log("  Historical reserve deltas are reconstructed from returned Horizon history; unavailable history is reported explicitly.");
+  console.log("  Horizon pool operations expose actual deposited/withdrawn reserves; pool trades expose successful trades referencing the pool.");
+  console.log("  Historical endpoints are used only for forensic enrichment; RPC remains the source of truth for current pool state.");
 }
 
 main().catch((error) => {
