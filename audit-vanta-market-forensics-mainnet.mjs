@@ -141,11 +141,16 @@ function classify(account, knownAccounts) {
 
 function printOperation(operation, knownAccounts, pair) {
   const source = operation.source_account;
+  const ledger =
+    operation.ledger ??
+    operation.ledger_index ??
+    operation.ledger_attr ??
+    "n/a";
   console.log(
     "  " +
       operation.created_at +
       " | ledger " +
-      operation.ledger +
+      ledger +
       " | " +
       operation.transaction_hash,
   );
